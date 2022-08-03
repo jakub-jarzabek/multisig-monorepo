@@ -4,6 +4,7 @@ import {ConnectWindow} from '../components'
 export function Index() {
   return (
     <div className={styles.page}>
+      
       <ConnectWindow/>
     </div>
   );
