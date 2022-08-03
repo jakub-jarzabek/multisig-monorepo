@@ -7,7 +7,7 @@ interface CardProps {
 
 export const Card: React.FC<CardProps> = ({ children }) => {
   return (
-    <div className="w-full flex flex-row p-2 h-14 bg-slate-300 bg-opacity-50 rounded border border-slate-300 justify-between ">
+    <div className="w-full flex flex-row p-2 h-14 bg-purple-300 bg-opacity-50 rounded border border-slate-300 justify-between hover:shadow-lg transition-all duration-300">
       {children}
     </div>
   );
@@ -26,7 +26,7 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
   return (
     <Card>
       <>
-        <span>{hash}</span>
+        <span className='font-semibold leading-10'>{hash}</span>
         {!completed && (
           <div className="flex flex-row gap-6 items-center min-w-80">
             <Button primary label="Approve" onClick={handleApprove} />

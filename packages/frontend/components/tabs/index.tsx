@@ -6,9 +6,9 @@ interface TabsProps {
 }
 export const Tabs: React.FC<TabsProps> = ({ onChange,activeTab }) => {
   return (
-    <div className="shadow h-10 w-80 bg-slate-100 rounded relative ">
+    <div className="shadow h-10 w-80 bg-slate-100 rounded relative">
       <div
-        className={`rounded bg-purple-300 w-1/2 h-10 absolute ${
+        className={`rounded bg-purple-400 w-1/2 h-10 absolute ${
           activeTab == 0 ? 'left-0' : 'left-1/2'
         } transition-all`}
       />

@@ -17,7 +17,7 @@ const Dashboard = () => {
   }, [parent]);
   return (
     <div
-      className=" p-4 w-5/6   absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-3xl  bg-gradient-to-r from-purple-600 to-pink-200 bg-opacity bg-opacity-50 border-4 border-slate-300 backdrop-blur-md"
+      className=" p-4 w-5/6 min-h-9/10 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-3xl  bg-gradient-to-r from-purple-600 to-pink-200 bg-opacity bg-opacity-50 border-4 border-slate-300 backdrop-blur-md"
       style={{ opacity: 0.5 }}
     >
       {false ? (

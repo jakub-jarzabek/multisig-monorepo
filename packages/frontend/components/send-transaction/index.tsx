@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, Button, Input } from '..';
+import { toast } from 'react-toastify';
 import autoAnimate from '@formkit/auto-animate';
 
 export const SendTransaction = () => {
@@ -25,8 +26,8 @@ export const SendTransaction = () => {
 
   return (
     <div className="flex flex-col justify-center gap-10">
-      <div className="p-2 rounded bg-purple-300 border border-slate-300 shadow-2xl">
-        <h1 className="text-2xl font-semibold text-purple-600 mb-4">
+      <div className="p-2 rounded bg-purple-300 border border-slate-300 shadow-xl bg-opacity-60 hover:shadow-2xl duration-300 ">
+        <h1 className="text-2xl font-semibold text-white  mb-4">
           Change Required Confirmations
         </h1>
         <div className="flex flex-col mb-2">
@@ -42,10 +43,8 @@ export const SendTransaction = () => {
         <Button label="Confirm" onClick={handleChangeConfirmations} />
       </div>
 
-      <div className="p-2 rounded bg-purple-300 border border-slate-300 shadow-2xl">
-        <h1 className="text-2xl mb-4 font-semibold text-purple-600">
-          Send Tokens
-        </h1>
+      <div className="p-2 rounded bg-purple-300 border border-slate-300 shadow-xl bg-opacity-60 hover:shadow-2xl duration-300">
+        <h1 className="text-2xl mb-4 font-semibold text-white ">Send Tokens</h1>
         <div className="flex flex-col mb-2">
           <span className="text-sm text-purple-900 font-semibold">
             Amount to transfer
@@ -70,8 +69,8 @@ export const SendTransaction = () => {
         <Button label="Confirm" onClick={handleSendTokens} />
       </div>
 
-      <div className="rounded p-2 bg-purple-300 border border-slate-300 shadow-2xl">
-        <h1 className="text-2xl mb-4 font-semibold text-purple-600">
+      <div className="rounded p-2 bg-purple-300 border border-slate-300 shadow-xl bg-opacity-60 hover:shadow-2xl duration-300">
+        <h1 className="text-2xl mb-4 font-semibold text-white ">
           Manage Accounts
         </h1>
         <div className="flex flex-col mb-2">

@@ -10,7 +10,11 @@ module.exports = {
     ...createGlobPatternsForDependencies(__dirname),
   ],
   theme: {
-    extend: {},
+    extend: {
+      minHeight:{
+        '9/10':'90%'
+      }
+    },
   },
   plugins: [],
 };

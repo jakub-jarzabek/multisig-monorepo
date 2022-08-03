@@ -9,10 +9,24 @@ html {
   line-height: 1.5;
   tab-size: 4;
   scroll-behavior: smooth;
-  background-color:#e6D1F2
+  background-color: #e6d1f2;
 }
 body {
   font-family: inherit;
   line-height: inherit;
   margin: 0;
+}
+@layer components {
+  .glow-green {
+    text-shadow: 0 0 1px #fff, 0 0 2px #00FF00
+     
+  }
+
+  .glow-blue {
+    text-shadow: 0 0 1px #fff, 0 0 2px #0000FF 
+     
+  }
+}
+:root {
+  --toastify-color-light: !important;
 }
