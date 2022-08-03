@@ -7,20 +7,44 @@ import {
   AccountCreation,
 } from '../../components';
 import autoAnimate from '@formkit/auto-animate';
-
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  AppDispatch,
+  IConnectionSlice,
+  loadWalletData,
+  RootState,
+} from '../../redux';
+import { useRouter } from 'next/router';
+import { useWallet } from '@solana/wallet-adapter-react';
 const Dashboard = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { publicKey } = useWallet();
+  const router = useRouter();
+  useEffect(() => {
+    if (!publicKey) {
+      router.replace('/');
+    } else {
+      dispatch(loadWalletData());
+    }
+  }, [publicKey]);
+  const { provider, msig } = useSelector<RootState, IConnectionSlice>(
+    (state) => state.connection
+  );
   const parent = useRef(null);
   const [activeTab, setActiveTab] = useState(0);
+  useEffect(() => {
+    console.log(provider);
+  }, []);
 
   useEffect(() => {
     parent.current && autoAnimate(parent.current);
   }, [parent]);
   return (
     <div
-      className=" p-4 w-5/6 min-h-9/10 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-3xl  bg-gradient-to-r from-purple-600 to-pink-200 bg-opacity bg-opacity-50 border-4 border-slate-300 backdrop-blur-md"
+      className=" p-4 w-5/6 min-h-9/10 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-3xl  bg-gradient-to-r from-purple-500 to-purple-900 bg-opacity bg-opacity-50 border-4 border-slate-300 backdrop-blur-md"
       style={{ opacity: 0.5 }}
     >
-      {false ? (
+      {!msig ? (
         <AccountCreation />
       ) : (
         <>

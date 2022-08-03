@@ -29,7 +29,7 @@
     "appsDir": "packages",
     "libsDir": "packages"
   },
-  "defaultProject": "blockchain",
+  "defaultProject": "frontend",
   "generators": {
     "@nrwl/react": {
       "application": {

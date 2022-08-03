@@ -2,14 +2,20 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import '@solana/wallet-adapter-react-ui/styles.css';
 import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { useConnection, useWallet } from '@solana/wallet-adapter-react';
+import { useWallet } from '@solana/wallet-adapter-react';
+import { useDispatch } from 'react-redux';
+import { AppDispatch, Connection } from '../../redux';
 
 export const ConnectWindow = () => {
-  const { publicKey } = useWallet();
+  const dispatch = useDispatch<AppDispatch>();
+  const wallet = useWallet();
+  const { publicKey } = wallet;
   const router = useRouter();
 
   useEffect(() => {
+    console.log(publicKey);
     if (publicKey) {
+      dispatch(Connection.setProviderAndProgram({ wallet }));
       router.push('dashboard');
     }
   }, [publicKey]);

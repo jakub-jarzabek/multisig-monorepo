@@ -1,20 +1,21 @@
 {
+  "extends": "./tsconfig.settings.json",
   "compileOnSave": false,
   "compilerOptions": {
     "rootDir": ".",
-    "sourceMap": true,
-    "declaration": false,
-    "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "importHelpers": true,
-    "target": "es2015",
-    "module": "esnext",
-    "lib": ["es2017", "dom"],
-    "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
-    "baseUrl": ".",
-    "paths": {}
+    "declaration": true,
+    "noEmit": false,
+    "composite": true,
+    "incremental": true,
+    "disableSourceOfProjectReferenceRedirect": true
   },
+  "references": [
+    {
+      "path": "./packages/blockchain"
+    },
+    {
+      "path": "./packages/frontend"
+    }
+  ],
   "exclude": ["node_modules", "tmp"]
 }

@@ -6,7 +6,15 @@ import { Provider as ReduxProvider } from 'react-redux';
 import { store } from '../redux';
 import { clusterApiUrl } from '@solana/web3.js';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
+import {
+  GlowWalletAdapter,
+  LedgerWalletAdapter,
+  PhantomWalletAdapter,
+  SlopeWalletAdapter,
+  SolletExtensionWalletAdapter,
+  SolletWalletAdapter,
+  TorusWalletAdapter,
+} from '@solana/wallet-adapter-wallets';
 import {
   ConnectionProvider,
   WalletProvider,
@@ -18,7 +26,18 @@ import 'react-toastify/dist/ReactToastify.css';
 function CustomApp({ Component, pageProps }: AppProps) {
   const solNetwork = WalletAdapterNetwork.Devnet;
   const endpoint = useMemo(() => clusterApiUrl(solNetwork), [solNetwork]);
-  const wallets = useMemo(() => [new PhantomWalletAdapter()], [solNetwork]);
+  const wallets = useMemo(
+    () => [
+      new PhantomWalletAdapter(),
+      new GlowWalletAdapter(),
+      new SlopeWalletAdapter(),
+      new TorusWalletAdapter(),
+      new LedgerWalletAdapter(),
+      new SolletExtensionWalletAdapter(),
+      new SolletWalletAdapter(),
+    ],
+    [solNetwork]
+  );
   return (
     <>
       <Head>

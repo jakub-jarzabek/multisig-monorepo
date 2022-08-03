@@ -2,9 +2,21 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, Button, Input } from '..';
 import { toast } from 'react-toastify';
 import autoAnimate from '@formkit/auto-animate';
+import {
+  AppDispatch,
+  IConnectionSlice,
+  RootState,
+  setOwners,
+} from '../../redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { PublicKey } from '@solana/web3.js';
 
 export const SendTransaction = () => {
-  const [confirmations, setConfirmations] = useState<number>();
+  const dispatch = useDispatch<AppDispatch>();
+  const { msig, provider, program } = useSelector<RootState, IConnectionSlice>(
+    (state) => state.connection
+  );
+  const [confirmations, setConfirmations] = useState<number>(0);
   const [accounts, setAccounts] = useState<string[]>([]);
   const [amount, setAmount] = useState<number>(0);
   const [receiver, setReceiver] = useState<string>('');
@@ -17,7 +29,15 @@ export const SendTransaction = () => {
     setAccountInput('');
   };
   const handleChangeConfirmations = () => null;
-  const handleChangeAccounts = () => null;
+  const handleChangeAccounts = () => {
+    dispatch(
+      setOwners({
+        additionalAccounts: accounts.map((_) => new PublicKey(_)),
+        walletPublicKey: new PublicKey(msig),
+        signer: provider.wallet.publicKey,
+      })
+    );
+  };
   const handleSendTokens = () => null;
   const parent = useRef(null);
   useEffect(() => {
