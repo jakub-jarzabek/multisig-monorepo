@@ -15,18 +15,24 @@ export const Card: React.FC<CardProps> = ({ children }) => {
 
 interface TransactionCardProps {
   hash: string;
+  completed?: boolean;
 }
-export const TransactionCard: React.FC<TransactionCardProps> = ({ hash }) => {
+export const TransactionCard: React.FC<TransactionCardProps> = ({
+  hash,
+  completed,
+}) => {
   const handleCancel = () => null;
   const handleApprove = () => null;
   return (
     <Card>
       <>
         <span>{hash}</span>
-        <div className='flex flex-row gap-2 items-center'>
-        <Button primary label="Approve" onClick={handleApprove} />
-        <Button label="Cancel" onClick={handleCancel} />
-        </div>
+        {!completed && (
+          <div className="flex flex-row gap-2 items-center">
+            <Button primary label="Approve" onClick={handleApprove} />
+            <Button label="Cancel" onClick={handleCancel} />
+          </div>
+        )}
       </>
     </Card>
   );
