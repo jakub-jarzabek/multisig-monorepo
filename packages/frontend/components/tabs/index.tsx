@@ -11,15 +11,15 @@ export const Tabs: React.FC<TabsProps> = ({ onChange }) => {
     { label: 'Transactions', index: 1 },
   ];
   return (
-    <div className="bg slate-100 rounded relative ">
+    <div className="shadow h-10 w-80 bg-slate-100 rounded relative ">
       <div
-        className={`rouned bg-slate-300 ${
+        className={`rounded bg-purple-300 w-1/2 h-10 absolute ${
           tab == 0 ? 'left-0' : 'left-1/2'
         } transition-all`}
       />
-      <div className="w-1/2 h-full left-0 absolute z-20" onClick={()=>setTab(0)}>{tabs[0].label}</div>
+      <div className="cursor-pointer w-1/2 h-10 left-0 absolute z-20 text-center leading-10" onClick={()=>setTab(0)}>{tabs[0].label}</div>
 
-      <div className="w-1/2 h-full left-1/2 absolute z-20" onClick={()=>setTab(1)}>{tabs[1].label}</div>
+      <div className="cursor-pointer w-1/2 h-10 left-1/2 absolute z-20 text-center leading-10" onClick={()=>setTab(1)}>{tabs[1].label}</div>
     </div>
   );
 };
