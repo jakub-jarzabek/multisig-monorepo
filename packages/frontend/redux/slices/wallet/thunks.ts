@@ -1,22 +1,28 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { ReduxState } from '..';
 import { PublicKey } from '@solana/web3.js';
+import { ReduxState } from '..';
 
-interface IcreateWallet {
-  additionalAccounts?: PublicKey[];
-}
 export const loadWalletData = createAsyncThunk(
   'payload/loadWalletData',
-  async (args: IcreateWallet, thunkAPI) => {
+  async (args, thunkAPI) => {
     const state = thunkAPI.getState() as ReduxState;
+    let data;
+    let balance;
     try {
-      const data = await state.connection.program.account.wallet.fetch(
+      data = await state.connection.program.account.wallet.fetch(
         state.connection.msig
       );
       console.log(data);
     } catch (err) {
       console.log(err);
     }
-    return {};
+    try {
+      balance = await state.connection.web3.getBalance(
+        new PublicKey(state.connection.msig)
+      );
+    } catch (err) {
+      console.log(err);
+    }
+    return { accounts: data.owners, balance };
   }
 );

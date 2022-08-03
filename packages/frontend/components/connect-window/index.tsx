@@ -5,6 +5,7 @@ import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useDispatch } from 'react-redux';
 import { AppDispatch, Connection } from '../../redux';
+import { Storage } from '../../utils';
 
 export const ConnectWindow = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -13,9 +14,11 @@ export const ConnectWindow = () => {
   const router = useRouter();
 
   useEffect(() => {
-    console.log(publicKey);
     if (publicKey) {
       dispatch(Connection.setProviderAndProgram({ wallet }));
+      if (Storage.getItem('wallet')) {
+        dispatch(Connection.setWallet(Storage.getItem('wallet')));
+      }
       router.push('dashboard');
     }
   }, [publicKey]);

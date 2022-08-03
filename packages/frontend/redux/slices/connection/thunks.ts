@@ -2,6 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { IConnectionSlice } from '.';
 import { PublicKey } from '@solana/web3.js';
 import { web3, BN } from '@project-serum/anchor';
+import { Storage } from '../../../utils';
 
 interface IcreateWallet {
   additionalAccounts?: PublicKey[];
@@ -13,7 +14,7 @@ export const createWallet = createAsyncThunk(
     const state = thunkAPI.getState() as { connection: IConnectionSlice };
     const pK = state.connection.provider.publicKey as PublicKey;
     try {
-      const tx = await state.connection.program.rpc.createWallet(
+      await state.connection.program.rpc.createWallet(
         [pK, ...args.additionalAccounts],
         new BN(1),
         new BN(0),
@@ -28,11 +29,12 @@ export const createWallet = createAsyncThunk(
           signers: [baseAccount],
         }
       );
-      console.log({ tx: tx });
+      Storage.setItem('wallet', baseAccount.publicKey.toBase58());
+      return baseAccount.publicKey.toString();
     } catch (err) {
       console.log(err);
     }
-    return baseAccount.publicKey.toString();
+    return null;
   }
 );
 

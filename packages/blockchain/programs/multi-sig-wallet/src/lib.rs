@@ -14,7 +14,7 @@ pub use structs::*;
 pub use errors::ErrorCode;
 pub use utils::*;
 
-declare_id!("7LVNpeotp6jC3QNUG8XyMwWTMXJWqbU4o55Z3jEZexrk");
+declare_id!("yqiXBbHxd9bQJ6u2bqjLkLvGQG4H9Nmxwfcivv2BLg3");
 
 #[program]
 pub mod multi_sig_wallet {

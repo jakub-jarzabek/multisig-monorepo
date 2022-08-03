@@ -14,12 +14,14 @@ export interface IConnectionSlice {
   provider: AnchorProvider;
   program: Program<MultiSigWallet>;
   msig: string;
+  web3: Web3Connection;
 }
 
 const initialState: IConnectionSlice = {
   provider: null,
   msig: null,
   program: null,
+  web3: null,
 };
 interface IsetProviderPayload {
   wallet: WalletContextState;
@@ -33,6 +35,7 @@ const connectionSlice = createSlice({
         process.env.NEXT_PUBLIC_NETWORK,
         process.env.NEXT_PUBLIC_COMMITMENT as Commitment
       );
+      state.web3 = connection;
       state.provider = new AnchorProvider(
         connection,
         action.payload.wallet,
@@ -45,6 +48,9 @@ const connectionSlice = createSlice({
         state.provider
       ) as Program<MultiSigWallet>;
     },
+    setWallet(state, action: PayloadAction<string>) {
+      state.msig = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(createWallet.fulfilled, (state, action) => {
@@ -53,7 +59,7 @@ const connectionSlice = createSlice({
   },
 });
 
-const { setProviderAndProgram } = connectionSlice.actions;
-export const Connection = { setProviderAndProgram };
+const { setProviderAndProgram, setWallet } = connectionSlice.actions;
+export const Connection = { setProviderAndProgram, setWallet };
 export default connectionSlice.reducer;
 export * from './thunks';

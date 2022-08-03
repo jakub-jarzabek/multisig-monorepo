@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Card, Button, Input } from '..';
 import { toast } from 'react-toastify';
 import autoAnimate from '@formkit/auto-animate';
+import { cloneDeep } from 'lodash';
 import {
   AppDispatch,
   IConnectionSlice,
@@ -13,9 +14,11 @@ import { PublicKey } from '@solana/web3.js';
 
 export const SendTransaction = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { msig, provider, program } = useSelector<RootState, IConnectionSlice>(
-    (state) => state.connection
+  const { connection, wallet } = useSelector<RootState, IConnectionSlice>(
+    (state) => state
   );
+  const { msig, provider, program } = connection;
+  const { accounts: accs } = wallet;
   const [confirmations, setConfirmations] = useState<number>(0);
   const [accounts, setAccounts] = useState<string[]>([]);
   const [amount, setAmount] = useState<number>(0);
@@ -40,10 +43,18 @@ export const SendTransaction = () => {
   };
   const handleSendTokens = () => null;
   const parent = useRef(null);
+  // effects
+
   useEffect(() => {
     parent.current && autoAnimate(parent.current);
   }, [parent]);
 
+  useEffect(() => {
+    if (accs) {
+      console.log(accs);
+      setAccounts(cloneDeep(accs.map((_) => _.toString())));
+    }
+  }, [accs]);
   return (
     <div className="flex flex-col justify-center gap-10">
       <div className="p-2 rounded bg-purple-300 border border-slate-300 shadow-xl bg-opacity-60 hover:shadow-2xl duration-300 ">

@@ -1,12 +1,16 @@
+import { BN } from '@project-serum/anchor';
 import { createSlice } from '@reduxjs/toolkit';
 import { PublicKey } from '@solana/web3.js';
+import { loadWalletData } from './thunks';
 
 export interface IWalletSlice {
-  accounts: PublicKey[];
+  accounts: BN[];
+  balance: number;
 }
 
 const initialState: IWalletSlice = {
   accounts: null,
+  balance: null,
 };
 
 const walletSlice = createSlice({
@@ -14,7 +18,10 @@ const walletSlice = createSlice({
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    return null;
+    builder.addCase(loadWalletData.fulfilled, (state, action) => {
+      state.accounts = action.payload.accounts;
+      state.balance = action.payload.balance;
+    });
   },
 });
 

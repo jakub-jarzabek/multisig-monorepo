@@ -17,24 +17,24 @@ import {
 import { useRouter } from 'next/router';
 import { useWallet } from '@solana/wallet-adapter-react';
 const Dashboard = () => {
+  const { provider, msig } = useSelector<RootState, IConnectionSlice>(
+    (state) => state.connection
+  );
   const dispatch = useDispatch<AppDispatch>();
   const { publicKey } = useWallet();
   const router = useRouter();
   useEffect(() => {
     if (!publicKey) {
       router.replace('/');
-    } else {
-      dispatch(loadWalletData());
     }
   }, [publicKey]);
-  const { provider, msig } = useSelector<RootState, IConnectionSlice>(
-    (state) => state.connection
-  );
+  useEffect(() => {
+    if (msig) {
+      dispatch(loadWalletData());
+    }
+  }, [msig]);
   const parent = useRef(null);
   const [activeTab, setActiveTab] = useState(0);
-  useEffect(() => {
-    console.log(provider);
-  }, []);
 
   useEffect(() => {
     parent.current && autoAnimate(parent.current);
