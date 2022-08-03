@@ -20,23 +20,8 @@ export const SendTransaction = () => {
   const handleSendTokens = () => null;
   return (
     <div className="flex flex-col justify-center gap-10">
-      <div className="rounded bg-purple-300 border border-slate-300 shadow-2xl">
-        <h1 className="text-2xl font-semibold text-purple-600">
-          Deposit Informations
-        </h1>
-        <div className='flex flex-row'>
-          <span className="text-xl text-purple-600">Wallet Address:</span>
-          <span className="text-xl text-slate-300 ml-4">123</span>
-        </div>
 
-        <div className='flex flex-row'>
-          <span className="text-xl text-purple-600">Balance:</span>
-          <span className="text-xl text-slate-300 ml-4">123</span>
-        </div>
-        <Button label="Confirm" onClick={handleChangeConfirmations} />
-      </div>
-
-      <div className="rounded bg-purple-300 border border-slate-300 shadow-2xl">
+      <div className="p-2 rounded bg-purple-300 border border-slate-300 shadow-2xl">
         <h1 className="text-2xl font-semibold text-purple-600">
           Change Required Confirmations
         </h1>
@@ -48,7 +33,7 @@ export const SendTransaction = () => {
         <Button label="Confirm" onClick={handleChangeConfirmations} />
       </div>
 
-      <div className="rounded bg-purple-300 border border-slate-300 shadow-2xl">
+      <div className="p-2 rounded bg-purple-300 border border-slate-300 shadow-2xl">
         <h1 className="text-2xl font-semibold text-purple-600">Send Tokens</h1>
         <Input
           onChange={(e) => setAmount(Number(e))}
@@ -65,7 +50,7 @@ export const SendTransaction = () => {
 
       <div className="rounded bg-purple-300 border border-slate-300 shadow-2xl">
         <h1 className="text-2xl font-semibold text-purple-600">
-          Change Required Confirmations
+          Manage Accounts
         </h1>
         <Input
           onChange={(e) => setAccountInput(e)}
@@ -85,9 +70,8 @@ export const SendTransaction = () => {
               </>
             </Card>
           ))}
+        <Button label="Confirm Changes" onClick={handleChangeAccounts} />
       </div>
-
-      <Button label="Confirm Changes" onClick={handleChangeAccounts} />
     </div>
   );
 };

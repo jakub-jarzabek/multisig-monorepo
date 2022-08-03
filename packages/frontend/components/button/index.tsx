@@ -8,7 +8,7 @@ interface ButtonProps {
 }
 export const Button:React.FC<ButtonProps> = ({ primary, onClick, label }) => {
   return (
-    <div onClick={onClick} className={`rounded border-2 border-purple-600 ${primary?'bg-purple-600 text-white':'bg-white text-purple-600'}`}>
+    <div onClick={onClick} className={`px-4 py-1 w-fit rounded border-2 border-purple-600 ${primary?'bg-purple-600 text-white':'bg-white text-purple-600'}`}>
       {typeof label==='string'?label:<label/>}
     </div>
   );
