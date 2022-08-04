@@ -1,174 +1,102 @@
-// @ts-nocheck
-import * as anchor from '@project-serum/anchor'
-import { Program } from '@project-serum/anchor'
-import { MultiSigWallet } from '../target/types/multi_sig_wallet'
-import assert from 'assert'
+import { MultiSigWallet } from '@blockchain/target/types/multi_sig_wallet';
+import * as anchor from '@project-serum/anchor';
+import { Program } from '@project-serum/anchor';
+import { BN } from 'bn.js';
 
 describe('multi-sig-wallet', () => {
-    // Configure the client to use the local cluster.
-    anchor.setProvider(anchor.AnchorProvider.env())
+  // Configure the client to use the local cluster.
+  anchor.setProvider(anchor.AnchorProvider.env());
 
-    const program = anchor.workspace.MultiSigWallet as Program<MultiSigWallet>
+  const program = anchor.workspace.MultiSigWallet as Program<MultiSigWallet>;
+  console.log(program.programId);
 
-    it('Tests the multisig program', async () => {
-        const multisig = anchor.web3.Keypair.generate()
-        const [multisigSigner, nonce] =
-            await anchor.web3.PublicKey.findProgramAddress(
-                [multisig.publicKey.toBuffer()],
-                program.programId
-            )
-        const multisigSize = 200 // Big enough.
+  it('Tests the multisig program', async () => {
+    const wallet = anchor.web3.Keypair.generate();
+    const wallet2 = anchor.web3.Keypair.generate();
 
-        const ownerA = anchor.web3.Keypair.generate()
-        const ownerB = anchor.web3.Keypair.generate()
-        const ownerC = anchor.web3.Keypair.generate()
-        const ownerD = anchor.web3.Keypair.generate()
-        const owners = [ownerA.publicKey, ownerB.publicKey, ownerC.publicKey]
+    const [walletSigner, nonce] =
+      await anchor.web3.PublicKey.findProgramAddress(
+        [wallet.publicKey.toBuffer()],
+        program.programId
+      );
+    const [walletSigner2, nonce2] =
+      await anchor.web3.PublicKey.findProgramAddress(
+        [wallet.publicKey.toBuffer()],
+        program.programId
+      );
+    const multisigSize = 200; // Big enough.
 
-        const threshold = new anchor.BN(2)
-        await program.rpc.createWallet(owners, threshold, nonce, {
-            accounts: {
-                multisig: multisig.publicKey,
-            },
-            instructions: [
-                await program.account.wallet.createInstruction(
-                    multisig,
-                    multisigSize
-                ),
-            ],
-            signers: [multisig],
-        })
+    const ownerA = anchor.web3.Keypair.generate();
+    const ownerB = anchor.web3.Keypair.generate();
+    const ownerC = anchor.web3.Keypair.generate();
 
-        let multisigAccount = await program.account.wallet.fetch(
-            multisig.publicKey
-        )
-        assert.strictEqual(multisigAccount.nonce, nonce)
-        assert.ok(multisigAccount.threshold.eq(new anchor.BN(2)))
-        assert.deepStrictEqual(multisigAccount.owners, owners)
-        assert.ok(multisigAccount.ownerSetSeqno === 0)
+    const owners = [ownerA.publicKey];
+    const owners2 = [ownerC.publicKey];
 
-        const pid = program.programId
-        const accounts = [
-            {
-                pubkey: multisig.publicKey,
-                isWritable: true,
-                isSigner: false,
-            },
-            {
-                pubkey: multisigSigner,
-                isWritable: false,
-                isSigner: true,
-            },
-        ]
-        const newOwners = [ownerA.publicKey, ownerB.publicKey, ownerD.publicKey]
-        const data = program.coder.instruction.encode('set_owners', {
-            owners: newOwners,
-        })
+    const threshold = new anchor.BN(1);
+    await program.rpc.createWallet(owners, threshold, nonce, {
+      accounts: {
+        wallet: wallet.publicKey,
+      },
+      instructions: [
+        await program.account.wallet.createInstruction(wallet, multisigSize),
+      ],
+      signers: [wallet],
+    });
+    await program.rpc.createWallet(owners2, threshold, nonce2, {
+      accounts: {
+        wallet: wallet2.publicKey,
+      },
+      instructions: [
+        await program.account.wallet.createInstruction(wallet2, multisigSize),
+      ],
+      signers: [wallet2],
+    });
+    const connection = new anchor.web3.Connection(
+      'http://localhost:8899',
+      'processed'
+    );
+    await connection.requestAirdrop(wallet.publicKey, 1000000000);
+    await connection.requestAirdrop(wallet2.publicKey, 1000000000);
+    const balance = await connection.getBalance(wallet.publicKey);
+    const data = program.coder.instruction.encode('transfer_funds', {
+      amount: new BN(2),
+    });
+    const accounts = [
+      {
+        pubkey: wallet.publicKey,
+        isWritable: true,
+        isSigner: false,
+      },
+      {
+        pubkey: walletSigner,
+        isWritable: false,
+        isSigner: true,
+      },
+    ];
 
-        const transaction = anchor.web3.Keypair.generate()
-        const txSize = 1000 // Big enough, cuz I'm lazy.
-        await program.rpc.createTransaction(pid, accounts, data, {
-            accounts: {
-                multisig: multisig.publicKey,
-                transaction: transaction.publicKey,
-                proposer: ownerA.publicKey,
-            },
-            instructions: [
-                await program.account.wallet.createInstruction(
-                    transaction,
-                    txSize
-                ),
-            ],
-            signers: [transaction, ownerA],
-        })
-
-        const txAccount = await program.account.wallet.fetch(
-            transaction.publicKey
-        )
-
-        assert.ok(txAccount.programId.equals(pid))
-        assert.deepStrictEqual(txAccount.accounts, accounts)
-        assert.deepStrictEqual(txAccount.data, data)
-        assert.ok(txAccount.multisig.equals(multisig.publicKey))
-        assert.deepStrictEqual(txAccount.didExecute, false)
-        assert.ok(txAccount.ownerSetSeqno === 0)
-
-        // Other owner approves transactoin.
-        await program.rpc.approve({
-            accounts: {
-                multisig: multisig.publicKey,
-                transaction: transaction.publicKey,
-                owner: ownerB.publicKey,
-            },
-            signers: [ownerB],
-        })
-
-        // Now that we've reached the threshold, send the transactoin.
-        await program.rpc.executeTransaction({
-            accounts: {
-                multisig: multisig.publicKey,
-                multisigSigner,
-                transaction: transaction.publicKey,
-            },
-            remainingAccounts: program.instruction.setOwners
-                .accounts({
-                    multisig: multisig.publicKey,
-                    multisigSigner,
-                })
-                // Change the signer status on the vendor signer since it's signed by the program, not the client.
-                .map((meta) =>
-                    meta.pubkey.equals(multisigSigner)
-                        ? { ...meta, isSigner: false }
-                        : meta
-                )
-                .concat({
-                    pubkey: program.programId,
-                    isWritable: false,
-                    isSigner: false,
-                }),
-        })
-
-        multisigAccount = await program.account.wallet.fetch(multisig.publicKey)
-
-        assert.strictEqual(multisigAccount.nonce, nonce)
-        assert.ok(multisigAccount.threshold.eq(new anchor.BN(2)))
-        assert.deepStrictEqual(multisigAccount.owners, newOwners)
-        assert.ok(multisigAccount.ownerSetSeqno === 1)
-    })
-
-    it('Assert Unique Owners', async () => {
-        const multisig = anchor.web3.Keypair.generate()
-        const [_multisigSigner, nonce] =
-            await anchor.web3.PublicKey.findProgramAddress(
-                [multisig.publicKey.toBuffer()],
-                program.programId
-            )
-        const multisigSize = 200 // Big enough.
-
-        const ownerA = anchor.web3.Keypair.generate()
-        const ownerB = anchor.web3.Keypair.generate()
-        const owners = [ownerA.publicKey, ownerB.publicKey, ownerA.publicKey]
-
-        const threshold = new anchor.BN(2)
-        try {
-            await program.rpc.createWallet(owners, threshold, nonce, {
-                accounts: {
-                    multisig: multisig.publicKey,
-                    rent: anchor.web3.SYSVAR_RENT_PUBKEY,
-                },
-                instructions: [
-                    await program.account.wallet.createInstruction(
-                        multisig,
-                        multisigSize
-                    ),
-                ],
-                signers: [multisig],
-            })
-            assert.fail()
-        } catch (err) {
-            const error = err.error
-            assert.strictEqual(error.errorCode.number, 6008)
-            assert.strictEqual(error.errorMessage, 'Owners must be unique')
-        }
-    })
-})
+    const transaction = anchor.web3.Keypair.generate();
+    await program.rpc.createTransferTransaction(
+      program.programId,
+      accounts,
+      data,
+      new BN(2),
+      [],
+      new BN(0),
+      {
+        accounts: {
+          wallet: wallet.publicKey,
+          transaction: transaction.publicKey,
+          initiator: ownerA.publicKey,
+          to: ownerB.publicKey,
+          from: wallet.publicKey,
+          systemProgram: program.programId,
+        },
+        instructions: [
+          await program.account.wallet.createInstruction(transaction, 1000),
+        ],
+        signers: [transaction, ownerA],
+      }
+    );
+  });
+});

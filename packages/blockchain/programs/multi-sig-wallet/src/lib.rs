@@ -1,6 +1,11 @@
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::instruction::Instruction;
 use anchor_lang::solana_program;
+use anchor_lang::solana_program::{
+    account_info::{
+        next_account_info,AccountInfo
+    }
+};
 use std::convert::Into;
 use std::ops::Deref;
 use std::ops::Not;
@@ -77,6 +82,43 @@ pub mod multi_sig_wallet {
         Ok(())
     }
 
+pub fn create_transfer_transaction(
+        ctx: Context<CreateTransferTransaction>,
+        pid: Pubkey,
+        accs: Vec<TransactionAccount>,
+        data: Vec<u8>,
+        tx_type: u8,
+        tx_data: Vec<Pubkey>,
+        tx_value: u64,
+    ) -> Result<()> {
+        let owner_index = ctx
+            .accounts
+            .wallet
+            .owners
+            .iter()
+            .position(|a| a == ctx.accounts.initiator.key)
+            .ok_or(ErrorCode::UnauthorizedOwner)?;
+
+        let mut signers = Vec::new();
+        signers.resize(ctx.accounts.wallet.owners.len(), false);
+        signers[owner_index] = true;
+
+        let tx = &mut ctx.accounts.transaction;
+        tx.program_id = pid;
+        tx.accounts = accs;
+        tx.data = data;
+        tx.signers = signers;
+        tx.wallet = ctx.accounts.wallet.key();
+        tx.did_execute = false;
+        tx.deleted = false;
+        tx.owner_seq = ctx.accounts.wallet.owner_seq;
+        tx.tx_type = tx_type;
+        tx.tx_data = tx_data;
+        msg!("Creating Transfer");
+
+        Ok(())
+    }
+
     // Approves a transaction on behalf of an owner of the wallet.
     pub fn approve(ctx: Context<Approve>) -> Result<()> {
         let owner_index = ctx
@@ -149,16 +191,18 @@ pub mod multi_sig_wallet {
         Ok(())
     }
 
-//     pub fn transfer_funds(ctx:Context<Auth>, amount:u64,payer:Pubkey,receiver:Pubkey) -> Result<()> {
-//         let ix = anchor_lang::solana_program::system_instruction::transfer(
-//         &payer,
-//         &receiver,
-//         amount
-// );
-//     anchor_lang::solana_program::program::invoke(&ix,[payer.clone().to_account_info(),receiver.clone().to_account_info()]);
+    pub fn transfer_funds( ctx:Context<Transfer>,amount:u64) -> Result<()> {
+            msg!("Transfering Funds");
+    let amount_of_lamports = amount;
+        let from = ctx.accounts.from.to_account_info();
+        let to = ctx.accounts.to.to_account_info();
 
-//         Ok(())
-//     }
+      
+        **from.try_borrow_mut_lamports()? -= amount_of_lamports;
+        **to.try_borrow_mut_lamports()? += amount_of_lamports;
+
+        Ok(())
+    }
 
     // Executes the given transaction if threshold owners have signed it.
     pub fn execute_transaction(ctx: Context<ExecuteTransaction>) -> Result<()> {

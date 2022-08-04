@@ -16,12 +16,47 @@ pub struct CreateTransaction<'info> {
 }
 
 #[derive(Accounts)]
+pub struct CreateTransferTransaction<'info> {
+    pub wallet: Box<Account<'info, Wallet>>,
+    #[account(zero, signer)]
+    pub transaction: Box<Account<'info, Transaction>>,
+    pub initiator: Signer<'info>,
+    #[account(mut)]
+    /// CHECK: This is not dangerous because its just a stackoverflow sample o.O
+    pub from: AccountInfo<'info>,
+    #[account(mut)]
+    /// CHECK: This is not dangerous because we just pay to this account
+    pub to: AccountInfo<'info>,
+    #[account()]
+    pub system_program: Program<'info, System>,
+}
+
+#[derive(Accounts)]
 pub struct Approve<'info> {
     #[account(constraint = wallet.owner_seq == transaction.owner_seq)]
     pub wallet: Box<Account<'info, Wallet>>,
     #[account(mut, has_one = wallet)]
     pub transaction: Box<Account<'info, Transaction>>,
     pub owner: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct Transfer<'info> {
+    #[account(mut)]
+    /// CHECK: This is not dangerous because its just a stackoverflow sample o.O
+    pub from: AccountInfo<'info>,
+    #[account(mut)]
+    /// CHECK: This is not dangerous because we just pay to this account
+    pub to: AccountInfo<'info>,
+    #[account()]
+    pub system_program: Program<'info, System>,
+    #[account(mut)]
+    pub wallet: Box<Account<'info, Wallet>>,
+    #[account(
+        seeds = [wallet.key().as_ref()],
+        bump = wallet.nonce,
+    )]
+    pub wallet_signer: Signer<'info>,
 }
 
 #[derive(Accounts)]
@@ -49,6 +84,7 @@ pub struct ExecuteTransaction<'info> {
     pub transaction: Box<Account<'info, Transaction>>,
 }
 
+
 #[account]
 pub struct Wallet {
     pub owners: Vec<Pubkey>,
@@ -68,7 +104,7 @@ pub struct Transaction {
     pub owner_seq: u32,
     pub tx_type: u8,
     pub tx_data: Vec<Pubkey>,
-    pub tx_value: u8,
+    pub tx_value: u64,
     pub deleted: bool
 }
 

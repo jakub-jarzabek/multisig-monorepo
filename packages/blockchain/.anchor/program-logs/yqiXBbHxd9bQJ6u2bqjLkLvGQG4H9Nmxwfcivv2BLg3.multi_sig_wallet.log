@@ -1,0 +1,21 @@
+Streaming transaction logs mentioning yqiXBbHxd9bQJ6u2bqjLkLvGQG4H9Nmxwfcivv2BLg3. Confirmed commitment
+Transaction executed in slot 2:
+  Signature: 2bi4x3DxSyQtbPvRvLzFwPXz86rWncQ85KTPjc2vx8zVaBS5RoNBaAYNE2wdhZ28yFYb6gXnBU9YfUJqbEdgtJVY
+  Status: Ok
+  Log Messages:
+    Program 11111111111111111111111111111111 invoke [1]
+    Program 11111111111111111111111111111111 success
+    Program yqiXBbHxd9bQJ6u2bqjLkLvGQG4H9Nmxwfcivv2BLg3 invoke [1]
+    Program log: Instruction: CreateWallet
+    Program yqiXBbHxd9bQJ6u2bqjLkLvGQG4H9Nmxwfcivv2BLg3 consumed 3397 of 400000 compute units
+    Program yqiXBbHxd9bQJ6u2bqjLkLvGQG4H9Nmxwfcivv2BLg3 success
+Transaction executed in slot 3:
+  Signature: 2RndaMrdf7CJpMibGbW4UpKBwoQuC4UDHVhFV5ZUAtf8Sq1Wv4Pmz1km6qPMnFpx9RzW5ApWw4x95g6dwa97S5T6
+  Status: Ok
+  Log Messages:
+    Program 11111111111111111111111111111111 invoke [1]
+    Program 11111111111111111111111111111111 success
+    Program yqiXBbHxd9bQJ6u2bqjLkLvGQG4H9Nmxwfcivv2BLg3 invoke [1]
+    Program log: Instruction: CreateWallet
+    Program yqiXBbHxd9bQJ6u2bqjLkLvGQG4H9Nmxwfcivv2BLg3 consumed 3397 of 400000 compute units
+    Program yqiXBbHxd9bQJ6u2bqjLkLvGQG4H9Nmxwfcivv2BLg3 success
