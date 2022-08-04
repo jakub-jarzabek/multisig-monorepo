@@ -15,7 +15,6 @@ export interface IConnectionSlice {
   program: Program<MultiSigWallet>;
   msig: string;
   web3: Web3Connection;
-  signer: any;
 }
 
 const initialState: IConnectionSlice = {
@@ -23,7 +22,6 @@ const initialState: IConnectionSlice = {
   msig: null,
   program: null,
   web3: null,
-  signer: null,
 };
 interface IsetProviderPayload {
   wallet: WalletContextState;

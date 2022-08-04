@@ -1,687 +1,749 @@
 export type MultiSigWallet = {
-  "version": "0.1.0",
-  "name": "multi_sig_wallet",
-  "instructions": [
+  version: '0.1.0';
+  name: 'multi_sig_wallet';
+  instructions: [
     {
-      "name": "createWallet",
-      "accounts": [
+      name: 'createWallet';
+      accounts: [
         {
-          "name": "wallet",
-          "isMut": true,
-          "isSigner": true
+          name: 'wallet';
+          isMut: true;
+          isSigner: true;
         }
-      ],
-      "args": [
+      ];
+      args: [
         {
-          "name": "owners",
-          "type": {
-            "vec": "publicKey"
-          }
+          name: 'owners';
+          type: {
+            vec: 'publicKey';
+          };
         },
         {
-          "name": "threshold",
-          "type": "u64"
+          name: 'threshold';
+          type: 'u64';
         },
         {
-          "name": "nonce",
-          "type": "u8"
+          name: 'nonce';
+          type: 'u8';
         }
-      ]
+      ];
     },
     {
-      "name": "createTransaction",
-      "accounts": [
+      name: 'createTransaction';
+      accounts: [
         {
-          "name": "wallet",
-          "isMut": false,
-          "isSigner": false
+          name: 'wallet';
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "transaction",
-          "isMut": true,
-          "isSigner": true
+          name: 'transaction';
+          isMut: true;
+          isSigner: true;
         },
         {
-          "name": "initiator",
-          "isMut": false,
-          "isSigner": true
+          name: 'initiator';
+          isMut: false;
+          isSigner: true;
         }
-      ],
-      "args": [
+      ];
+      args: [
         {
-          "name": "pid",
-          "type": "publicKey"
+          name: 'pid';
+          type: 'publicKey';
         },
         {
-          "name": "accs",
-          "type": {
-            "vec": {
-              "defined": "TransactionAccount"
-            }
-          }
+          name: 'accs';
+          type: {
+            vec: {
+              defined: 'TransactionAccount';
+            };
+          };
         },
         {
-          "name": "data",
-          "type": "bytes"
+          name: 'data';
+          type: 'bytes';
+        },
+        {
+          name: 'txType';
+          type: 'u8';
+        },
+        {
+          name: 'txData';
+          type: {
+            vec: 'publicKey';
+          };
+        },
+        {
+          name: 'txValue';
+          type: 'u8';
         }
-      ]
+      ];
     },
     {
-      "name": "approve",
-      "accounts": [
+      name: 'approve';
+      accounts: [
         {
-          "name": "wallet",
-          "isMut": false,
-          "isSigner": false
+          name: 'wallet';
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "transaction",
-          "isMut": true,
-          "isSigner": false
+          name: 'transaction';
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "owner",
-          "isMut": false,
-          "isSigner": true
+          name: 'owner';
+          isMut: false;
+          isSigner: true;
         }
-      ],
-      "args": []
+      ];
+      args: [];
     },
     {
-      "name": "cancelApproval",
-      "accounts": [
+      name: 'cancelApproval';
+      accounts: [
         {
-          "name": "wallet",
-          "isMut": false,
-          "isSigner": false
+          name: 'wallet';
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "transaction",
-          "isMut": true,
-          "isSigner": false
+          name: 'transaction';
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "owner",
-          "isMut": false,
-          "isSigner": true
+          name: 'owner';
+          isMut: false;
+          isSigner: true;
         }
-      ],
-      "args": []
+      ];
+      args: [];
     },
     {
-      "name": "setOwnersAndChangeThreshold",
-      "accounts": [
+      name: 'deleteTransaction';
+      accounts: [
         {
-          "name": "wallet",
-          "isMut": true,
-          "isSigner": false
+          name: 'wallet';
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "walletSigner",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "owners",
-          "type": {
-            "vec": "publicKey"
-          }
+          name: 'transaction';
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "threshold",
-          "type": "u64"
+          name: 'owner';
+          isMut: false;
+          isSigner: true;
         }
-      ]
+      ];
+      args: [];
     },
     {
-      "name": "setOwners",
-      "accounts": [
+      name: 'setOwners';
+      accounts: [
         {
-          "name": "wallet",
-          "isMut": true,
-          "isSigner": false
+          name: 'wallet';
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "walletSigner",
-          "isMut": false,
-          "isSigner": true
+          name: 'walletSigner';
+          isMut: false;
+          isSigner: true;
         }
-      ],
-      "args": [
+      ];
+      args: [
         {
-          "name": "owners",
-          "type": {
-            "vec": "publicKey"
-          }
+          name: 'owners';
+          type: {
+            vec: 'publicKey';
+          };
         }
-      ]
+      ];
     },
     {
-      "name": "changeThreshold",
-      "accounts": [
+      name: 'changeThreshold';
+      accounts: [
         {
-          "name": "wallet",
-          "isMut": true,
-          "isSigner": false
+          name: 'wallet';
+          isMut: true;
+          isSigner: false;
         },
         {
-          "name": "walletSigner",
-          "isMut": false,
-          "isSigner": true
+          name: 'walletSigner';
+          isMut: false;
+          isSigner: true;
         }
-      ],
-      "args": [
+      ];
+      args: [
         {
-          "name": "threshold",
-          "type": "u64"
+          name: 'threshold';
+          type: 'u64';
         }
-      ]
+      ];
     },
     {
-      "name": "executeTransaction",
-      "accounts": [
+      name: 'executeTransaction';
+      accounts: [
         {
-          "name": "wallet",
-          "isMut": false,
-          "isSigner": false
+          name: 'wallet';
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "walletSigner",
-          "isMut": false,
-          "isSigner": false
+          name: 'walletSigner';
+          isMut: false;
+          isSigner: false;
         },
         {
-          "name": "transaction",
-          "isMut": true,
-          "isSigner": false
+          name: 'transaction';
+          isMut: true;
+          isSigner: false;
         }
-      ],
-      "args": []
+      ];
+      args: [];
     }
-  ],
-  "accounts": [
+  ];
+  accounts: [
     {
-      "name": "wallet",
-      "type": {
-        "kind": "struct",
-        "fields": [
+      name: 'wallet';
+      type: {
+        kind: 'struct';
+        fields: [
           {
-            "name": "owners",
-            "type": {
-              "vec": "publicKey"
-            }
+            name: 'owners';
+            type: {
+              vec: 'publicKey';
+            };
           },
           {
-            "name": "threshold",
-            "type": "u64"
+            name: 'threshold';
+            type: 'u64';
           },
           {
-            "name": "nonce",
-            "type": "u8"
+            name: 'nonce';
+            type: 'u8';
           },
           {
-            "name": "ownerSeq",
-            "type": "u32"
+            name: 'ownerSeq';
+            type: 'u32';
           }
-        ]
-      }
+        ];
+      };
     },
     {
-      "name": "transaction",
-      "type": {
-        "kind": "struct",
-        "fields": [
+      name: 'transaction';
+      type: {
+        kind: 'struct';
+        fields: [
           {
-            "name": "wallet",
-            "type": "publicKey"
+            name: 'wallet';
+            type: 'publicKey';
           },
           {
-            "name": "programId",
-            "type": "publicKey"
+            name: 'programId';
+            type: 'publicKey';
           },
           {
-            "name": "accounts",
-            "type": {
-              "vec": {
-                "defined": "TransactionAccount"
-              }
-            }
+            name: 'accounts';
+            type: {
+              vec: {
+                defined: 'TransactionAccount';
+              };
+            };
           },
           {
-            "name": "data",
-            "type": "bytes"
+            name: 'data';
+            type: 'bytes';
           },
           {
-            "name": "signers",
-            "type": {
-              "vec": "bool"
-            }
+            name: 'signers';
+            type: {
+              vec: 'bool';
+            };
           },
           {
-            "name": "didExecute",
-            "type": "bool"
+            name: 'didExecute';
+            type: 'bool';
           },
           {
-            "name": "ownerSeq",
-            "type": "u32"
+            name: 'ownerSeq';
+            type: 'u32';
+          },
+          {
+            name: 'txType';
+            type: 'u8';
+          },
+          {
+            name: 'txData';
+            type: {
+              vec: 'publicKey';
+            };
+          },
+          {
+            name: 'txValue';
+            type: 'u8';
+          },
+          {
+            name: 'deleted';
+            type: 'bool';
           }
-        ]
-      }
+        ];
+      };
     }
-  ],
-  "types": [
+  ];
+  types: [
     {
-      "name": "TransactionAccount",
-      "type": {
-        "kind": "struct",
-        "fields": [
+      name: 'TransactionAccount';
+      type: {
+        kind: 'struct';
+        fields: [
           {
-            "name": "pubkey",
-            "type": "publicKey"
+            name: 'pubkey';
+            type: 'publicKey';
           },
           {
-            "name": "isSigner",
-            "type": "bool"
+            name: 'isSigner';
+            type: 'bool';
           },
           {
-            "name": "isWritable",
-            "type": "bool"
+            name: 'isWritable';
+            type: 'bool';
           }
-        ]
-      }
+        ];
+      };
     }
-  ],
-  "errors": [
+  ];
+  errors: [
     {
-      "code": 6000,
-      "name": "UnauthorizedOwner",
-      "msg": "Owner is unauthorized for this wallet"
+      code: 6000;
+      name: 'UnauthorizedOwner';
+      msg: 'Owner is unauthorized for this wallet';
     },
     {
-      "code": 6001,
-      "name": "NotUniqueOwners",
-      "msg": "Owners must be unique"
+      code: 6001;
+      name: 'NotUniqueOwners';
+      msg: 'Owners must be unique';
     },
     {
-      "code": 6002,
-      "name": "ForbiddenLength",
-      "msg": "Owners array cannot be empty"
+      code: 6002;
+      name: 'ForbiddenLength';
+      msg: 'Owners array cannot be empty';
     },
     {
-      "code": 6003,
-      "name": "NotEnoughSigners",
-      "msg": "Not enoguh signers"
+      code: 6003;
+      name: 'NotEnoughSigners';
+      msg: 'Not enoguh signers';
     },
     {
-      "code": 6004,
-      "name": "TransactionAlreadySigned",
-      "msg": "Cannot delete transaction signed by an owner"
+      code: 6004;
+      name: 'TransactionAlreadySigned';
+      msg: 'Cannot delete transaction signed by an owner';
     },
     {
-      "code": 6005,
-      "name": "Overflow",
-      "msg": "Overflow when adding."
+      code: 6005;
+      name: 'Overflow';
+      msg: 'Overflow when adding.';
     },
     {
-      "code": 6006,
-      "name": "DeleteForbidden",
-      "msg": "Cannot delete transaction not created by current user"
+      code: 6006;
+      name: 'DeleteForbidden';
+      msg: 'Cannot delete transaction not created by current user';
     },
     {
-      "code": 6007,
-      "name": "AlreadyExecuted",
-      "msg": "Transaction already Executed"
+      code: 6007;
+      name: 'AlreadyExecuted';
+      msg: 'Transaction already Executed';
     },
     {
-      "code": 6008,
-      "name": "InvalidThreshold",
-      "msg": "Threshold must be grater than zero and less than or equal to the number of owners."
+      code: 6008;
+      name: 'InvalidThreshold';
+      msg: 'Threshold must be grater than zero and less than or equal to the number of owners.';
+    },
+    {
+      code: 6009;
+      name: 'CannotDelete';
+      msg: 'Transaction cannot be deleted';
     }
-  ]
+  ];
 };
 
 export const IDL: MultiSigWallet = {
-  "version": "0.1.0",
-  "name": "multi_sig_wallet",
-  "instructions": [
+  version: '0.1.0',
+  name: 'multi_sig_wallet',
+  instructions: [
     {
-      "name": "createWallet",
-      "accounts": [
+      name: 'createWallet',
+      accounts: [
         {
-          "name": "wallet",
-          "isMut": true,
-          "isSigner": true
-        }
+          name: 'wallet',
+          isMut: true,
+          isSigner: true,
+        },
       ],
-      "args": [
+      args: [
         {
-          "name": "owners",
-          "type": {
-            "vec": "publicKey"
-          }
+          name: 'owners',
+          type: {
+            vec: 'publicKey',
+          },
         },
         {
-          "name": "threshold",
-          "type": "u64"
+          name: 'threshold',
+          type: 'u64',
         },
         {
-          "name": "nonce",
-          "type": "u8"
-        }
-      ]
+          name: 'nonce',
+          type: 'u8',
+        },
+      ],
     },
     {
-      "name": "createTransaction",
-      "accounts": [
+      name: 'createTransaction',
+      accounts: [
         {
-          "name": "wallet",
-          "isMut": false,
-          "isSigner": false
+          name: 'wallet',
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "transaction",
-          "isMut": true,
-          "isSigner": true
+          name: 'transaction',
+          isMut: true,
+          isSigner: true,
         },
         {
-          "name": "initiator",
-          "isMut": false,
-          "isSigner": true
-        }
+          name: 'initiator',
+          isMut: false,
+          isSigner: true,
+        },
       ],
-      "args": [
+      args: [
         {
-          "name": "pid",
-          "type": "publicKey"
+          name: 'pid',
+          type: 'publicKey',
         },
         {
-          "name": "accs",
-          "type": {
-            "vec": {
-              "defined": "TransactionAccount"
-            }
-          }
+          name: 'accs',
+          type: {
+            vec: {
+              defined: 'TransactionAccount',
+            },
+          },
         },
         {
-          "name": "data",
-          "type": "bytes"
-        }
-      ]
+          name: 'data',
+          type: 'bytes',
+        },
+        {
+          name: 'txType',
+          type: 'u8',
+        },
+        {
+          name: 'txData',
+          type: {
+            vec: 'publicKey',
+          },
+        },
+        {
+          name: 'txValue',
+          type: 'u8',
+        },
+      ],
     },
     {
-      "name": "approve",
-      "accounts": [
+      name: 'approve',
+      accounts: [
         {
-          "name": "wallet",
-          "isMut": false,
-          "isSigner": false
+          name: 'wallet',
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "transaction",
-          "isMut": true,
-          "isSigner": false
+          name: 'transaction',
+          isMut: true,
+          isSigner: false,
         },
         {
-          "name": "owner",
-          "isMut": false,
-          "isSigner": true
-        }
+          name: 'owner',
+          isMut: false,
+          isSigner: true,
+        },
       ],
-      "args": []
+      args: [],
     },
     {
-      "name": "cancelApproval",
-      "accounts": [
+      name: 'cancelApproval',
+      accounts: [
         {
-          "name": "wallet",
-          "isMut": false,
-          "isSigner": false
+          name: 'wallet',
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "transaction",
-          "isMut": true,
-          "isSigner": false
+          name: 'transaction',
+          isMut: true,
+          isSigner: false,
         },
         {
-          "name": "owner",
-          "isMut": false,
-          "isSigner": true
-        }
+          name: 'owner',
+          isMut: false,
+          isSigner: true,
+        },
       ],
-      "args": []
+      args: [],
     },
     {
-      "name": "setOwnersAndChangeThreshold",
-      "accounts": [
+      name: 'deleteTransaction',
+      accounts: [
         {
-          "name": "wallet",
-          "isMut": true,
-          "isSigner": false
+          name: 'wallet',
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "walletSigner",
-          "isMut": false,
-          "isSigner": true
-        }
+          name: 'transaction',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'owner',
+          isMut: false,
+          isSigner: true,
+        },
       ],
-      "args": [
-        {
-          "name": "owners",
-          "type": {
-            "vec": "publicKey"
-          }
-        },
-        {
-          "name": "threshold",
-          "type": "u64"
-        }
-      ]
+      args: [],
     },
     {
-      "name": "setOwners",
-      "accounts": [
+      name: 'setOwners',
+      accounts: [
         {
-          "name": "wallet",
-          "isMut": true,
-          "isSigner": false
+          name: 'wallet',
+          isMut: true,
+          isSigner: false,
         },
         {
-          "name": "walletSigner",
-          "isMut": false,
-          "isSigner": true
-        }
+          name: 'walletSigner',
+          isMut: false,
+          isSigner: true,
+        },
       ],
-      "args": [
+      args: [
         {
-          "name": "owners",
-          "type": {
-            "vec": "publicKey"
-          }
-        }
-      ]
+          name: 'owners',
+          type: {
+            vec: 'publicKey',
+          },
+        },
+      ],
     },
     {
-      "name": "changeThreshold",
-      "accounts": [
+      name: 'changeThreshold',
+      accounts: [
         {
-          "name": "wallet",
-          "isMut": true,
-          "isSigner": false
+          name: 'wallet',
+          isMut: true,
+          isSigner: false,
         },
         {
-          "name": "walletSigner",
-          "isMut": false,
-          "isSigner": true
-        }
+          name: 'walletSigner',
+          isMut: false,
+          isSigner: true,
+        },
       ],
-      "args": [
+      args: [
         {
-          "name": "threshold",
-          "type": "u64"
-        }
-      ]
+          name: 'threshold',
+          type: 'u64',
+        },
+      ],
     },
     {
-      "name": "executeTransaction",
-      "accounts": [
+      name: 'executeTransaction',
+      accounts: [
         {
-          "name": "wallet",
-          "isMut": false,
-          "isSigner": false
+          name: 'wallet',
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "walletSigner",
-          "isMut": false,
-          "isSigner": false
+          name: 'walletSigner',
+          isMut: false,
+          isSigner: false,
         },
         {
-          "name": "transaction",
-          "isMut": true,
-          "isSigner": false
-        }
+          name: 'transaction',
+          isMut: true,
+          isSigner: false,
+        },
       ],
-      "args": []
-    }
+      args: [],
+    },
   ],
-  "accounts": [
+  accounts: [
     {
-      "name": "wallet",
-      "type": {
-        "kind": "struct",
-        "fields": [
+      name: 'wallet',
+      type: {
+        kind: 'struct',
+        fields: [
           {
-            "name": "owners",
-            "type": {
-              "vec": "publicKey"
-            }
+            name: 'owners',
+            type: {
+              vec: 'publicKey',
+            },
           },
           {
-            "name": "threshold",
-            "type": "u64"
+            name: 'threshold',
+            type: 'u64',
           },
           {
-            "name": "nonce",
-            "type": "u8"
+            name: 'nonce',
+            type: 'u8',
           },
           {
-            "name": "ownerSeq",
-            "type": "u32"
-          }
-        ]
-      }
+            name: 'ownerSeq',
+            type: 'u32',
+          },
+        ],
+      },
     },
     {
-      "name": "transaction",
-      "type": {
-        "kind": "struct",
-        "fields": [
+      name: 'transaction',
+      type: {
+        kind: 'struct',
+        fields: [
           {
-            "name": "wallet",
-            "type": "publicKey"
+            name: 'wallet',
+            type: 'publicKey',
           },
           {
-            "name": "programId",
-            "type": "publicKey"
+            name: 'programId',
+            type: 'publicKey',
           },
           {
-            "name": "accounts",
-            "type": {
-              "vec": {
-                "defined": "TransactionAccount"
-              }
-            }
+            name: 'accounts',
+            type: {
+              vec: {
+                defined: 'TransactionAccount',
+              },
+            },
           },
           {
-            "name": "data",
-            "type": "bytes"
+            name: 'data',
+            type: 'bytes',
           },
           {
-            "name": "signers",
-            "type": {
-              "vec": "bool"
-            }
+            name: 'signers',
+            type: {
+              vec: 'bool',
+            },
           },
           {
-            "name": "didExecute",
-            "type": "bool"
+            name: 'didExecute',
+            type: 'bool',
           },
           {
-            "name": "ownerSeq",
-            "type": "u32"
-          }
-        ]
-      }
-    }
+            name: 'ownerSeq',
+            type: 'u32',
+          },
+          {
+            name: 'txType',
+            type: 'u8',
+          },
+          {
+            name: 'txData',
+            type: {
+              vec: 'publicKey',
+            },
+          },
+          {
+            name: 'txValue',
+            type: 'u8',
+          },
+          {
+            name: 'deleted',
+            type: 'bool',
+          },
+        ],
+      },
+    },
   ],
-  "types": [
+  types: [
     {
-      "name": "TransactionAccount",
-      "type": {
-        "kind": "struct",
-        "fields": [
+      name: 'TransactionAccount',
+      type: {
+        kind: 'struct',
+        fields: [
           {
-            "name": "pubkey",
-            "type": "publicKey"
+            name: 'pubkey',
+            type: 'publicKey',
           },
           {
-            "name": "isSigner",
-            "type": "bool"
+            name: 'isSigner',
+            type: 'bool',
           },
           {
-            "name": "isWritable",
-            "type": "bool"
-          }
-        ]
-      }
-    }
+            name: 'isWritable',
+            type: 'bool',
+          },
+        ],
+      },
+    },
   ],
-  "errors": [
+  errors: [
     {
-      "code": 6000,
-      "name": "UnauthorizedOwner",
-      "msg": "Owner is unauthorized for this wallet"
+      code: 6000,
+      name: 'UnauthorizedOwner',
+      msg: 'Owner is unauthorized for this wallet',
     },
     {
-      "code": 6001,
-      "name": "NotUniqueOwners",
-      "msg": "Owners must be unique"
+      code: 6001,
+      name: 'NotUniqueOwners',
+      msg: 'Owners must be unique',
     },
     {
-      "code": 6002,
-      "name": "ForbiddenLength",
-      "msg": "Owners array cannot be empty"
+      code: 6002,
+      name: 'ForbiddenLength',
+      msg: 'Owners array cannot be empty',
     },
     {
-      "code": 6003,
-      "name": "NotEnoughSigners",
-      "msg": "Not enoguh signers"
+      code: 6003,
+      name: 'NotEnoughSigners',
+      msg: 'Not enoguh signers',
     },
     {
-      "code": 6004,
-      "name": "TransactionAlreadySigned",
-      "msg": "Cannot delete transaction signed by an owner"
+      code: 6004,
+      name: 'TransactionAlreadySigned',
+      msg: 'Cannot delete transaction signed by an owner',
     },
     {
-      "code": 6005,
-      "name": "Overflow",
-      "msg": "Overflow when adding."
+      code: 6005,
+      name: 'Overflow',
+      msg: 'Overflow when adding.',
     },
     {
-      "code": 6006,
-      "name": "DeleteForbidden",
-      "msg": "Cannot delete transaction not created by current user"
+      code: 6006,
+      name: 'DeleteForbidden',
+      msg: 'Cannot delete transaction not created by current user',
     },
     {
-      "code": 6007,
-      "name": "AlreadyExecuted",
-      "msg": "Transaction already Executed"
+      code: 6007,
+      name: 'AlreadyExecuted',
+      msg: 'Transaction already Executed',
     },
     {
-      "code": 6008,
-      "name": "InvalidThreshold",
-      "msg": "Threshold must be grater than zero and less than or equal to the number of owners."
-    }
-  ]
+      code: 6008,
+      name: 'InvalidThreshold',
+      msg: 'Threshold must be grater than zero and less than or equal to the number of owners.',
+    },
+    {
+      code: 6009,
+      name: 'CannotDelete',
+      msg: 'Transaction cannot be deleted',
+    },
+  ],
 };

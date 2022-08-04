@@ -6,7 +6,9 @@ import {
   AppDispatch,
   approveTransaction,
   cancelTransactionApproval,
+  deleteTransaction,
   executeTransaction,
+  loadWalletData,
   ReduxState,
   RootState,
 } from '../../redux';
@@ -38,22 +40,36 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     (state) => state
   );
   const { threshold } = wallet;
-  const handleCancel = () =>
+  const handleCancel = () => {
     dispatch(
       cancelTransactionApproval({ transactionPublicKey: transaction.publicKey })
     );
-  const handleDelete = () => null;
-  const handleExecute = () =>
+    dispatch(loadWalletData());
+  };
+
+  const handleDelete = () => {
+    dispatch(
+      deleteTransaction({ transactionPublicKey: transaction.publicKey })
+    );
+    dispatch(loadWalletData());
+  };
+  const handleExecute = () => {
     dispatch(
       executeTransaction({
         transactionPublicKey: transaction.publicKey,
         type: 'set_threshold',
       })
     );
-  const handleApprove = () =>
+
+    dispatch(loadWalletData());
+  };
+  const handleApprove = () => {
     dispatch(
       approveTransaction({ transactionPublicKey: transaction.publicKey })
     );
+
+    dispatch(loadWalletData());
+  };
   const countSigners = () => {
     let count = 0;
     transaction.account.signers.forEach((signer) => {

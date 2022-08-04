@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { IConnectionSlice } from '.';
-import { PublicKey } from '@solana/web3.js';
+import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
 import { web3, BN } from '@project-serum/anchor';
 import { Storage } from '../../../utils';
 import { ReduxState } from '..';
@@ -110,6 +110,9 @@ export const setOwners = createAsyncThunk(
         state.connection.program.programId,
         accounts,
         data,
+        new BN(0),
+        newOwners,
+        new BN(0),
         {
           accounts: {
             wallet: new PublicKey(state.connection.msig),
@@ -164,6 +167,81 @@ export const setTreshold = createAsyncThunk(
         state.connection.program.programId,
         accounts,
         data,
+        [],
+        new BN(1),
+        args.threshold,
+        {
+          accounts: {
+            wallet: new PublicKey(state.connection.msig),
+            transaction: transaction.publicKey,
+            initiator: state.connection.provider.wallet.publicKey,
+          },
+          instructions: [
+            await state.connection.program.account.wallet.createInstruction(
+              transaction,
+              1000
+            ),
+          ],
+          signers: [transaction],
+        }
+      );
+      console.log({ tx: tx });
+    } catch (err) {
+      console.log(err);
+    }
+  }
+);
+
+interface ITransfer {
+  to: PublicKey;
+}
+
+export const transfer = createAsyncThunk(
+  'payload/transfer',
+  async (args: ITransfer, thunkAPI) => {
+    console.log({ args: args });
+    const state = thunkAPI.getState() as { connection: IConnectionSlice };
+    const [walletSigner] = await web3.PublicKey.findProgramAddress(
+      [new PublicKey(state.connection.msig).toBuffer()],
+      state.connection.program.programId
+    );
+    let data;
+    // try {
+    //   data = state.connection.program.coder.instruction.encode(
+    //     'transfer_funds',
+    //     {
+    //       amount: new BN(10000),
+    //       payer: new PublicKey(state.connection.msig),
+    //       payee: args.to,
+    //     }
+    //   );
+    // } catch (err) {
+    //   console.log(err);
+    // }
+    const instruction = SystemProgram.transfer({
+      fromPubkey: new PublicKey(state.connection.msig),
+      toPubkey: args.to,
+      lamports: 1000,
+    });
+    const tr = new Transaction();
+    tr.add(instruction);
+    const accounts = [
+      {
+        pubkey: new PublicKey(state.connection.msig),
+        isWritable: true,
+        isSigner: false,
+      },
+      {
+        pubkey: walletSigner,
+        isWritable: false,
+        isSigner: true,
+      },
+    ];
+    const transaction = web3.Keypair.generate();
+    try {
+      const tx = await state.connection.program.rpc.createTransaction(
+        state.connection.program.programId,
+        accounts,
         {
           accounts: {
             wallet: new PublicKey(state.connection.msig),

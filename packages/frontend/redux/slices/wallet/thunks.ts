@@ -45,10 +45,17 @@ export const loadTransactions = createAsyncThunk(
       console.log(myTransactions);
       return {
         peding: myTransactions.filter(
-          (transaction) => transaction.account.didExecute === false
+          (transaction) =>
+            transaction.account.didExecute === false &&
+            transaction.account.deleted === false
         ),
         completed: myTransactions.filter(
-          (transaction) => transaction.account.didExecute === true
+          (transaction) =>
+            transaction.account.didExecute === true &&
+            transaction.account.deleted === false
+        ),
+        deleted: myTransactions.filter(
+          (transaction) => transaction.account.deleted
         ),
       };
     } catch (err) {
@@ -72,7 +79,6 @@ export const approveTransaction = createAsyncThunk(
           transaction: args.transactionPublicKey,
           owner: state.connection.provider.publicKey,
         },
-        signers: [],
       });
     } catch (err) {
       console.log(err);
@@ -90,7 +96,23 @@ export const cancelTransactionApproval = createAsyncThunk(
           transaction: args.transactionPublicKey,
           owner: state.connection.provider.publicKey,
         },
-        signers: [],
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  }
+);
+export const deleteTransaction = createAsyncThunk(
+  'payload/deleteTransaction',
+  async (args: IapproveTransaction, thunkAPI) => {
+    const state = thunkAPI.getState() as ReduxState;
+    try {
+      const tx = await state.connection.program.rpc.deleteTransaction({
+        accounts: {
+          wallet: new PublicKey(state.connection.msig),
+          transaction: args.transactionPublicKey,
+          owner: state.connection.provider.publicKey,
+        },
       });
     } catch (err) {
       console.log(err);

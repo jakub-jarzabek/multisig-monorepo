@@ -13,6 +13,7 @@ export interface IWalletSlice {
 interface ITransactions {
   peding: any[];
   completed: any[];
+  deleted: any[];
 }
 
 const initialState: IWalletSlice = {
@@ -22,6 +23,7 @@ const initialState: IWalletSlice = {
   transactions: {
     peding: null,
     completed: null,
+    deleted: null,
   },
 };
 
@@ -38,6 +40,7 @@ const walletSlice = createSlice({
     builder.addCase(loadTransactions.fulfilled, (state, action) => {
       state.transactions.completed = action.payload.completed;
       state.transactions.peding = action.payload.peding;
+      state.transactions.deleted = action.payload.deleted;
     });
   },
 });

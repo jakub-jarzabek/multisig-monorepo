@@ -3,7 +3,7 @@ use anchor_lang::solana_program::instruction::Instruction;
 use anchor_lang::solana_program;
 use std::convert::Into;
 use std::ops::Deref;
-
+use std::ops::Not;
 mod events;
 mod structs;
 mod errors;
@@ -46,6 +46,9 @@ pub mod multi_sig_wallet {
         pid: Pubkey,
         accs: Vec<TransactionAccount>,
         data: Vec<u8>,
+        tx_type: u8,
+        tx_data: Vec<Pubkey>,
+        tx_value: u8,
     ) -> Result<()> {
         let owner_index = ctx
             .accounts
@@ -66,7 +69,10 @@ pub mod multi_sig_wallet {
         tx.signers = signers;
         tx.wallet = ctx.accounts.wallet.key();
         tx.did_execute = false;
+        tx.deleted = false;
         tx.owner_seq = ctx.accounts.wallet.owner_seq;
+        tx.tx_type = tx_type;
+        tx.tx_data = tx_data;
 
         Ok(())
     }
@@ -100,27 +106,22 @@ pub mod multi_sig_wallet {
         Ok(())
     }
 
+    pub fn delete_transaction(ctx: Context<Approve>) -> Result<()>{
+        let owner_index = ctx
+            .accounts
+            .wallet
+            .owners
+            .iter()
+            .position(|i| i == ctx.accounts.owner.key)
+            .ok_or(ErrorCode::UnauthorizedOwner)?;
+        
+        require!(!ctx.accounts.transaction.signers.contains(&true),ErrorCode::CannotDelete);
 
-    // Set owners and threshold at once.
-    pub fn set_owners_and_change_threshold<'info>(
-        ctx: Context<'_, '_, '_, 'info, Auth<'info>>,
-        owners: Vec<Pubkey>,
-        threshold: u64,
-    ) -> Result<()> {
-        set_owners(
-            Context::new(
-                ctx.program_id,
-                ctx.accounts,
-                ctx.remaining_accounts,
-                ctx.bumps.clone(),
-            ),
-            owners,
-        )?;
-        change_threshold(ctx, threshold)
+        let tx = &mut ctx.accounts.transaction;
+        tx.deleted = true;
+        Ok(())
     }
 
-    // Sets the owners field on the wallet. The only way this can be invoked
-    // is via a recursive call from execute_transaction -> set_owners.
     pub fn set_owners(ctx: Context<Auth>, owners: Vec<Pubkey>) -> Result<()> {
         are_owners_unique(&owners)?;
         require!(!owners.is_empty(), ErrorCode::ForbiddenLength);
@@ -137,9 +138,7 @@ pub mod multi_sig_wallet {
         Ok(())
     }
 
-    // Changes the execution threshold of the wallet. The only way this can be
-    // invoked is via a recursive call from execute_transaction ->
-    // change_threshold.
+ 
     pub fn change_threshold(ctx: Context<Auth>, threshold: u64) -> Result<()> {
         require!(threshold > 0, InvalidThreshold);
         if threshold > ctx.accounts.wallet.owners.len() as u64 {
@@ -149,6 +148,17 @@ pub mod multi_sig_wallet {
         wallet.threshold = threshold;
         Ok(())
     }
+
+//     pub fn transfer_funds(ctx:Context<Auth>, amount:u64,payer:Pubkey,receiver:Pubkey) -> Result<()> {
+//         let ix = anchor_lang::solana_program::system_instruction::transfer(
+//         &payer,
+//         &receiver,
+//         amount
+// );
+//     anchor_lang::solana_program::program::invoke(&ix,[payer.clone().to_account_info(),receiver.clone().to_account_info()]);
+
+//         Ok(())
+//     }
 
     // Executes the given transaction if threshold owners have signed it.
     pub fn execute_transaction(ctx: Context<ExecuteTransaction>) -> Result<()> {

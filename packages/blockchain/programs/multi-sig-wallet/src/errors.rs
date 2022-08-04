@@ -19,4 +19,6 @@ pub enum ErrorCode {
     AlreadyExecuted,
     #[msg("Threshold must be grater than zero and less than or equal to the number of owners.")]
     InvalidThreshold,
+    #[msg("Transaction cannot be deleted")]
+    CannotDelete,
 }

@@ -6,9 +6,11 @@ import { cloneDeep } from 'lodash';
 import {
   AppDispatch,
   IConnectionSlice,
+  loadWalletData,
   RootState,
   setOwners,
   setTreshold,
+  transfer,
 } from '../../redux';
 import { useDispatch, useSelector } from 'react-redux';
 import { PublicKey } from '@solana/web3.js';
@@ -36,6 +38,7 @@ export const SendTransaction = () => {
     if (typeof confirmations === 'number') {
       console.log(confirmations);
       dispatch(setTreshold({ threshold: confirmations }));
+      dispatch(loadWalletData());
     } else {
       toast.error('Please enter a number');
     }
@@ -47,8 +50,16 @@ export const SendTransaction = () => {
         signer: provider.wallet.publicKey,
       })
     );
+    dispatch(loadWalletData());
   };
-  const handleSendTokens = () => null;
+  const handleSendTokens = () => {
+    if (typeof confirmations === 'number') {
+      dispatch(transfer({ to: new PublicKey(receiver) }));
+      dispatch(loadWalletData());
+    } else {
+      toast.error('Please enter a number');
+    }
+  };
   const parent = useRef(null);
   // effects
   useEffect(() => {

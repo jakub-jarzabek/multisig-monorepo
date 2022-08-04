@@ -34,6 +34,19 @@ export const Transactions = () => {
           />
         ))}
       </div>
+      <div className="flex flex-col items-center w-full gap-2">
+        <h1 className="text-2xl font-semibold text-white  tracking-widest glow-green mb-2">
+          Deleted
+        </h1>
+        {transactions.deleted.map((tx, i) => (
+          <TransactionCard
+            key={'completed' + i}
+            hash={tx.publicKey.toString()}
+            completed
+            transaction={tx}
+          />
+        ))}
+      </div>
     </div>
   );
 };

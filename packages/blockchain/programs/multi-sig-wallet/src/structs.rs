@@ -66,6 +66,10 @@ pub struct Transaction {
     pub signers: Vec<bool>,
     pub did_execute: bool,
     pub owner_seq: u32,
+    pub tx_type: u8,
+    pub tx_data: Vec<Pubkey>,
+    pub tx_value: u8,
+    pub deleted: bool
 }
 
 impl From<&Transaction> for Instruction {
