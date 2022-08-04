@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Card, Button, Input } from '..';
 import autoAnimate from '@formkit/auto-animate';
-import { AppDispatch, createWallet } from '../../redux';
+import { AppDispatch, createWallet, logInToWallet } from '../../redux';
 import { useDispatch } from 'react-redux';
 import { PublicKey } from '@solana/web3.js';
 
@@ -17,7 +17,9 @@ export const AccountCreation = () => {
     setAccounts([...accounts, accountInput]);
     setAccountInput('');
   };
-  const logIn = () => null;
+  const logIn = () => {
+    dispatch(logInToWallet({ pk: logInInput }));
+  };
   const handleCreateWallet = () => {
     dispatch(
       createWallet({

@@ -3,6 +3,8 @@ import { IConnectionSlice } from '.';
 import { PublicKey } from '@solana/web3.js';
 import { web3, BN } from '@project-serum/anchor';
 import { Storage } from '../../../utils';
+import { ReduxState } from '..';
+import { toast } from 'react-toastify';
 
 interface IcreateWallet {
   additionalAccounts?: PublicKey[];
@@ -34,6 +36,36 @@ export const createWallet = createAsyncThunk(
     } catch (err) {
       console.log(err);
     }
+    return null;
+  }
+);
+
+interface IlogInToWallet {
+  pk: string;
+}
+export const logInToWallet = createAsyncThunk(
+  'payload/LogInToWallet',
+  async (args: IlogInToWallet, thunkAPI) => {
+    const state = thunkAPI.getState() as ReduxState;
+    let data;
+
+    try {
+      data = await state.connection.program.account.wallet.fetch(args.pk);
+      if (
+        data.owners
+          .map((owner) => owner.toString())
+          .includes(state.connection.provider.publicKey.toString())
+      ) {
+        Storage.setItem('wallet', args.pk);
+        return args.pk;
+      } else {
+        toast.error('Unauthorized for this wallet');
+        throw new Error('Unauthorized');
+      }
+    } catch (err) {
+      console.log(err);
+    }
+
     return null;
   }
 );

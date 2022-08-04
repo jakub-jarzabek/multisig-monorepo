@@ -18,7 +18,7 @@ export const SendTransaction = () => {
     (state) => state
   );
   const { msig, provider, program } = connection;
-  const { accounts: accs } = wallet;
+  const { accounts: accs, threshold } = wallet;
   const [confirmations, setConfirmations] = useState<number>(0);
   const [accounts, setAccounts] = useState<string[]>([]);
   const [amount, setAmount] = useState<number>(0);
@@ -44,7 +44,6 @@ export const SendTransaction = () => {
   const handleSendTokens = () => null;
   const parent = useRef(null);
   // effects
-
   useEffect(() => {
     parent.current && autoAnimate(parent.current);
   }, [parent]);
@@ -53,6 +52,10 @@ export const SendTransaction = () => {
     if (accs) {
       console.log(accs);
       setAccounts(cloneDeep(accs.map((_) => _.toString())));
+    }
+    if (threshold) {
+      console.log(accs);
+      setConfirmations(threshold);
     }
   }, [accs]);
   return (
@@ -63,7 +66,8 @@ export const SendTransaction = () => {
         </h1>
         <div className="flex flex-col mb-2">
           <span className="text-sm text-purple-900 font-semibold">
-            Number of required confirmations
+            Number of required confirmations{' '}
+            <span className="text-white"> Currently set to {threshold}</span>
           </span>
           <Input
             onChange={(e) => setConfirmations(Number(e))}

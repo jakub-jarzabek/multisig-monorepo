@@ -10,27 +10,35 @@ import autoAnimate from '@formkit/auto-animate';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   AppDispatch,
+  Connection,
   IConnectionSlice,
+  loadTransactions,
   loadWalletData,
   RootState,
 } from '../../redux';
 import { useRouter } from 'next/router';
 import { useWallet } from '@solana/wallet-adapter-react';
+import { Storage } from '../../utils';
 const Dashboard = () => {
-  const { provider, msig } = useSelector<RootState, IConnectionSlice>(
+  const { provider, msig, program } = useSelector<RootState, IConnectionSlice>(
     (state) => state.connection
   );
   const dispatch = useDispatch<AppDispatch>();
   const { publicKey } = useWallet();
   const router = useRouter();
   useEffect(() => {
-    if (!publicKey) {
+    if (!publicKey || !program) {
       router.replace('/');
+    } else {
+      if (Storage.getItem('wallet')) {
+        dispatch(Connection.setWallet(Storage.getItem('wallet')));
+      }
     }
   }, [publicKey]);
   useEffect(() => {
     if (msig) {
       dispatch(loadWalletData());
+      dispatch(loadTransactions());
     }
   }, [msig]);
   const parent = useRef(null);

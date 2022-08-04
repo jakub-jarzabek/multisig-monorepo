@@ -12,7 +12,6 @@ export const loadWalletData = createAsyncThunk(
       data = await state.connection.program.account.wallet.fetch(
         state.connection.msig
       );
-      console.log(data);
     } catch (err) {
       console.log(err);
     }
@@ -23,6 +22,38 @@ export const loadWalletData = createAsyncThunk(
     } catch (err) {
       console.log(err);
     }
-    return { accounts: data.owners, balance };
+    return {
+      accounts: data.owners,
+      balance,
+      threshold: Number(data.threshold.toString()),
+    };
+  }
+);
+export const loadTransactions = createAsyncThunk(
+  'payload/loadTransactions',
+  async (args, thunkAPI) => {
+    const state = thunkAPI.getState() as ReduxState;
+    let data;
+    try {
+      data = await state.connection.program.account.transaction.all();
+      console.log(data);
+      const myTransactions = data.filter(
+        (transaction) =>
+          transaction.account.wallet.toString() === state.connection.msig
+      );
+      console.log(myTransactions);
+      return {
+        peding: myTransactions.filter(
+          (transaction) => transaction.account.didExecute === false
+        ),
+        completed: myTransactions.filter(
+          (transaction) => transaction.account.didExecute === true
+        ),
+      };
+    } catch (err) {
+      console.log(err);
+    }
+
+    return null;
   }
 );

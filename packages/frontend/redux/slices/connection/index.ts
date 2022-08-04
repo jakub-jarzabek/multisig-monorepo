@@ -9,7 +9,7 @@ import {
 import { WalletContextState } from '@solana/wallet-adapter-react';
 import idl from '@blockchain/target/idl/multi_sig_wallet.json';
 import { MultiSigWallet } from '../../../tempTypes/multi_sig_wallet';
-import { createWallet } from './thunks';
+import { createWallet, logInToWallet } from './thunks';
 export interface IConnectionSlice {
   provider: AnchorProvider;
   program: Program<MultiSigWallet>;
@@ -54,6 +54,9 @@ const connectionSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(createWallet.fulfilled, (state, action) => {
+      state.msig = action.payload;
+    });
+    builder.addCase(logInToWallet.fulfilled, (state, action) => {
       state.msig = action.payload;
     });
   },
