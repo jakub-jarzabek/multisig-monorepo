@@ -40,35 +40,29 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     (state) => state
   );
   const { threshold } = wallet;
-  const handleCancel = () => {
-    dispatch(
+  const handleCancel = async () => {
+    await dispatch(
       cancelTransactionApproval({ transactionPublicKey: transaction.publicKey })
     );
-    dispatch(loadWalletData());
   };
 
-  const handleDelete = () => {
-    dispatch(
+  const handleDelete = async () => {
+    await dispatch(
       deleteTransaction({ transactionPublicKey: transaction.publicKey })
     );
-    dispatch(loadWalletData());
   };
-  const handleExecute = () => {
-    dispatch(
+  const handleExecute = async () => {
+    await dispatch(
       executeTransaction({
         transactionPublicKey: transaction.publicKey,
         type: 'set_threshold',
       })
     );
-
-    dispatch(loadWalletData());
   };
-  const handleApprove = () => {
-    dispatch(
+  const handleApprove = async () => {
+    await dispatch(
       approveTransaction({ transactionPublicKey: transaction.publicKey })
     );
-
-    dispatch(loadWalletData());
   };
   const countSigners = () => {
     let count = 0;

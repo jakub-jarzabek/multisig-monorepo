@@ -81,6 +81,73 @@ export type MultiSigWallet = {
       ];
     },
     {
+      name: 'createTransferTransaction';
+      accounts: [
+        {
+          name: 'wallet';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'transaction';
+          isMut: true;
+          isSigner: true;
+        },
+        {
+          name: 'initiator';
+          isMut: false;
+          isSigner: true;
+        },
+        {
+          name: 'from';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'to';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'systemProgram';
+          isMut: false;
+          isSigner: false;
+        }
+      ];
+      args: [
+        {
+          name: 'pid';
+          type: 'publicKey';
+        },
+        {
+          name: 'accs';
+          type: {
+            vec: {
+              defined: 'TransactionAccount';
+            };
+          };
+        },
+        {
+          name: 'data';
+          type: 'bytes';
+        },
+        {
+          name: 'txType';
+          type: 'u8';
+        },
+        {
+          name: 'txData';
+          type: {
+            vec: 'publicKey';
+          };
+        },
+        {
+          name: 'txValue';
+          type: 'u64';
+        }
+      ];
+    },
+    {
       name: 'approve';
       accounts: [
         {
@@ -188,6 +255,42 @@ export type MultiSigWallet = {
       ];
     },
     {
+      name: 'transferFunds';
+      accounts: [
+        {
+          name: 'from';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'to';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'systemProgram';
+          isMut: false;
+          isSigner: false;
+        },
+        {
+          name: 'wallet';
+          isMut: true;
+          isSigner: false;
+        },
+        {
+          name: 'walletSigner';
+          isMut: false;
+          isSigner: true;
+        }
+      ];
+      args: [
+        {
+          name: 'amount';
+          type: 'u64';
+        }
+      ];
+    },
+    {
       name: 'executeTransaction';
       accounts: [
         {
@@ -287,7 +390,7 @@ export type MultiSigWallet = {
           },
           {
             name: 'txValue';
-            type: 'u8';
+            type: 'u64';
           },
           {
             name: 'deleted';
@@ -456,6 +559,73 @@ export const IDL: MultiSigWallet = {
       ],
     },
     {
+      name: 'createTransferTransaction',
+      accounts: [
+        {
+          name: 'wallet',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'transaction',
+          isMut: true,
+          isSigner: true,
+        },
+        {
+          name: 'initiator',
+          isMut: false,
+          isSigner: true,
+        },
+        {
+          name: 'from',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'to',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
+          isMut: false,
+          isSigner: false,
+        },
+      ],
+      args: [
+        {
+          name: 'pid',
+          type: 'publicKey',
+        },
+        {
+          name: 'accs',
+          type: {
+            vec: {
+              defined: 'TransactionAccount',
+            },
+          },
+        },
+        {
+          name: 'data',
+          type: 'bytes',
+        },
+        {
+          name: 'txType',
+          type: 'u8',
+        },
+        {
+          name: 'txData',
+          type: {
+            vec: 'publicKey',
+          },
+        },
+        {
+          name: 'txValue',
+          type: 'u64',
+        },
+      ],
+    },
+    {
       name: 'approve',
       accounts: [
         {
@@ -563,6 +733,42 @@ export const IDL: MultiSigWallet = {
       ],
     },
     {
+      name: 'transferFunds',
+      accounts: [
+        {
+          name: 'from',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'to',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'systemProgram',
+          isMut: false,
+          isSigner: false,
+        },
+        {
+          name: 'wallet',
+          isMut: true,
+          isSigner: false,
+        },
+        {
+          name: 'walletSigner',
+          isMut: false,
+          isSigner: true,
+        },
+      ],
+      args: [
+        {
+          name: 'amount',
+          type: 'u64',
+        },
+      ],
+    },
+    {
       name: 'executeTransaction',
       accounts: [
         {
@@ -662,7 +868,7 @@ export const IDL: MultiSigWallet = {
           },
           {
             name: 'txValue',
-            type: 'u8',
+            type: 'u64',
           },
           {
             name: 'deleted',

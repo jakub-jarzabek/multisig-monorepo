@@ -5,8 +5,8 @@ import autoAnimate from '@formkit/auto-animate';
 import { cloneDeep } from 'lodash';
 import {
   AppDispatch,
-  IConnectionSlice,
   loadWalletData,
+  ReduxState,
   RootState,
   setOwners,
   setTreshold,
@@ -17,7 +17,7 @@ import { PublicKey } from '@solana/web3.js';
 
 export const SendTransaction = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { connection, wallet } = useSelector<RootState, IConnectionSlice>(
+  const { connection, wallet } = useSelector<RootState, ReduxState>(
     (state) => state
   );
   const { msig, provider, program } = connection;
@@ -36,26 +36,22 @@ export const SendTransaction = () => {
   };
   const handleChangeConfirmations = () => {
     if (typeof confirmations === 'number') {
-      console.log(confirmations);
       dispatch(setTreshold({ threshold: confirmations }));
-      dispatch(loadWalletData());
     } else {
       toast.error('Please enter a number');
     }
   };
-  const handleChangeAccounts = () => {
-    dispatch(
+  const handleChangeAccounts = async () => {
+    await dispatch(
       setOwners({
         additionalAccounts: accounts.map((_) => new PublicKey(_)),
         signer: provider.wallet.publicKey,
       })
     );
-    dispatch(loadWalletData());
   };
-  const handleSendTokens = () => {
-    if (typeof confirmations === 'number') {
-      dispatch(transfer({ to: new PublicKey(receiver) }));
-      dispatch(loadWalletData());
+  const handleSendTokens = async () => {
+    if (typeof amount === 'number') {
+      await dispatch(transfer({ to: new PublicKey(receiver), amount }));
     } else {
       toast.error('Please enter a number');
     }
@@ -147,8 +143,17 @@ export const SendTransaction = () => {
             accounts.map((acc, i) => (
               <Card key={i}>
                 <>
-                  <span className="leading-10 mr-4">{acc}</span>
-                  <Button onClick={() => removeAccount(acc)} label="Remove" />
+                  <span className="leading-10 mr-4">
+                    {acc}{' '}
+                    {acc.toString() ===
+                      connection.provider.publicKey.toString() && (
+                      <span className="text-white font-bold"> (me)</span>
+                    )}
+                  </span>
+                  {acc.toString() !==
+                    connection.provider.publicKey.toString() && (
+                    <Button onClick={() => removeAccount(acc)} label="Remove" />
+                  )}
                 </>
               </Card>
             ))}

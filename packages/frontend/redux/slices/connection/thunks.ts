@@ -167,8 +167,8 @@ export const setTreshold = createAsyncThunk(
         state.connection.program.programId,
         accounts,
         data,
-        [],
         new BN(1),
+        [],
         args.threshold,
         {
           accounts: {
@@ -194,6 +194,7 @@ export const setTreshold = createAsyncThunk(
 
 interface ITransfer {
   to: PublicKey;
+  amount: number;
 }
 
 export const transfer = createAsyncThunk(
@@ -206,25 +207,23 @@ export const transfer = createAsyncThunk(
       state.connection.program.programId
     );
     let data;
-    // try {
-    //   data = state.connection.program.coder.instruction.encode(
-    //     'transfer_funds',
-    //     {
-    //       amount: new BN(10000),
-    //       payer: new PublicKey(state.connection.msig),
-    //       payee: args.to,
-    //     }
-    //   );
-    // } catch (err) {
-    //   console.log(err);
-    // }
-    const instruction = SystemProgram.transfer({
-      fromPubkey: new PublicKey(state.connection.msig),
-      toPubkey: args.to,
-      lamports: 1000,
-    });
-    const tr = new Transaction();
-    tr.add(instruction);
+    try {
+      data = state.connection.program.coder.instruction.encode(
+        'transfer_funds',
+        {
+          amount: new BN(args.amount),
+          accounts: {
+            to: args.to,
+            from: new PublicKey(state.connection.msig),
+            systemProgram: web3.SystemProgram.programId,
+            walletSigner,
+          },
+        }
+      );
+    } catch (err) {
+      console.log(err);
+    }
+
     const accounts = [
       {
         pubkey: new PublicKey(state.connection.msig),
@@ -239,19 +238,26 @@ export const transfer = createAsyncThunk(
     ];
     const transaction = web3.Keypair.generate();
     try {
-      const tx = await state.connection.program.rpc.createTransaction(
+      const tx = await state.connection.program.rpc.createTransferTransaction(
         state.connection.program.programId,
         accounts,
+        data,
+        new BN(2),
+        [],
+        new BN(0),
         {
           accounts: {
             wallet: new PublicKey(state.connection.msig),
             transaction: transaction.publicKey,
             initiator: state.connection.provider.wallet.publicKey,
+            to: args.to,
+            from: new PublicKey(state.connection.msig),
+            systemProgram: web3.SystemProgram.programId,
           },
           instructions: [
             await state.connection.program.account.wallet.createInstruction(
               transaction,
-              1000
+              3000
             ),
           ],
           signers: [transaction],
@@ -261,5 +267,22 @@ export const transfer = createAsyncThunk(
     } catch (err) {
       console.log(err);
     }
+  }
+);
+
+export const fetchWallet = createAsyncThunk(
+  'payload/fetchWallet',
+  async (args, thunkAPI) => {
+    const state = thunkAPI.getState() as ReduxState;
+    let data;
+
+    try {
+      data = await state.connection.program.account.wallet.all();
+      console.log({ w: data });
+    } catch (err) {
+      console.log(err);
+    }
+
+    return null;
   }
 );

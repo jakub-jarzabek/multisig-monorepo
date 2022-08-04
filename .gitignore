@@ -11,6 +11,9 @@ node_modules
 target
 **/target/*
 /packages/blockchain/target
+.anchor
+**/.anchor/*
+/packages/blockchain/.anchor
 
 # IDEs and editors
 /.idea

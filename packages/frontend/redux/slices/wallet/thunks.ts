@@ -132,71 +132,34 @@ export const executeTransaction = createAsyncThunk(
       [new PublicKey(state.connection.msig).toBuffer()],
       state.connection.program.programId
     );
-    switch (args.type) {
-      case 'set_owners': {
-        try {
-          const tx = await state.connection.program.rpc.executeTransaction({
-            accounts: {
-              wallet: new PublicKey(state.connection.msig),
-              walletSigner,
-              transaction: args.transactionPublicKey,
-            },
-            remainingAccounts: state.connection.program.instruction.setOwners
-              .accounts({
-                wallet: new PublicKey(state.connection.msig),
-                walletSigner,
-              })
-              // @ts-ignore
-              .map((meta) =>
-                meta.pubkey.equals(walletSigner)
-                  ? { ...meta, isSigner: false }
-                  : meta
-              )
-              .concat({
-                pubkey: state.connection.program.programId,
-                isWritable: false,
-                isSigner: false,
-              }),
-          });
-          console.log({ tx: tx });
-        } catch (err) {
-          console.log(err);
-        }
-        break;
-      }
-      case 'set_threshold': {
-        try {
-          const tx = await state.connection.program.rpc.executeTransaction({
-            accounts: {
-              wallet: new PublicKey(state.connection.msig),
-              walletSigner,
-              transaction: args.transactionPublicKey,
-            },
-            remainingAccounts: state.connection.program.instruction.setOwners
-              .accounts({
-                wallet: new PublicKey(state.connection.msig),
-                walletSigner,
-              })
-              // @ts-ignore
-              .map((meta) =>
-                meta.pubkey.equals(walletSigner)
-                  ? { ...meta, isSigner: false }
-                  : meta
-              )
-              .concat({
-                pubkey: state.connection.program.programId,
-                isWritable: false,
-                isSigner: false,
-              }),
-          });
-          console.log({ tx: tx });
-        } catch (err) {
-          console.log(err);
-        }
-        break;
-      }
-      default:
-        return null;
+
+    try {
+      const tx = await state.connection.program.rpc.executeTransaction({
+        accounts: {
+          wallet: new PublicKey(state.connection.msig),
+          walletSigner,
+          transaction: args.transactionPublicKey,
+        },
+        remainingAccounts: state.connection.program.instruction.setOwners
+          .accounts({
+            wallet: new PublicKey(state.connection.msig),
+            walletSigner,
+          })
+          // @ts-ignore
+          .map((meta) =>
+            meta.pubkey.equals(walletSigner)
+              ? { ...meta, isSigner: false }
+              : meta
+          )
+          .concat({
+            pubkey: state.connection.program.programId,
+            isWritable: false,
+            isSigner: false,
+          }),
+      });
+      console.log({ tx: tx });
+    } catch (err) {
+      console.log(err);
     }
   }
 );
