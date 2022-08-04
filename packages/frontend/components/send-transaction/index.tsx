@@ -8,6 +8,7 @@ import {
   IConnectionSlice,
   RootState,
   setOwners,
+  setTreshold,
 } from '../../redux';
 import { useDispatch, useSelector } from 'react-redux';
 import { PublicKey } from '@solana/web3.js';
@@ -31,12 +32,18 @@ export const SendTransaction = () => {
     setAccounts([...accounts, accountInput]);
     setAccountInput('');
   };
-  const handleChangeConfirmations = () => null;
+  const handleChangeConfirmations = () => {
+    if (typeof confirmations === 'number') {
+      console.log(confirmations);
+      dispatch(setTreshold({ threshold: confirmations }));
+    } else {
+      toast.error('Please enter a number');
+    }
+  };
   const handleChangeAccounts = () => {
     dispatch(
       setOwners({
         additionalAccounts: accounts.map((_) => new PublicKey(_)),
-        walletPublicKey: new PublicKey(msig),
         signer: provider.wallet.publicKey,
       })
     );
@@ -54,7 +61,6 @@ export const SendTransaction = () => {
       setAccounts(cloneDeep(accs.map((_) => _.toString())));
     }
     if (threshold) {
-      console.log(accs);
       setConfirmations(threshold);
     }
   }, [accs]);
@@ -66,7 +72,7 @@ export const SendTransaction = () => {
         </h1>
         <div className="flex flex-col mb-2">
           <span className="text-sm text-purple-900 font-semibold">
-            Number of required confirmations{' '}
+            Number of required confirmations
             <span className="text-white"> Currently set to {threshold}</span>
           </span>
           <Input

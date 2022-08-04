@@ -41,8 +41,6 @@ pub mod multi_sig_wallet {
         Ok(())
     }
 
-    // Creates a new transaction account, automatically signed by the creator,
-    // which must be one of the owners of the wallet.
     pub fn create_transaction(
         ctx: Context<CreateTransaction>,
         pid: Pubkey,

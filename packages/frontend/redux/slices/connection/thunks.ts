@@ -13,19 +13,24 @@ export const createWallet = createAsyncThunk(
   'payload/createWallet',
   async (args: IcreateWallet, thunkAPI) => {
     const baseAccount = web3.Keypair.generate();
+
     const state = thunkAPI.getState() as { connection: IConnectionSlice };
+    const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
+      [baseAccount.publicKey.toBuffer()],
+      state.connection.program.programId
+    );
     const pK = state.connection.provider.publicKey as PublicKey;
     try {
       await state.connection.program.rpc.createWallet(
         [pK, ...args.additionalAccounts],
         new BN(1),
-        new BN(0),
+        nonce,
         {
           accounts: { wallet: baseAccount.publicKey },
           instructions: [
             await state.connection.program.account.wallet.createInstruction(
               baseAccount,
-              200
+              2000
             ),
           ],
           signers: [baseAccount],
@@ -71,7 +76,6 @@ export const logInToWallet = createAsyncThunk(
 );
 
 interface IsetOwners extends IcreateWallet {
-  walletPublicKey: PublicKey;
   signer: PublicKey;
 }
 export const setOwners = createAsyncThunk(
@@ -79,19 +83,23 @@ export const setOwners = createAsyncThunk(
   async (args: IsetOwners, thunkAPI) => {
     const state = thunkAPI.getState() as { connection: IConnectionSlice };
     const pK = state.connection.provider.publicKey as PublicKey;
-    const newOwners: PublicKey[] = [pK, ...args.additionalAccounts] || [];
+    const newOwners: PublicKey[] = args.additionalAccounts || [];
+    const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
+      [new PublicKey(state.connection.msig).toBuffer()],
+      state.connection.program.programId
+    );
     const data = state.connection.program.coder.instruction.encode(
       'set_owners',
       { owners: newOwners }
     );
     const accounts = [
       {
-        pubkey: args.walletPublicKey,
+        pubkey: new PublicKey(state.connection.msig),
         isWritable: true,
         isSigner: false,
       },
       {
-        pubkey: args.signer,
+        pubkey: walletSigner,
         isWritable: false,
         isSigner: true,
       },
@@ -104,14 +112,68 @@ export const setOwners = createAsyncThunk(
         data,
         {
           accounts: {
-            wallet: args.walletPublicKey,
+            wallet: new PublicKey(state.connection.msig),
             transaction: transaction.publicKey,
-            initiator: state.connection.provider.publicKey,
+            initiator: state.connection.provider.wallet.publicKey,
           },
           instructions: [
             await state.connection.program.account.wallet.createInstruction(
               transaction,
-              2000
+              1000
+            ),
+          ],
+          signers: [transaction],
+        }
+      );
+      console.log({ tx: tx });
+    } catch (err) {
+      console.log(err);
+    }
+  }
+);
+interface IsetTreshold {
+  threshold: number;
+}
+export const setTreshold = createAsyncThunk(
+  'payload/setTreshold',
+  async (args: IsetTreshold, thunkAPI) => {
+    const state = thunkAPI.getState() as { connection: IConnectionSlice };
+    const [walletSigner] = await web3.PublicKey.findProgramAddress(
+      [new PublicKey(state.connection.msig).toBuffer()],
+      state.connection.program.programId
+    );
+    const data = state.connection.program.coder.instruction.encode(
+      'change_threshold',
+      { threshold: new BN(args.threshold) }
+    );
+    const accounts = [
+      {
+        pubkey: new PublicKey(state.connection.msig),
+        isWritable: true,
+        isSigner: false,
+      },
+      {
+        pubkey: walletSigner,
+        isWritable: false,
+        isSigner: true,
+      },
+    ];
+    const transaction = web3.Keypair.generate();
+    try {
+      const tx = await state.connection.program.rpc.createTransaction(
+        state.connection.program.programId,
+        accounts,
+        data,
+        {
+          accounts: {
+            wallet: new PublicKey(state.connection.msig),
+            transaction: transaction.publicKey,
+            initiator: state.connection.provider.wallet.publicKey,
+          },
+          instructions: [
+            await state.connection.program.account.wallet.createInstruction(
+              transaction,
+              1000
             ),
           ],
           signers: [transaction],
