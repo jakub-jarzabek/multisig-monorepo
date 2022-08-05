@@ -7,8 +7,8 @@ import {
   PublicKey,
 } from '@solana/web3.js';
 import { WalletContextState } from '@solana/wallet-adapter-react';
-import idl from '@solana/target/idl/multi_sig_wallet.json';
-import { MultiSigWallet } from '../../../tempTypes/multi_sig_wallet';
+import idl from '../../../solana-config/multi_sig_wallet.json';
+import { MultiSigWallet } from '../../../solana-config/multi_sig_wallet';
 import { createWallet, fetchWallet, logInToWallet } from './thunks';
 export interface IConnectionSlice {
   provider: AnchorProvider;
