@@ -8,6 +8,7 @@ import {
   cancelTransactionApproval,
   deleteTransaction,
   executeTransaction,
+  executeTransferTransaction,
   loadWalletData,
   ReduxState,
   RootState,
@@ -71,12 +72,20 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
   };
   const handleExecute = async (e: any) => {
     e.stopPropagation();
-    await dispatch(
-      executeTransaction({
-        transactionPublicKey: transaction.publicKey,
-        type: 'set_threshold',
-      })
-    );
+    console.log(transaction.account.txType.toString());
+    if (transaction.account.txType.toString() !== '2') {
+      await dispatch(
+        executeTransaction({
+          transactionPublicKey: transaction.publicKey,
+        })
+      );
+    } else {
+      await dispatch(
+        executeTransferTransaction({
+          transactionPublicKey: transaction.publicKey,
+        })
+      );
+    }
   };
   const handleApprove = async (e: any) => {
     await dispatch(

@@ -1,3 +1,4 @@
+#![deny(clippy::unwrap_used)]
 use anchor_lang::prelude::*;
 use anchor_lang::solana_program::instruction::Instruction;
 use anchor_lang::solana_program;
@@ -6,9 +7,9 @@ use anchor_lang::solana_program::{
         next_account_info,AccountInfo
     }
 };
+use vipers::prelude::*;
 use std::convert::Into;
 use std::ops::Deref;
-use std::ops::Not;
 mod events;
 mod structs;
 mod errors;
@@ -91,17 +92,17 @@ pub fn create_transfer_transaction(
         ctx: Context<CreateTransferTransaction>,
         pid: Pubkey,
         accs: Vec<TransactionAccount>,
-        data: Vec<u8>,
         tx_type: u8,
         tx_data: Vec<Pubkey>,
         tx_value: u64,
+        instructions:Vec<TXInstruction>,
     ) -> Result<()> {
         let owner_index = ctx
             .accounts
             .wallet
             .owners
             .iter()
-            .position(|a| a == ctx.accounts.initiator.key)
+            .position(|a| a == ctx.accounts.proposer.key)
             .ok_or(ErrorCode::UnauthorizedOwner)?;
 
         let mut signers = Vec::new();
@@ -111,7 +112,6 @@ pub fn create_transfer_transaction(
         let tx = &mut ctx.accounts.transaction;
         tx.program_id = pid;
         tx.accounts = accs;
-        tx.data = data;
         tx.signers = signers;
         tx.wallet = ctx.accounts.wallet.key();
         tx.did_execute = false;
@@ -120,23 +120,14 @@ pub fn create_transfer_transaction(
         tx.tx_type = tx_type;
         tx.tx_data = tx_data;
         tx.tx_value = tx_value;
+        tx.instructions = instructions.clone();
+         let wallet = &mut ctx.accounts.wallet;
+        wallet.num_transfer = unwrap_int!(wallet.num_transfer.checked_add(1));
         msg!("Creating Transfer");
 
-
-
         Ok(())
     }
 
-    pub fn test(ctx:Context<Test>,a:u8) ->Result<()>{
-        msg!("Test");
-      
-        let from = ctx.accounts.from.to_account_info();
-        msg!("From: {}",from.key);
-
-        
-
-        Ok(())
-    }
 
     pub fn approve(ctx: Context<Approve>) -> Result<()> {
         let owner_index = ctx
@@ -289,7 +280,49 @@ pub fn create_transfer_transaction(
 
         Ok(())
     }
+
+  pub fn execute_transfer_transaction(ctx: Context<ExecuteTransferTransaction>) -> Result<()> {
+        msg!("Executing Transaction");
+        if ctx.accounts.transaction.did_execute {
+            return Err(ErrorCode::AlreadyExecuted.into());
+        }
+
+        let sig_count = ctx
+            .accounts
+            .transaction
+            .signers
+            .iter()
+            .filter(|&did_sign| *did_sign)
+            .count() as u64;
+        if sig_count < ctx.accounts.wallet.threshold {
+            return Err(ErrorCode::NotEnoughSigners.into());
+        }
+
+            let wallet = &ctx.accounts.wallet;
+      let seeds: &[&[&[u8]]] = &[&[
+            b"QbeeetsuMultisig" as &[u8],
+            &wallet.key().to_bytes(),
+            &[wallet.nonce],
+        ]];
+
+
+  for ix in ctx.accounts.transaction.instructions.iter() {
+        solana_program::program::invoke_signed(&(ix).into(), ctx.remaining_accounts, seeds)?;
+    }
+
+
+
+           emit!(TransactionExecutedEvent {
+        wallet: ctx.accounts.wallet.key(),
+        transaction: ctx.accounts.transaction.key(),
+    });
+
+        Ok(())
+    }
+
 }
+
+
 
 
 

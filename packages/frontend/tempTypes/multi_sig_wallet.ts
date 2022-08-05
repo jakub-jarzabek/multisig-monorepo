@@ -85,28 +85,29 @@ export type MultiSigWallet = {
       "accounts": [
         {
           "name": "wallet",
-          "isMut": false,
-          "isSigner": false
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The [SmartWallet]."
+          ]
         },
         {
           "name": "transaction",
           "isMut": true,
-          "isSigner": true
+          "isSigner": false,
+          "docs": [
+            "The [Transaction]."
+          ]
         },
         {
-          "name": "initiator",
+          "name": "proposer",
           "isMut": false,
           "isSigner": true
         },
         {
-          "name": "from",
+          "name": "payer",
           "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "to",
-          "isMut": true,
-          "isSigner": false
+          "isSigner": true
         },
         {
           "name": "systemProgram",
@@ -128,10 +129,6 @@ export type MultiSigWallet = {
           }
         },
         {
-          "name": "data",
-          "type": "bytes"
-        },
-        {
           "name": "txType",
           "type": "u8"
         },
@@ -144,22 +141,14 @@ export type MultiSigWallet = {
         {
           "name": "txValue",
           "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "test",
-      "accounts": [
+        },
         {
-          "name": "from",
-          "isMut": true,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "a",
-          "type": "u8"
+          "name": "instructions",
+          "type": {
+            "vec": {
+              "defined": "TXInstruction"
+            }
+          }
         }
       ]
     },
@@ -321,6 +310,27 @@ export type MultiSigWallet = {
         }
       ],
       "args": []
+    },
+    {
+      "name": "executeTransferTransaction",
+      "accounts": [
+        {
+          "name": "wallet",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "transaction",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": []
     }
   ],
   "accounts": [
@@ -346,6 +356,10 @@ export type MultiSigWallet = {
           {
             "name": "ownerSeq",
             "type": "u32"
+          },
+          {
+            "name": "numTransfer",
+            "type": "u64"
           }
         ]
       }
@@ -409,9 +423,135 @@ export type MultiSigWallet = {
           }
         ]
       }
+    },
+    {
+      "name": "transferTransaction",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "publicKey"
+          },
+          {
+            "name": "programId",
+            "type": "publicKey"
+          },
+          {
+            "name": "accounts",
+            "type": {
+              "vec": {
+                "defined": "TransactionAccount"
+              }
+            }
+          },
+          {
+            "name": "signers",
+            "type": {
+              "vec": "bool"
+            }
+          },
+          {
+            "name": "didExecute",
+            "type": "bool"
+          },
+          {
+            "name": "ownerSeq",
+            "type": "u32"
+          },
+          {
+            "name": "txType",
+            "type": "u8"
+          },
+          {
+            "name": "txData",
+            "type": {
+              "vec": "publicKey"
+            }
+          },
+          {
+            "name": "txValue",
+            "type": "u64"
+          },
+          {
+            "name": "deleted",
+            "type": "bool"
+          },
+          {
+            "name": "instructions",
+            "type": {
+              "vec": {
+                "defined": "TXInstruction"
+              }
+            }
+          }
+        ]
+      }
     }
   ],
   "types": [
+    {
+      "name": "TXInstruction",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "programId",
+            "docs": [
+              "Pubkey of the instruction processor that executes this instruction"
+            ],
+            "type": "publicKey"
+          },
+          {
+            "name": "keys",
+            "docs": [
+              "Metadata for what accounts should be passed to the instruction processor"
+            ],
+            "type": {
+              "vec": {
+                "defined": "TXAccountMeta"
+              }
+            }
+          },
+          {
+            "name": "data",
+            "docs": [
+              "Opaque data passed to the instruction processor"
+            ],
+            "type": "bytes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TXAccountMeta",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pubkey",
+            "docs": [
+              "An account's public key"
+            ],
+            "type": "publicKey"
+          },
+          {
+            "name": "isSigner",
+            "docs": [
+              "True if an Instruction requires a Transaction signature matching `pubkey`."
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "isWritable",
+            "docs": [
+              "True if the `pubkey` can be loaded as a read-write account."
+            ],
+            "type": "bool"
+          }
+        ]
+      }
+    },
     {
       "name": "TransactionAccount",
       "type": {
@@ -725,28 +865,29 @@ export const IDL: MultiSigWallet = {
       "accounts": [
         {
           "name": "wallet",
-          "isMut": false,
-          "isSigner": false
+          "isMut": true,
+          "isSigner": false,
+          "docs": [
+            "The [SmartWallet]."
+          ]
         },
         {
           "name": "transaction",
           "isMut": true,
-          "isSigner": true
+          "isSigner": false,
+          "docs": [
+            "The [Transaction]."
+          ]
         },
         {
-          "name": "initiator",
+          "name": "proposer",
           "isMut": false,
           "isSigner": true
         },
         {
-          "name": "from",
+          "name": "payer",
           "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "to",
-          "isMut": true,
-          "isSigner": false
+          "isSigner": true
         },
         {
           "name": "systemProgram",
@@ -768,10 +909,6 @@ export const IDL: MultiSigWallet = {
           }
         },
         {
-          "name": "data",
-          "type": "bytes"
-        },
-        {
           "name": "txType",
           "type": "u8"
         },
@@ -784,22 +921,14 @@ export const IDL: MultiSigWallet = {
         {
           "name": "txValue",
           "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "test",
-      "accounts": [
+        },
         {
-          "name": "from",
-          "isMut": true,
-          "isSigner": false
-        }
-      ],
-      "args": [
-        {
-          "name": "a",
-          "type": "u8"
+          "name": "instructions",
+          "type": {
+            "vec": {
+              "defined": "TXInstruction"
+            }
+          }
         }
       ]
     },
@@ -961,6 +1090,27 @@ export const IDL: MultiSigWallet = {
         }
       ],
       "args": []
+    },
+    {
+      "name": "executeTransferTransaction",
+      "accounts": [
+        {
+          "name": "wallet",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "transaction",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "owner",
+          "isMut": false,
+          "isSigner": true
+        }
+      ],
+      "args": []
     }
   ],
   "accounts": [
@@ -986,6 +1136,10 @@ export const IDL: MultiSigWallet = {
           {
             "name": "ownerSeq",
             "type": "u32"
+          },
+          {
+            "name": "numTransfer",
+            "type": "u64"
           }
         ]
       }
@@ -1049,9 +1203,135 @@ export const IDL: MultiSigWallet = {
           }
         ]
       }
+    },
+    {
+      "name": "transferTransaction",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "wallet",
+            "type": "publicKey"
+          },
+          {
+            "name": "programId",
+            "type": "publicKey"
+          },
+          {
+            "name": "accounts",
+            "type": {
+              "vec": {
+                "defined": "TransactionAccount"
+              }
+            }
+          },
+          {
+            "name": "signers",
+            "type": {
+              "vec": "bool"
+            }
+          },
+          {
+            "name": "didExecute",
+            "type": "bool"
+          },
+          {
+            "name": "ownerSeq",
+            "type": "u32"
+          },
+          {
+            "name": "txType",
+            "type": "u8"
+          },
+          {
+            "name": "txData",
+            "type": {
+              "vec": "publicKey"
+            }
+          },
+          {
+            "name": "txValue",
+            "type": "u64"
+          },
+          {
+            "name": "deleted",
+            "type": "bool"
+          },
+          {
+            "name": "instructions",
+            "type": {
+              "vec": {
+                "defined": "TXInstruction"
+              }
+            }
+          }
+        ]
+      }
     }
   ],
   "types": [
+    {
+      "name": "TXInstruction",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "programId",
+            "docs": [
+              "Pubkey of the instruction processor that executes this instruction"
+            ],
+            "type": "publicKey"
+          },
+          {
+            "name": "keys",
+            "docs": [
+              "Metadata for what accounts should be passed to the instruction processor"
+            ],
+            "type": {
+              "vec": {
+                "defined": "TXAccountMeta"
+              }
+            }
+          },
+          {
+            "name": "data",
+            "docs": [
+              "Opaque data passed to the instruction processor"
+            ],
+            "type": "bytes"
+          }
+        ]
+      }
+    },
+    {
+      "name": "TXAccountMeta",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "pubkey",
+            "docs": [
+              "An account's public key"
+            ],
+            "type": "publicKey"
+          },
+          {
+            "name": "isSigner",
+            "docs": [
+              "True if an Instruction requires a Transaction signature matching `pubkey`."
+            ],
+            "type": "bool"
+          },
+          {
+            "name": "isWritable",
+            "docs": [
+              "True if the `pubkey` can be loaded as a read-write account."
+            ],
+            "type": "bool"
+          }
+        ]
+      }
+    },
     {
       "name": "TransactionAccount",
       "type": {
