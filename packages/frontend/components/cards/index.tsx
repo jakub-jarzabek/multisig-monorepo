@@ -56,18 +56,21 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     (state) => state
   );
   const { threshold } = wallet;
-  const handleCancel = async () => {
+  const handleCancel = async (e: any) => {
+    e.stopPropagation();
     await dispatch(
       cancelTransactionApproval({ transactionPublicKey: transaction.publicKey })
     );
   };
 
-  const handleDelete = async () => {
+  const handleDelete = async (e: any) => {
+    e.stopPropagation();
     await dispatch(
       deleteTransaction({ transactionPublicKey: transaction.publicKey })
     );
   };
-  const handleExecute = async () => {
+  const handleExecute = async (e: any) => {
+    e.stopPropagation();
     await dispatch(
       executeTransaction({
         transactionPublicKey: transaction.publicKey,
@@ -75,7 +78,7 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
       })
     );
   };
-  const handleApprove = async () => {
+  const handleApprove = async (e: any) => {
     await dispatch(
       approveTransaction({ transactionPublicKey: transaction.publicKey })
     );

@@ -79,6 +79,11 @@ pub mod multi_sig_wallet {
         tx.tx_type = tx_type;
         tx.tx_data = tx_data;
 
+emit!(TransactionCreatedEvent {
+            wallet: ctx.accounts.wallet.key(),
+            transaction: ctx.accounts.transaction.key(),
+            initiator: ctx.accounts.initiator.key(),
+        });
         Ok(())
     }
 
@@ -114,12 +119,25 @@ pub fn create_transfer_transaction(
         tx.owner_seq = ctx.accounts.wallet.owner_seq;
         tx.tx_type = tx_type;
         tx.tx_data = tx_data;
+        tx.tx_value = tx_value;
         msg!("Creating Transfer");
+
+
 
         Ok(())
     }
 
-    // Approves a transaction on behalf of an owner of the wallet.
+    pub fn test(ctx:Context<Test>,a:u8) ->Result<()>{
+        msg!("Test");
+      
+        let from = ctx.accounts.from.to_account_info();
+        msg!("From: {}",from.key);
+
+        
+
+        Ok(())
+    }
+
     pub fn approve(ctx: Context<Approve>) -> Result<()> {
         let owner_index = ctx
             .accounts
@@ -130,6 +148,12 @@ pub fn create_transfer_transaction(
             .ok_or(ErrorCode::UnauthorizedOwner)?;
 
         ctx.accounts.transaction.signers[owner_index] = true;
+
+    emit!(ApprovedEvent {
+        wallet: ctx.accounts.wallet.key(),
+        transaction: ctx.accounts.transaction.key(),
+        owner: ctx.accounts.owner.key(),
+    });
 
         Ok(())
     }
@@ -144,7 +168,11 @@ pub fn create_transfer_transaction(
             .ok_or(ErrorCode::UnauthorizedOwner)?;
 
         ctx.accounts.transaction.signers[owner_index] = false;
-
+    emit!(CancelledAprovalEvent {
+        wallet: ctx.accounts.wallet.key(),
+        transaction: ctx.accounts.transaction.key(),
+        owner: ctx.accounts.owner.key(),
+    });
         Ok(())
     }
 
@@ -161,6 +189,12 @@ pub fn create_transfer_transaction(
 
         let tx = &mut ctx.accounts.transaction;
         tx.deleted = true;
+
+ emit!(DeletedEvent {
+        wallet: ctx.accounts.wallet.key(),
+        transaction: ctx.accounts.transaction.key(),
+        owner: ctx.accounts.owner.key(),
+    });
         Ok(())
     }
 
@@ -174,9 +208,13 @@ pub fn create_transfer_transaction(
             wallet.threshold = owners.len() as u64;
         }
 
-        wallet.owners = owners;
+        wallet.owners = owners.clone();
         wallet.owner_seq += 1;
 
+        emit!(WalletOwnersSetEvent{
+            wallet: wallet.key(),
+            owners:owners,
+        });
         Ok(())
     }
 
@@ -188,12 +226,16 @@ pub fn create_transfer_transaction(
         }
         let wallet = &mut ctx.accounts.wallet;
         wallet.threshold = threshold;
+        emit!(WalletThresholdSetEvent{
+            wallet: wallet.key(),
+            threshold,
+        });
         Ok(())
     }
 
     pub fn transfer_funds( ctx:Context<Transfer>,amount:u64) -> Result<()> {
             msg!("Transfering Funds");
-    let amount_of_lamports = amount;
+        let amount_of_lamports = amount;
         let from = ctx.accounts.from.to_account_info();
         let to = ctx.accounts.to.to_account_info();
 
@@ -204,14 +246,12 @@ pub fn create_transfer_transaction(
         Ok(())
     }
 
-    // Executes the given transaction if threshold owners have signed it.
     pub fn execute_transaction(ctx: Context<ExecuteTransaction>) -> Result<()> {
-        // Has this been executed already?
+        msg!("Executing Transaction");
         if ctx.accounts.transaction.did_execute {
             return Err(ErrorCode::AlreadyExecuted.into());
         }
 
-        // Do we have enough signers.
         let sig_count = ctx
             .accounts
             .transaction
@@ -223,7 +263,6 @@ pub fn create_transfer_transaction(
             return Err(ErrorCode::NotEnoughSigners.into());
         }
 
-        // Execute the transaction signed by the wallet.
         let mut ix: Instruction = (*ctx.accounts.transaction).deref().into();
         ix.accounts = ix
             .accounts
@@ -242,12 +281,17 @@ pub fn create_transfer_transaction(
         let accounts = ctx.remaining_accounts;
         solana_program::program::invoke_signed(&ix, accounts, signer)?;
 
-        // Burn the transaction to ensure one time use.
         ctx.accounts.transaction.did_execute = true;
+    emit!(TransactionExecutedEvent {
+        wallet: ctx.accounts.wallet.key(),
+        transaction: ctx.accounts.transaction.key(),
+    });
 
         Ok(())
     }
 }
+
+
 
 
 impl From<&TransactionAccount> for AccountMeta {

@@ -200,30 +200,37 @@ export const transfer = createAsyncThunk(
   'payload/transfer',
   async (args: ITransfer, thunkAPI) => {
     console.log({ args: args });
+    console.log(typeof args.amount);
     const state = thunkAPI.getState() as { connection: IConnectionSlice };
     const [walletSigner] = await web3.PublicKey.findProgramAddress(
       [new PublicKey(state.connection.msig).toBuffer()],
       state.connection.program.programId
     );
     let data;
+    console.log({ amout: args.amount });
     try {
       data = state.connection.program.coder.instruction.encode(
         'transfer_funds',
         {
           amount: new BN(args.amount),
-          accounts: {
-            to: args.to,
-            from: new PublicKey(state.connection.msig),
-            systemProgram: web3.SystemProgram.programId,
-            wallet: new PublicKey(state.connection.msig),
-            walletSigner,
-          },
+          // {
+          //   to: args.to,
+          //   from: new PublicKey(state.connection.msig),
+          //   systemProgram: web3.SystemProgram.programId,
+          //   wallet: new PublicKey(state.connection.msig),
+          //   walletSigner,
+          // },
         }
       );
     } catch (err) {
       console.log(err);
     }
-
+    data = state.connection.program.coder.instruction.encode('test', {
+      a: new BN(1),
+      accounts: {
+        from: new PublicKey(state.connection.msig),
+      },
+    });
     const accounts = [
       {
         pubkey: new PublicKey(state.connection.msig),
@@ -238,33 +245,57 @@ export const transfer = createAsyncThunk(
     ];
     const transaction = web3.Keypair.generate();
     try {
-      const tx = await state.connection.program.rpc.createTransferTransaction(
+      await state.connection.program.rpc.createTransaction(
         state.connection.program.programId,
         accounts,
         data,
-        new BN(2),
-        [args.to],
-        new BN(0),
+        new BN(1),
+        [],
+        new BN(1),
+
         {
           accounts: {
             wallet: new PublicKey(state.connection.msig),
             transaction: transaction.publicKey,
             initiator: state.connection.provider.wallet.publicKey,
-            to: args.to,
-            from: new PublicKey(state.connection.msig),
-            systemProgram: web3.SystemProgram.programId,
           },
           instructions: [
             await state.connection.program.account.wallet.createInstruction(
               transaction,
-              3000
+              1000
             ),
           ],
           signers: [transaction],
         }
       );
-      console.log({ tx: tx });
+      // await state.connection.program.rpc.createTransferTransaction(
+      //   state.connection.program.programId,
+      //   accounts,
+      //   data,
+      //   new BN(2),
+      //   [args.to],
+      //   new BN(args.amount),
+      //   {
+      //     accounts: {
+      //       wallet: new PublicKey(state.connection.msig),
+      //       transaction: transaction.publicKey,
+      //       initiator: state.connection.provider.wallet.publicKey,
+      //       to: args.to,
+      //       from: new PublicKey(state.connection.msig),
+      //       systemProgram: SystemProgram.programId,
+      //     },
+      //     instructions: [
+      //       await state.connection.program.account.wallet.createInstruction(
+      //         transaction,
+      //         10000
+      //       ),
+      //     ],
+      //     signers: [transaction],
+      //   }
+      // );
+      toast.success('Transaction created and signed');
     } catch (err) {
+      toast.error(err.message);
       console.log(err);
     }
   }

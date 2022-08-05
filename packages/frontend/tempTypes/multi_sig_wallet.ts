@@ -148,6 +148,22 @@ export type MultiSigWallet = {
       ]
     },
     {
+      "name": "test",
+      "accounts": [
+        {
+          "name": "from",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "a",
+          "type": "u8"
+        }
+      ]
+    },
+    {
       "name": "approve",
       "accounts": [
         {
@@ -273,12 +289,7 @@ export type MultiSigWallet = {
           "isSigner": false
         },
         {
-          "name": "wallet",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "walletSigner",
+          "name": "user",
           "isMut": false,
           "isSigner": true
         }
@@ -626,6 +637,22 @@ export const IDL: MultiSigWallet = {
       ]
     },
     {
+      "name": "test",
+      "accounts": [
+        {
+          "name": "from",
+          "isMut": true,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "a",
+          "type": "u8"
+        }
+      ]
+    },
+    {
       "name": "approve",
       "accounts": [
         {
@@ -751,12 +778,7 @@ export const IDL: MultiSigWallet = {
           "isSigner": false
         },
         {
-          "name": "wallet",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "walletSigner",
+          "name": "user",
           "isMut": false,
           "isSigner": true
         }

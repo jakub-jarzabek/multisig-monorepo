@@ -1,17 +1,9 @@
 import React, { useRef, useEffect, useState } from 'react';
-import {
-  Tabs,
-  MainPanel,
-  Transactions,
-  AccountInfo,
-  AccountCreation,
-} from '../../components';
+import { Tabs, MainPanel, Transactions, AccountInfo } from '../../components';
 import autoAnimate from '@formkit/auto-animate';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   AppDispatch,
-  Connection,
-  IConnectionSlice,
   loadTransactions,
   loadWalletData,
   ReduxState,
@@ -19,9 +11,10 @@ import {
 } from '../../redux';
 import { useRouter } from 'next/router';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { Storage } from '../../utils';
+import { BiRefresh } from 'react-icons/bi';
 const Dashboard = () => {
   const { connection } = useSelector<RootState, ReduxState>((state) => state);
+  const [rotation, setRotation] = useState(0);
   const { msig, program } = connection;
   const dispatch = useDispatch<AppDispatch>();
   const { publicKey } = useWallet();
@@ -29,18 +22,16 @@ const Dashboard = () => {
   useEffect(() => {
     if (!publicKey || !program) {
       router.replace('/');
-    } else {
-      if (Storage.getItem('wallet')) {
-        dispatch(Connection.setWallet(Storage.getItem('wallet')));
-      }
     }
   }, [publicKey]);
   useEffect(() => {
     if (msig) {
       dispatch(loadWalletData());
       dispatch(loadTransactions());
+    } else {
+      router.replace('/');
     }
-  }, [msig]);
+  }, []);
   const parent = useRef(null);
   const [activeTab, setActiveTab] = useState(0);
 
@@ -54,7 +45,24 @@ const Dashboard = () => {
     >
       <div className="flex flex-row items-center justify-between">
         <Tabs onChange={(e) => setActiveTab(e)} activeTab={activeTab} />
-        <AccountInfo />
+        <div className="flex flex-row gap-10 items-center">
+          <BiRefresh
+            size={50}
+            color="white"
+            onMouseOver={() => setRotation(45)}
+            onMouseLeave={() => setRotation(0)}
+            style={{
+              cursor: 'pointer',
+              transition: 'all 0.3s ease-in-out',
+              transform: `rotate(${rotation}deg)`,
+            }}
+            onClick={() => {
+              dispatch(loadTransactions());
+              dispatch(loadWalletData());
+            }}
+          />
+          <AccountInfo />
+        </div>
       </div>
       <div ref={parent} className="mt-4">
         {activeTab === 0 ? <MainPanel /> : <Transactions />}

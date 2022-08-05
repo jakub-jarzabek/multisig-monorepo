@@ -3,7 +3,7 @@ import { IconType } from 'react-icons';
 
 interface ButtonProps {
   primary?: boolean;
-  onClick: () => void;
+  onClick: ((e: any) => void) | ((e: any) => Promise<void>);
   label: string | IconType;
 }
 export const Button: React.FC<ButtonProps> = ({ primary, onClick, label }) => {

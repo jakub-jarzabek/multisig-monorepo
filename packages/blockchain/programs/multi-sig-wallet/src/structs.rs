@@ -50,13 +50,14 @@ pub struct Transfer<'info> {
     pub to: AccountInfo<'info>,
     #[account()]
     pub system_program: Program<'info, System>,
+    pub user: Signer<'info>,
+}
+
+#[derive(Accounts)]
+pub struct Test<'info> {
     #[account(mut)]
-    pub wallet: Box<Account<'info, Wallet>>,
-    #[account(
-        seeds = [wallet.key().as_ref()],
-        bump = wallet.nonce,
-    )]
-    pub wallet_signer: Signer<'info>,
+    /// CHECK: This is not dangerous
+    pub from: AccountInfo<'info>,
 }
 
 #[derive(Accounts)]
