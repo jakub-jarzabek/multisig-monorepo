@@ -11,7 +11,7 @@
   },
   "references": [
     {
-      "path": "./packages/blockchain"
+      "path": "./packages/solana"
     },
     {
       "path": "./packages/frontend"

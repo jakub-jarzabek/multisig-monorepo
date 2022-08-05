@@ -10,7 +10,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "paths": {
-      "@blockchain/*": ["packages/blockchain/*"]
+      "@solana/*": ["packages/solana/*"]
     },
     "rootDir": ".",
     "skipDefaultLibCheck": true,

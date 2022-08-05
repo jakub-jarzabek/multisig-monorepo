@@ -1,0 +1,44 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/solana/src",
+  "projectType": "application",
+  "targets": {
+    "sync-types": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "node packages/solana/syncTypes.js"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd packages/solana/ && anchor build"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd packages/solana/ && anchor test"
+      }
+    },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd packages/solana/ && anchor deploy"
+      }
+    },
+    "enable-devnet": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "solana config set --url https://api.devnet.solana.com"
+      }
+    },
+    "enable-localhost": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "solana config set --url http://127.0.0.1:8899"
+      }
+    }
+  },
+  "tags": []
+}

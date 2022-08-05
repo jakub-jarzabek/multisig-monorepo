@@ -1,4 +1,4 @@
-import { MultiSigWallet } from '@blockchain/target/types/multi_sig_wallet';
+import { MultiSigWallet } from 'packages/solana/target/types/multi_sig_wallet';
 import * as anchor from '@project-serum/anchor';
 import { Program } from '@project-serum/anchor';
 import { BN } from 'bn.js';
