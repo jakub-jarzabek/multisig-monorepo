@@ -85,34 +85,18 @@ export type MultiSigWallet = {
       "accounts": [
         {
           "name": "wallet",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "The [SmartWallet]."
-          ]
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "transaction",
           "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "The [Transaction]."
-          ]
-        },
-        {
-          "name": "proposer",
-          "isMut": false,
           "isSigner": true
         },
         {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "systemProgram",
+          "name": "initiator",
           "isMut": false,
-          "isSigner": false
+          "isSigner": true
         }
       ],
       "args": [
@@ -143,12 +127,16 @@ export type MultiSigWallet = {
           "type": "u64"
         },
         {
-          "name": "instructions",
-          "type": {
-            "vec": {
-              "defined": "TXInstruction"
-            }
-          }
+          "name": "from",
+          "type": "publicKey"
+        },
+        {
+          "name": "to",
+          "type": "publicKey"
+        },
+        {
+          "name": "value",
+          "type": "u64"
         }
       ]
     },
@@ -325,9 +313,29 @@ export type MultiSigWallet = {
           "isSigner": false
         },
         {
-          "name": "owner",
+          "name": "from",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "to",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "user",
           "isMut": false,
           "isSigner": true
+        },
+        {
+          "name": "walletSigner",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": []
@@ -478,80 +486,22 @@ export type MultiSigWallet = {
             "type": "bool"
           },
           {
-            "name": "instructions",
-            "type": {
-              "vec": {
-                "defined": "TXInstruction"
-              }
-            }
+            "name": "from",
+            "type": "publicKey"
+          },
+          {
+            "name": "to",
+            "type": "publicKey"
+          },
+          {
+            "name": "value",
+            "type": "u64"
           }
         ]
       }
     }
   ],
   "types": [
-    {
-      "name": "TXInstruction",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "programId",
-            "docs": [
-              "Pubkey of the instruction processor that executes this instruction"
-            ],
-            "type": "publicKey"
-          },
-          {
-            "name": "keys",
-            "docs": [
-              "Metadata for what accounts should be passed to the instruction processor"
-            ],
-            "type": {
-              "vec": {
-                "defined": "TXAccountMeta"
-              }
-            }
-          },
-          {
-            "name": "data",
-            "docs": [
-              "Opaque data passed to the instruction processor"
-            ],
-            "type": "bytes"
-          }
-        ]
-      }
-    },
-    {
-      "name": "TXAccountMeta",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "pubkey",
-            "docs": [
-              "An account's public key"
-            ],
-            "type": "publicKey"
-          },
-          {
-            "name": "isSigner",
-            "docs": [
-              "True if an Instruction requires a Transaction signature matching `pubkey`."
-            ],
-            "type": "bool"
-          },
-          {
-            "name": "isWritable",
-            "docs": [
-              "True if the `pubkey` can be loaded as a read-write account."
-            ],
-            "type": "bool"
-          }
-        ]
-      }
-    },
     {
       "name": "TransactionAccount",
       "type": {
@@ -865,34 +815,18 @@ export const IDL: MultiSigWallet = {
       "accounts": [
         {
           "name": "wallet",
-          "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "The [SmartWallet]."
-          ]
+          "isMut": false,
+          "isSigner": false
         },
         {
           "name": "transaction",
           "isMut": true,
-          "isSigner": false,
-          "docs": [
-            "The [Transaction]."
-          ]
-        },
-        {
-          "name": "proposer",
-          "isMut": false,
           "isSigner": true
         },
         {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true
-        },
-        {
-          "name": "systemProgram",
+          "name": "initiator",
           "isMut": false,
-          "isSigner": false
+          "isSigner": true
         }
       ],
       "args": [
@@ -923,12 +857,16 @@ export const IDL: MultiSigWallet = {
           "type": "u64"
         },
         {
-          "name": "instructions",
-          "type": {
-            "vec": {
-              "defined": "TXInstruction"
-            }
-          }
+          "name": "from",
+          "type": "publicKey"
+        },
+        {
+          "name": "to",
+          "type": "publicKey"
+        },
+        {
+          "name": "value",
+          "type": "u64"
         }
       ]
     },
@@ -1105,9 +1043,29 @@ export const IDL: MultiSigWallet = {
           "isSigner": false
         },
         {
-          "name": "owner",
+          "name": "from",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "to",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "user",
           "isMut": false,
           "isSigner": true
+        },
+        {
+          "name": "walletSigner",
+          "isMut": false,
+          "isSigner": false
         }
       ],
       "args": []
@@ -1258,80 +1216,22 @@ export const IDL: MultiSigWallet = {
             "type": "bool"
           },
           {
-            "name": "instructions",
-            "type": {
-              "vec": {
-                "defined": "TXInstruction"
-              }
-            }
+            "name": "from",
+            "type": "publicKey"
+          },
+          {
+            "name": "to",
+            "type": "publicKey"
+          },
+          {
+            "name": "value",
+            "type": "u64"
           }
         ]
       }
     }
   ],
   "types": [
-    {
-      "name": "TXInstruction",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "programId",
-            "docs": [
-              "Pubkey of the instruction processor that executes this instruction"
-            ],
-            "type": "publicKey"
-          },
-          {
-            "name": "keys",
-            "docs": [
-              "Metadata for what accounts should be passed to the instruction processor"
-            ],
-            "type": {
-              "vec": {
-                "defined": "TXAccountMeta"
-              }
-            }
-          },
-          {
-            "name": "data",
-            "docs": [
-              "Opaque data passed to the instruction processor"
-            ],
-            "type": "bytes"
-          }
-        ]
-      }
-    },
-    {
-      "name": "TXAccountMeta",
-      "type": {
-        "kind": "struct",
-        "fields": [
-          {
-            "name": "pubkey",
-            "docs": [
-              "An account's public key"
-            ],
-            "type": "publicKey"
-          },
-          {
-            "name": "isSigner",
-            "docs": [
-              "True if an Instruction requires a Transaction signature matching `pubkey`."
-            ],
-            "type": "bool"
-          },
-          {
-            "name": "isWritable",
-            "docs": [
-              "True if the `pubkey` can be loaded as a read-write account."
-            ],
-            "type": "bool"
-          }
-        ]
-      }
-    },
     {
       "name": "TransactionAccount",
       "type": {
