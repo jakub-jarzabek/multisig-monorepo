@@ -24,5 +24,7 @@ pub enum ErrorCode {
     #[msg("Insufficient Funds")]
     InsufficientFundsForTransaction,
     #[msg("Forbidden manipulation of recipient")]
-    ForbiddenRecipientManipulation
+    ForbiddenRecipientManipulation,
+    #[msg("Cannot execute deleted transaction")]
+    TransactionIsDeleted,
 }

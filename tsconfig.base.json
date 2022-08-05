@@ -12,6 +12,9 @@
   "references": [
     {
       "path": "./packages/blockchain"
+    },
+    {
+      "path": "./packages/frontend"
     }
   ],
   "exclude": ["node_modules", "tmp"]

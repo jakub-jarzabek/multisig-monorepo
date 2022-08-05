@@ -233,6 +233,9 @@ pub fn create_transfer_transaction(
         if ctx.accounts.transaction.did_execute {
             return Err(ErrorCode::AlreadyExecuted.into());
         }
+       if ctx.accounts.transaction.deleted {
+                return Err(ErrorCode::TransactionIsDeleted.into());
+            }
 
         let sig_count = ctx
             .accounts
@@ -277,6 +280,10 @@ pub fn create_transfer_transaction(
         if ctx.accounts.transaction.did_execute {
             return Err(ErrorCode::AlreadyExecuted.into());
         }
+
+       if ctx.accounts.transaction.deleted {
+                return Err(ErrorCode::TransactionIsDeleted.into());
+            }
 
         let sig_count = ctx
             .accounts
