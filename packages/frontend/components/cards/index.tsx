@@ -15,11 +15,18 @@ import {
 
 interface CardProps {
   children: React.ReactNode;
+  onClick?: () => void;
+  twStyles?: string;
 }
 
-export const Card: React.FC<CardProps> = ({ children }) => {
+export const Card: React.FC<CardProps> = ({ children, twStyles, onClick }) => {
   return (
-    <div className="w-full flex flex-row p-2 h-14 bg-purple-300 bg-opacity-50 rounded border border-slate-300 justify-between hover:shadow-lg transition-all duration-300">
+    <div
+      onClick={onClick}
+      className={`${
+        twStyles ? twStyles : ''
+      } w-full flex flex-row p-2 h-14 bg-purple-300 bg-opacity-50 rounded border border-slate-300 justify-between hover:shadow-lg transition-all duration-300`}
+    >
       {children}
     </div>
   );

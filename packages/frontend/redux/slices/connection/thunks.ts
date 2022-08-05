@@ -14,7 +14,7 @@ export const createWallet = createAsyncThunk(
   async (args: IcreateWallet, thunkAPI) => {
     const baseAccount = web3.Keypair.generate();
 
-    const state = thunkAPI.getState() as { connection: IConnectionSlice };
+    const state = thunkAPI.getState() as ReduxState;
     const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
       [baseAccount.publicKey.toBuffer()],
       state.connection.program.programId
@@ -36,7 +36,6 @@ export const createWallet = createAsyncThunk(
           signers: [baseAccount],
         }
       );
-      Storage.setItem('wallet', baseAccount.publicKey.toBase58());
       return baseAccount.publicKey.toString();
     } catch (err) {
       console.log(err);
@@ -61,7 +60,6 @@ export const logInToWallet = createAsyncThunk(
           .map((owner) => owner.toString())
           .includes(state.connection.provider.publicKey.toString())
       ) {
-        Storage.setItem('wallet', args.pk);
         return args.pk;
       } else {
         toast.error('Unauthorized for this wallet');
@@ -128,7 +126,7 @@ export const setOwners = createAsyncThunk(
           signers: [transaction],
         }
       );
-      console.log({ tx: tx });
+      toast.success('Transaction created and signed');
     } catch (err) {
       console.log(err);
     }
@@ -185,8 +183,9 @@ export const setTreshold = createAsyncThunk(
           signers: [transaction],
         }
       );
-      console.log({ tx: tx });
+      toast.success('Transaction created and signed');
     } catch (err) {
+      toast.error(err.message);
       console.log(err);
     }
   }

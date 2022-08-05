@@ -14,15 +14,15 @@ import {
   IConnectionSlice,
   loadTransactions,
   loadWalletData,
+  ReduxState,
   RootState,
 } from '../../redux';
 import { useRouter } from 'next/router';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { Storage } from '../../utils';
 const Dashboard = () => {
-  const { provider, msig, program } = useSelector<RootState, IConnectionSlice>(
-    (state) => state.connection
-  );
+  const { connection } = useSelector<RootState, ReduxState>((state) => state);
+  const { msig, program } = connection;
   const dispatch = useDispatch<AppDispatch>();
   const { publicKey } = useWallet();
   const router = useRouter();

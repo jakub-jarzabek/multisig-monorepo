@@ -1,6 +1,7 @@
 import { web3 } from '@project-serum/anchor';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PublicKey } from '@solana/web3.js';
+import { toast } from 'react-toastify';
 import { ReduxState } from '..';
 
 export const loadWalletData = createAsyncThunk(
@@ -80,7 +81,9 @@ export const approveTransaction = createAsyncThunk(
           owner: state.connection.provider.publicKey,
         },
       });
+      toast.success('Transaction approved');
     } catch (err) {
+      toast.error(err.message);
       console.log(err);
     }
   }
@@ -97,7 +100,9 @@ export const cancelTransactionApproval = createAsyncThunk(
           owner: state.connection.provider.publicKey,
         },
       });
+      toast.success('Approval revoked');
     } catch (err) {
+      toast.error(err.message);
       console.log(err);
     }
   }
@@ -114,7 +119,9 @@ export const deleteTransaction = createAsyncThunk(
           owner: state.connection.provider.publicKey,
         },
       });
+      toast.success('Transaction deleted');
     } catch (err) {
+      toast.error(err.message);
       console.log(err);
     }
   }
@@ -134,7 +141,7 @@ export const executeTransaction = createAsyncThunk(
     );
 
     try {
-      const tx = await state.connection.program.rpc.executeTransaction({
+      await state.connection.program.rpc.executeTransaction({
         accounts: {
           wallet: new PublicKey(state.connection.msig),
           walletSigner,
@@ -145,6 +152,8 @@ export const executeTransaction = createAsyncThunk(
             wallet: new PublicKey(state.connection.msig),
             walletSigner,
           })
+
+          //eslint-disable-next-line
           // @ts-ignore
           .map((meta) =>
             meta.pubkey.equals(walletSigner)
@@ -157,8 +166,10 @@ export const executeTransaction = createAsyncThunk(
             isSigner: false,
           }),
       });
-      console.log({ tx: tx });
+
+      toast.success('Transaction executed');
     } catch (err) {
+      toast.error(err.message);
       console.log(err);
     }
   }

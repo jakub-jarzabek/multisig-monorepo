@@ -1,8 +1,6 @@
 import { BN } from '@project-serum/anchor';
 import { createSlice } from '@reduxjs/toolkit';
-import { PublicKey } from '@solana/web3.js';
 import { loadWalletData, loadTransactions } from './thunks';
-import { MultiSigWallet } from '../../../tempTypes/multi_sig_wallet';
 
 export interface IWalletSlice {
   accounts: BN[];

@@ -18,13 +18,14 @@ body {
 }
 @layer components {
   .glow-green {
-    text-shadow: 0 0 1px #fff, 0 0 2px #00FF00
-     
+    text-shadow: 0 0 1px #fff, 0 0 2px #00ff00;
   }
 
   .glow-blue {
-    text-shadow: 0 0 1px #fff, 0 0 2px #0000FF 
-     
+    text-shadow: 0 0 1px #fff, 0 0 2px #0000ff;
+  }
+  .magic {
+    box-shadow: rgba(0, 0, 0, 0.5) 0px 0px 24px;
   }
 }
 :root {
