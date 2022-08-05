@@ -244,31 +244,3 @@ export const executeTransferTransaction = createAsyncThunk(
     }
   }
 );
-
-export const transferFunds = createAsyncThunk(
-  'payload/transfer',
-  async (args: IexecuteTransferTransaction, thunkAPI) => {
-    const { tx } = args;
-    const state = thunkAPI.getState() as ReduxState;
-    const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
-      [new PublicKey(state.connection.msig).toBuffer()],
-      state.connection.program.programId
-    );
-
-    try {
-      await state.connection.program.rpc.transferFunds(tx.account.value, {
-        accounts: {
-          from: tx.account.from,
-          to: tx.account.to,
-          systemProgram: SystemProgram.programId,
-          user: state.connection.provider.wallet.publicKey,
-        },
-      });
-
-      toast.success('Transaction executed');
-    } catch (err) {
-      toast.error(err.message);
-      console.log(err);
-    }
-  }
-);

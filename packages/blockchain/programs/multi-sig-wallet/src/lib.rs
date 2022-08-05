@@ -228,24 +228,6 @@ pub fn create_transfer_transaction(
         Ok(())
     }
 
-    pub fn transfer_funds( ctx:Context<Transfer>,amount:u64) -> Result<()> {
-            msg!("Transfering Funds");
-        let amount_of_lamports = amount;
-        let from = ctx.accounts.from.to_account_info();
-        let to = ctx.accounts.to.to_account_info();
-      
-
-
-        if **from.try_borrow_lamports()? < amount_of_lamports {
-                return Err(ErrorCode::InsufficientFundsForTransaction.into());
-            }
-
-        **from.try_borrow_mut_lamports()? -= amount_of_lamports;
-        **to.try_borrow_mut_lamports()? += amount_of_lamports;
-        
-        Ok(())
-    }
-
     pub fn execute_transaction(ctx: Context<ExecuteTransaction>) -> Result<()> {
         msg!("Executing Transaction");
         if ctx.accounts.transaction.did_execute {

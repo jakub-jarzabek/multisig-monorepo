@@ -28,19 +28,6 @@ pub struct Approve<'info> {
 }
 
 #[derive(Accounts)]
-pub struct Transfer<'info> {
-    #[account(mut)]
-    /// CHECK: This is not dangerous
-    pub from: AccountInfo<'info>,
-    #[account(mut)]
-    /// CHECK: This is not dangerous
-    pub to: AccountInfo<'info>,
-    #[account()]
-    pub system_program: Program<'info, System>,
-    pub user: Signer<'info>,
-}
-
-#[derive(Accounts)]
 pub struct Auth<'info> {
     #[account(mut)]
     pub wallet: Box<Account<'info, Wallet>>,

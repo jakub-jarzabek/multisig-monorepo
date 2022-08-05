@@ -9,10 +9,8 @@ import {
   deleteTransaction,
   executeTransaction,
   executeTransferTransaction,
-  loadWalletData,
   ReduxState,
   RootState,
-  transferFunds,
 } from '../../redux';
 
 interface CardProps {
