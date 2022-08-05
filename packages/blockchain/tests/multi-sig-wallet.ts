@@ -58,45 +58,18 @@ describe('multi-sig-wallet', () => {
     );
     await connection.requestAirdrop(wallet.publicKey, 1000000000);
     await connection.requestAirdrop(wallet2.publicKey, 1000000000);
+    await connection.requestAirdrop(ownerB.publicKey, 1000000000);
+    await connection.requestAirdrop(ownerA.publicKey, 1000000000);
     const balance = await connection.getBalance(wallet.publicKey);
-    const data = program.coder.instruction.encode('transfer_funds', {
-      amount: new BN(2),
-    });
-    const accounts = [
-      {
-        pubkey: wallet.publicKey,
-        isWritable: true,
-        isSigner: false,
-      },
-      {
-        pubkey: walletSigner,
-        isWritable: false,
-        isSigner: true,
-      },
-    ];
 
-    const transaction = anchor.web3.Keypair.generate();
-    await program.rpc.createTransferTransaction(
-      program.programId,
-      accounts,
-      data,
-      new BN(2),
-      [],
-      new BN(0),
-      {
-        accounts: {
-          wallet: wallet.publicKey,
-          transaction: transaction.publicKey,
-          initiator: ownerA.publicKey,
-          to: ownerB.publicKey,
-          from: wallet.publicKey,
-          systemProgram: program.programId,
-        },
-        instructions: [
-          await program.account.wallet.createInstruction(transaction, 1000),
-        ],
-        signers: [transaction, ownerA],
-      }
-    );
+    await program.rpc.transferFunds(new BN(2), {
+      accounts: {
+        from: wallet.publicKey,
+        to: ownerB.publicKey,
+        systemProgram: anchor.web3.SystemProgram.programId,
+        user: ownerA.publicKey,
+      },
+      signers: [ownerA],
+    });
   });
 });

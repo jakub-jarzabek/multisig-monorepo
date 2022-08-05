@@ -9,7 +9,6 @@ import {
   deleteTransaction,
   executeTransaction,
   executeTransferTransaction,
-  loadWalletData,
   ReduxState,
   RootState,
 } from '../../redux';
@@ -82,7 +81,7 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     } else {
       await dispatch(
         executeTransferTransaction({
-          transactionPublicKey: transaction.publicKey,
+          tx: transaction,
         })
       );
     }

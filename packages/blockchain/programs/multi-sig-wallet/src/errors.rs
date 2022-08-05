@@ -21,4 +21,8 @@ pub enum ErrorCode {
     InvalidThreshold,
     #[msg("Transaction cannot be deleted")]
     CannotDelete,
+    #[msg("Insufficient Funds")]
+    InsufficientFundsForTransaction,
+    #[msg("Forbidden manipulation of recipient")]
+    ForbiddenRecipientManipulation
 }

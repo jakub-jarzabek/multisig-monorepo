@@ -95,14 +95,16 @@ pub fn create_transfer_transaction(
         tx_type: u8,
         tx_data: Vec<Pubkey>,
         tx_value: u64,
-        instructions:Vec<TXInstruction>,
+        from:Pubkey,
+        to:Pubkey,
+        value:u64,
     ) -> Result<()> {
         let owner_index = ctx
             .accounts
             .wallet
             .owners
             .iter()
-            .position(|a| a == ctx.accounts.proposer.key)
+            .position(|a| a == ctx.accounts.initiator.key)
             .ok_or(ErrorCode::UnauthorizedOwner)?;
 
         let mut signers = Vec::new();
@@ -120,7 +122,9 @@ pub fn create_transfer_transaction(
         tx.tx_type = tx_type;
         tx.tx_data = tx_data;
         tx.tx_value = tx_value;
-        tx.instructions = instructions.clone();
+        tx.from = from;
+        tx.to = to;
+        tx.value = value;
          let wallet = &mut ctx.accounts.wallet;
         wallet.num_transfer = unwrap_int!(wallet.num_transfer.checked_add(1));
         msg!("Creating Transfer");
@@ -224,19 +228,6 @@ pub fn create_transfer_transaction(
         Ok(())
     }
 
-    pub fn transfer_funds( ctx:Context<Transfer>,amount:u64) -> Result<()> {
-            msg!("Transfering Funds");
-        let amount_of_lamports = amount;
-        let from = ctx.accounts.from.to_account_info();
-        let to = ctx.accounts.to.to_account_info();
-
-      
-        **from.try_borrow_mut_lamports()? -= amount_of_lamports;
-        **to.try_borrow_mut_lamports()? += amount_of_lamports;
-
-        Ok(())
-    }
-
     pub fn execute_transaction(ctx: Context<ExecuteTransaction>) -> Result<()> {
         msg!("Executing Transaction");
         if ctx.accounts.transaction.did_execute {
@@ -298,21 +289,23 @@ pub fn create_transfer_transaction(
             return Err(ErrorCode::NotEnoughSigners.into());
         }
 
-            let wallet = &ctx.accounts.wallet;
-      let seeds: &[&[&[u8]]] = &[&[
-            b"QbeeetsuMultisig" as &[u8],
-            &wallet.key().to_bytes(),
-            &[wallet.nonce],
-        ]];
+        let amount_of_lamports = ctx.accounts.transaction.value;
+        let from = ctx.accounts.from.to_account_info();
+        let to = ctx.accounts.to.to_account_info();
 
+        if from.key() != ctx.accounts.transaction.from || from.key() != ctx.accounts.transaction.to{
+            return Err(ErrorCode::ForbiddenRecipientManipulation.into());
+        }
+        
+        if **from.try_borrow_lamports()? < amount_of_lamports {
+            return Err(ErrorCode::InsufficientFundsForTransaction.into());
+        }
 
-  for ix in ctx.accounts.transaction.instructions.iter() {
-        solana_program::program::invoke_signed(&(ix).into(), ctx.remaining_accounts, seeds)?;
-    }
+        **from.try_borrow_mut_lamports()? -= amount_of_lamports;
+        **to.try_borrow_mut_lamports()? += amount_of_lamports;
+        ctx.accounts.transaction.did_execute = true;
 
-
-
-           emit!(TransactionExecutedEvent {
+    emit!(TransactionExecutedEvent {
         wallet: ctx.accounts.wallet.key(),
         transaction: ctx.accounts.transaction.key(),
     });
