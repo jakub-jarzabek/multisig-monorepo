@@ -9,11 +9,14 @@
 # dependencies
 node_modules
 target
+
 **/target/*
 /packages/blockchain/target
 .anchor
 **/.anchor/*
 /packages/blockchain/.anchor
+!target/idl/*
+!target
 
 # IDEs and editors
 /.idea
