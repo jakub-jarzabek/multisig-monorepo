@@ -53,6 +53,9 @@ const connectionSlice = createSlice({
     setWallet(state, action: PayloadAction<string>) {
       state.msig = action.payload;
     },
+    clearMsig(state) {
+      state.msig = null;
+    },
   },
   extraReducers: (builder) => {
     builder.addCase(createWallet.fulfilled, (state, action) => {
@@ -67,7 +70,7 @@ const connectionSlice = createSlice({
   },
 });
 
-const { setProviderAndProgram, setWallet } = connectionSlice.actions;
-export const Connection = { setProviderAndProgram, setWallet };
+const { setProviderAndProgram, setWallet, clearMsig } = connectionSlice.actions;
+export const Connection = { setProviderAndProgram, setWallet, clearMsig };
 export default connectionSlice.reducer;
 export * from './thunks';

@@ -4,6 +4,7 @@ import autoAnimate from '@formkit/auto-animate';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   AppDispatch,
+  Connection,
   loadTransactions,
   loadWalletData,
   ReduxState,
@@ -12,11 +13,13 @@ import {
 import { useRouter } from 'next/router';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { BiRefresh } from 'react-icons/bi';
+import { AiOutlinePoweroff } from 'react-icons/ai';
 import { useSubscriveEvents } from '../../hooks';
 
 const Dashboard = () => {
   const { connection } = useSelector<RootState, ReduxState>((state) => state);
   const [rotation, setRotation] = useState(0);
+  const [color, setColor] = useState<'white' | '#ff1818'>('white');
   const { msig, program } = connection;
   const dispatch = useDispatch<AppDispatch>();
   const { publicKey } = useWallet();
@@ -57,21 +60,37 @@ const Dashboard = () => {
       <div className="flex flex-row items-center justify-between">
         <Tabs onChange={(e) => setActiveTab(e)} activeTab={activeTab} />
         <div className="flex flex-row gap-10 items-center">
-          <BiRefresh
-            size={50}
-            color="white"
-            onMouseOver={() => setRotation(45)}
-            onMouseLeave={() => setRotation(0)}
-            style={{
-              cursor: 'pointer',
-              transition: 'all 0.3s ease-in-out',
-              transform: `rotate(${rotation}deg)`,
-            }}
-            onClick={() => {
-              dispatch(loadTransactions());
-              dispatch(loadWalletData());
-            }}
-          />
+          <div className="flex flex-row items-center gap-2 bg-slate-200 bg-opacity-20 px-2 rounded-xl shadow-lg magic">
+            <AiOutlinePoweroff
+              size={36}
+              color={color}
+              onMouseOver={() => setColor('#ff1818')}
+              onMouseLeave={() => setColor('white')}
+              style={{
+                cursor: 'pointer',
+                transition: 'transform 0.3s ease-in-out',
+              }}
+              onClick={() => {
+                dispatch(Connection.clearMsig());
+                router.replace('/');
+              }}
+            />
+            <BiRefresh
+              size={50}
+              color="white"
+              onMouseOver={() => setRotation(45)}
+              onMouseLeave={() => setRotation(0)}
+              style={{
+                cursor: 'pointer',
+                transition: 'all 0.3s ease-in-out',
+                transform: `rotate(${rotation}deg)`,
+              }}
+              onClick={() => {
+                dispatch(loadTransactions());
+                dispatch(loadWalletData());
+              }}
+            />
+          </div>
           <AccountInfo />
         </div>
       </div>
