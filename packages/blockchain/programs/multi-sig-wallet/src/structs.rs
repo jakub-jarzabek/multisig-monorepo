@@ -22,10 +22,10 @@ pub struct CreateTransferTransaction<'info> {
     pub transaction: Box<Account<'info, Transaction>>,
     pub initiator: Signer<'info>,
     #[account(mut)]
-    /// CHECK: This is not dangerous because its just a stackoverflow sample o.O
+    /// CHECK: This is not dangerous
     pub from: AccountInfo<'info>,
     #[account(mut)]
-    /// CHECK: This is not dangerous because we just pay to this account
+    /// CHECK: This is not dangerous
     pub to: AccountInfo<'info>,
     #[account()]
     pub system_program: Program<'info, System>,
@@ -43,10 +43,10 @@ pub struct Approve<'info> {
 #[derive(Accounts)]
 pub struct Transfer<'info> {
     #[account(mut)]
-    /// CHECK: This is not dangerous because its just a stackoverflow sample o.O
+    /// CHECK: This is not dangerous
     pub from: AccountInfo<'info>,
     #[account(mut)]
-    /// CHECK: This is not dangerous because we just pay to this account
+    /// CHECK: This is not dangerous
     pub to: AccountInfo<'info>,
     #[account()]
     pub system_program: Program<'info, System>,

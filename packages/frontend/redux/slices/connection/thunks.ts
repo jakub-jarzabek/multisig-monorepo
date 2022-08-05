@@ -215,6 +215,7 @@ export const transfer = createAsyncThunk(
             to: args.to,
             from: new PublicKey(state.connection.msig),
             systemProgram: web3.SystemProgram.programId,
+            wallet: new PublicKey(state.connection.msig),
             walletSigner,
           },
         }
@@ -242,7 +243,7 @@ export const transfer = createAsyncThunk(
         accounts,
         data,
         new BN(2),
-        [],
+        [args.to],
         new BN(0),
         {
           accounts: {
@@ -277,7 +278,12 @@ export const fetchWallet = createAsyncThunk(
 
     try {
       data = await state.connection.program.account.wallet.all();
-      console.log({ w: data });
+      data.filter((wallet) =>
+        wallet.account.owners.includes(
+          state.connection.provider.wallet.publicKey
+        )
+      );
+      return data.map((wallet) => wallet.publicKey.toString());
     } catch (err) {
       console.log(err);
     }

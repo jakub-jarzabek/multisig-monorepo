@@ -1,4 +1,4 @@
-import { Transaction } from '@solana/web3.js';
+import { PublicKey, Transaction } from '@solana/web3.js';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '..';
@@ -25,7 +25,7 @@ export const Card: React.FC<CardProps> = ({ children, twStyles, onClick }) => {
       onClick={onClick}
       className={`${
         twStyles ? twStyles : ''
-      } w-full flex flex-row p-2 h-14 bg-purple-300 bg-opacity-50 rounded border border-slate-300 justify-between hover:shadow-lg transition-all duration-300`}
+      } w-full flex flex-row p-2 h-14 bg-purple-300 bg-opacity-50 rounded border border-slate-300 justify-between hover:shadow-lg transition-all duration-300 `}
     >
       {children}
     </div>
@@ -36,11 +36,20 @@ interface TransactionCardProps {
   hash: string;
   completed?: boolean;
   transaction?: any;
+  twStyles?: string;
+  setModalData: (x: {
+    data: PublicKey[];
+    value: string;
+    open: boolean;
+    type: string;
+  }) => void;
 }
 export const TransactionCard: React.FC<TransactionCardProps> = ({
   hash,
   completed,
   transaction,
+  twStyles,
+  setModalData,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { wallet, connection } = useSelector<RootState, ReduxState>(
@@ -88,7 +97,18 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     return transaction.account.signers[index];
   };
   return (
-    <Card>
+    <Card
+      twStyles={twStyles}
+      onClick={() => {
+        console.log(transaction);
+        setModalData({
+          open: true,
+          data: transaction.account.txData,
+          value: transaction.account.txValue.toString(),
+          type: transaction.account.txType.toString(),
+        });
+      }}
+    >
       <>
         <span className="font-semibold leading-10">{hash}</span>
         {!completed && (

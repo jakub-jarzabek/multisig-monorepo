@@ -27,7 +27,27 @@ body {
   .magic {
     box-shadow: rgba(0, 0, 0, 0.5) 0px 0px 24px;
   }
+  .magic-big {
+    box-shadow: rgba(0, 0, 0, 0.5) 0px 0px 42px;
+  }
 }
-:root {
-  --toastify-color-light: !important;
+.rodal-dialog {
+  width: 50% !important;
+  height: fit-content !important;
+  background-color: white !important;
+  border-radius: 8px !important;
+}
+.rodal-mask {
+  background: rgba(0, 0, 0, 0.5) !important;
+}
+.rodal-close {
+  width: 24px !important;
+  height: 24px !important;
+  border-color: purple !important;
+}
+.rodal-close::before {
+  border-color: purple !important;
+}
+.rodal-close::after {
+  border-color: purple !important;
 }

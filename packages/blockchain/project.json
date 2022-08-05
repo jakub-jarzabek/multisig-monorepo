@@ -18,13 +18,13 @@
     "test": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "cd packages/blockchain/ && anchor build"
+        "command": "cd packages/blockchain/ && anchor test"
       }
     },
     "deploy": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "cd packages/blockchain/ && anchor build"
+        "command": "cd packages/blockchain/ && anchor deploy"
       }
     }
   },

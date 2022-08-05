@@ -15,7 +15,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { PublicKey } from '@solana/web3.js';
 
-export const SendTransaction = () => {
+export const MainPanel = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { connection, wallet } = useSelector<RootState, ReduxState>(
     (state) => state
@@ -148,6 +148,11 @@ export const SendTransaction = () => {
                     {acc.toString() ===
                       connection.provider.publicKey.toString() && (
                       <span className="text-white font-bold"> (me)</span>
+                    )}
+                    {!accs
+                      .map((_) => _.toString())
+                      .includes(acc.toString()) && (
+                      <span className="text-white font-bold"> (Temporary)</span>
                     )}
                   </span>
                   {acc.toString() !==

@@ -1,10 +1,19 @@
 import { ReduxState, RootState } from '../../redux';
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { TransactionCard } from '..';
+import { TransactionCard, Modal } from '..';
 
 export const Transactions = () => {
   const { wallet } = useSelector<RootState, ReduxState>((state) => state);
+  const [modalData, setModalData] = React.useState({
+    open: false,
+    data: [],
+    value: '',
+    type: '',
+  });
+  const handleClose = () => {
+    setModalData({ open: false, data: [], value: '', type: '' });
+  };
   const { transactions } = wallet;
   return (
     <div className="flex flex-col items-center gap-10">
@@ -18,6 +27,8 @@ export const Transactions = () => {
             key={'pending' + i}
             hash={tx.publicKey.toString()}
             transaction={tx}
+            twStyles="hover:magic-big cursor-pointer"
+            setModalData={setModalData}
           />
         ))}
       </div>
@@ -31,6 +42,8 @@ export const Transactions = () => {
             hash={tx.publicKey.toString()}
             completed
             transaction={tx}
+            twStyles={'hover:magic cursor-pointer'}
+            setModalData={setModalData}
           />
         ))}
       </div>
@@ -44,9 +57,18 @@ export const Transactions = () => {
             hash={tx.publicKey.toString()}
             completed
             transaction={tx}
+            twStyles={'hover:magic cursor-pointer'}
+            setModalData={setModalData}
           />
         ))}
       </div>
+      <Modal
+        type={modalData.type as '1' | '2' | '0'}
+        value={modalData.value}
+        open={modalData.open}
+        data={modalData.data}
+        setOpen={handleClose}
+      />
     </div>
   );
 };
