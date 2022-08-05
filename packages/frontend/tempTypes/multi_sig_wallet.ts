@@ -433,6 +433,157 @@ export type MultiSigWallet = {
       }
     }
   ],
+  "events": [
+    {
+      "name": "WalletCreatedEvent",
+      "fields": [
+        {
+          "name": "wallet",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "owners",
+          "type": {
+            "vec": "publicKey"
+          },
+          "index": false
+        },
+        {
+          "name": "threshold",
+          "type": "u64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "WalletOwnersSetEvent",
+      "fields": [
+        {
+          "name": "wallet",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "owners",
+          "type": {
+            "vec": "publicKey"
+          },
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "WalletThresholdSetEvent",
+      "fields": [
+        {
+          "name": "wallet",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "threshold",
+          "type": "u64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "TransactionCreatedEvent",
+      "fields": [
+        {
+          "name": "wallet",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "transaction",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "initiator",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "ApprovedEvent",
+      "fields": [
+        {
+          "name": "wallet",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "transaction",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "owner",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "CancelledAprovalEvent",
+      "fields": [
+        {
+          "name": "wallet",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "transaction",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "owner",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "DeletedEvent",
+      "fields": [
+        {
+          "name": "wallet",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "transaction",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "owner",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "TransactionExecutedEvent",
+      "fields": [
+        {
+          "name": "wallet",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "transaction",
+          "type": "publicKey",
+          "index": true
+        }
+      ]
+    }
+  ],
   "errors": [
     {
       "code": 6000,
@@ -920,6 +1071,157 @@ export const IDL: MultiSigWallet = {
           }
         ]
       }
+    }
+  ],
+  "events": [
+    {
+      "name": "WalletCreatedEvent",
+      "fields": [
+        {
+          "name": "wallet",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "owners",
+          "type": {
+            "vec": "publicKey"
+          },
+          "index": false
+        },
+        {
+          "name": "threshold",
+          "type": "u64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "WalletOwnersSetEvent",
+      "fields": [
+        {
+          "name": "wallet",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "owners",
+          "type": {
+            "vec": "publicKey"
+          },
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "WalletThresholdSetEvent",
+      "fields": [
+        {
+          "name": "wallet",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "threshold",
+          "type": "u64",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "TransactionCreatedEvent",
+      "fields": [
+        {
+          "name": "wallet",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "transaction",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "initiator",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "ApprovedEvent",
+      "fields": [
+        {
+          "name": "wallet",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "transaction",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "owner",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "CancelledAprovalEvent",
+      "fields": [
+        {
+          "name": "wallet",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "transaction",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "owner",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "DeletedEvent",
+      "fields": [
+        {
+          "name": "wallet",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "transaction",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "owner",
+          "type": "publicKey",
+          "index": false
+        }
+      ]
+    },
+    {
+      "name": "TransactionExecutedEvent",
+      "fields": [
+        {
+          "name": "wallet",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "transaction",
+          "type": "publicKey",
+          "index": true
+        }
+      ]
     }
   ],
   "errors": [

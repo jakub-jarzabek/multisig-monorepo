@@ -12,6 +12,8 @@ import {
 import { useRouter } from 'next/router';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { BiRefresh } from 'react-icons/bi';
+import { useSubscriveEvents } from '../../hooks';
+
 const Dashboard = () => {
   const { connection } = useSelector<RootState, ReduxState>((state) => state);
   const [rotation, setRotation] = useState(0);
@@ -19,11 +21,21 @@ const Dashboard = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { publicKey } = useWallet();
   const router = useRouter();
+  const parent = useRef(null);
+  const [activeTab, setActiveTab] = useState(0);
+  const reloadData = () => {
+    dispatch(loadWalletData());
+    dispatch(loadTransactions());
+  };
+
+  useSubscriveEvents(reloadData, connection.program);
+
   useEffect(() => {
     if (!publicKey || !program) {
       router.replace('/');
     }
   }, [publicKey]);
+
   useEffect(() => {
     if (msig) {
       dispatch(loadWalletData());
@@ -32,12 +44,11 @@ const Dashboard = () => {
       router.replace('/');
     }
   }, []);
-  const parent = useRef(null);
-  const [activeTab, setActiveTab] = useState(0);
 
   useEffect(() => {
     parent.current && autoAnimate(parent.current);
   }, [parent]);
+
   return (
     <div
       className=" p-4 w-5/6 min-h-9/10 max-h-full  absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-3xl  bg-gradient-to-r from-purple-500 to-purple-900 bg-opacity bg-opacity-50 border-4 border-slate-300 backdrop-blur-md"
