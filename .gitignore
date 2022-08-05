@@ -12,6 +12,7 @@ target
 
 **/target/*
 /packages/blockchain/target
+!packages/blockchain/target/idl
 .anchor
 **/.anchor/*
 /packages/blockchain/.anchor
