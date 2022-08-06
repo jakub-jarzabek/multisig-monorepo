@@ -248,37 +248,6 @@ export type MultiSigWallet = {
       ]
     },
     {
-      "name": "transferFunds",
-      "accounts": [
-        {
-          "name": "from",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "to",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "user",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u64"
-        }
-      ]
-    },
-    {
       "name": "executeTransaction",
       "accounts": [
         {
@@ -724,6 +693,21 @@ export type MultiSigWallet = {
       "code": 6009,
       "name": "CannotDelete",
       "msg": "Transaction cannot be deleted"
+    },
+    {
+      "code": 6010,
+      "name": "InsufficientFundsForTransaction",
+      "msg": "Insufficient Funds"
+    },
+    {
+      "code": 6011,
+      "name": "ForbiddenRecipientManipulation",
+      "msg": "Forbidden manipulation of recipient"
+    },
+    {
+      "code": 6012,
+      "name": "TransactionIsDeleted",
+      "msg": "Cannot execute deleted transaction"
     }
   ]
 };
@@ -978,37 +962,6 @@ export const IDL: MultiSigWallet = {
       ]
     },
     {
-      "name": "transferFunds",
-      "accounts": [
-        {
-          "name": "from",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "to",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "user",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u64"
-        }
-      ]
-    },
-    {
       "name": "executeTransaction",
       "accounts": [
         {
@@ -1454,6 +1407,21 @@ export const IDL: MultiSigWallet = {
       "code": 6009,
       "name": "CannotDelete",
       "msg": "Transaction cannot be deleted"
+    },
+    {
+      "code": 6010,
+      "name": "InsufficientFundsForTransaction",
+      "msg": "Insufficient Funds"
+    },
+    {
+      "code": 6011,
+      "name": "ForbiddenRecipientManipulation",
+      "msg": "Forbidden manipulation of recipient"
+    },
+    {
+      "code": 6012,
+      "name": "TransactionIsDeleted",
+      "msg": "Cannot execute deleted transaction"
     }
   ]
 };

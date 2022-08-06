@@ -42,12 +42,10 @@ export const loadTransactions = createAsyncThunk(
       const transfer =
         await state.connection.program.account.transferTransaction.all();
       data = [...normal, ...transfer];
-      console.log(data);
       const myTransactions = data.filter(
         (transaction) =>
           transaction.account.wallet.toString() === state.connection.msig
       );
-      console.log(myTransactions);
       return {
         peding: myTransactions.filter(
           (transaction) =>

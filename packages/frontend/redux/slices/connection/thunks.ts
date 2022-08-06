@@ -43,6 +43,7 @@ export const createWallet = createAsyncThunk(
       );
       return baseAccount.publicKey.toString();
     } catch (err) {
+      toast.error(err.message);
       console.log(err);
     }
     return null;
@@ -71,6 +72,7 @@ export const logInToWallet = createAsyncThunk(
         throw new Error('Unauthorized');
       }
     } catch (err) {
+      toast.error(err.message);
       console.log(err);
     }
 
@@ -133,6 +135,7 @@ export const setOwners = createAsyncThunk(
       );
       toast.success('Transaction created and signed');
     } catch (err) {
+      toast.error(err.message);
       console.log(err);
     }
   }
@@ -204,8 +207,6 @@ interface ITransfer {
 export const transfer = createAsyncThunk(
   'payload/transfer',
   async (args: ITransfer, thunkAPI) => {
-    console.log({ args: args });
-    console.log(typeof args.amount);
     const state = thunkAPI.getState() as { connection: IConnectionSlice };
     const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
       [new PublicKey(state.connection.msig).toBuffer()],
