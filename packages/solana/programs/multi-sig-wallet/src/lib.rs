@@ -307,15 +307,19 @@ pub fn create_transfer_transaction(
         if **from.try_borrow_lamports()? < amount_of_lamports {
             return Err(ErrorCode::InsufficientFundsForTransaction.into());
         }
+        msg!("Transfering {} lamports from {} to {}", amount_of_lamports, from.key(), to.key());
 
         **from.try_borrow_mut_lamports()? -= amount_of_lamports;
         **to.try_borrow_mut_lamports()? += amount_of_lamports;
         ctx.accounts.transaction.did_execute = true;
 
-    emit!(TransactionExecutedEvent {
-        wallet: ctx.accounts.wallet.key(),
-        transaction: ctx.accounts.transaction.key(),
-    });
+        emit!(TransferExecutedEvent {
+            wallet: ctx.accounts.wallet.key(),
+            transaction: ctx.accounts.transaction.key(),
+            from: from.key(),
+            to: to.key(),
+            amount: ctx.accounts.transaction.value,
+        });
 
         Ok(())
     }
