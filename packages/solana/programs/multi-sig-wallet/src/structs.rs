@@ -105,10 +105,29 @@ pub struct CreateTransferTransaction<'info> {
 }
 #[derive(Accounts)]
 pub struct ExecuteTransferTransaction<'info> {
-    #[account(constraint = wallet.owner_seq == transaction.owner_seq)]
-    pub wallet: Box<Account<'info, Wallet>>,
-    #[account(mut, has_one = wallet)]
-    pub transaction: Box<Account<'info, TransferTransaction>>,
+   #[account(mut)]
+    /// CHECK: This is not dangerous
+    pub from: AccountInfo<'info>,
+    #[account(mut)]
+    /// CHECK: This is not dangerous
+    pub to: AccountInfo<'info>,
+    #[account()]
+    pub system_program: Program<'info, System>,
+    pub user: Signer<'info>,
+    // #[account(constraint = wallet.owner_seq == transaction.owner_seq)]
+    // pub wallet: Box<Account<'info, Wallet>>,
+    // #[account(mut, has_one = wallet)]
+    // pub transaction: Box<Account<'info, TransferTransaction>>,
+    // #[account(mut)]
+//    #[account(
+//         seeds = [wallet.key().as_ref()],
+//         bump = wallet.nonce,
+//     )]
+  ///// CHECK: PDA program signer
+    // pub wallet_signer: UncheckedAccount<'info>,
+}
+#[derive(Accounts)]
+pub struct Transfer<'info> {
     #[account(mut)]
     /// CHECK: This is not dangerous
     pub from: AccountInfo<'info>,
@@ -118,12 +137,7 @@ pub struct ExecuteTransferTransaction<'info> {
     #[account()]
     pub system_program: Program<'info, System>,
     pub user: Signer<'info>,
-   #[account(
-        seeds = [wallet.key().as_ref()],
-        bump = wallet.nonce,
-    )]
-    /// CHECK: PDA program signer
-    pub wallet_signer: UncheckedAccount<'info>,
+    // pub wallet_signer: Signer<'info>,
 }
 
 

@@ -268,10 +268,11 @@ export const fetchWallet = createAsyncThunk(
 
     try {
       data = await state.connection.program.account.wallet.all();
-      data.filter((wallet) =>
-        wallet.account.owners.includes(
-          state.connection.provider.wallet.publicKey
-        )
+      console.log(data);
+      data = data.filter((wallet) =>
+        wallet.account.owners
+          .map((owner) => owner.toString())
+          .includes(state.connection.provider.wallet.publicKey.toString())
       );
       return data.map((wallet) => wallet.publicKey.toString());
     } catch (err) {

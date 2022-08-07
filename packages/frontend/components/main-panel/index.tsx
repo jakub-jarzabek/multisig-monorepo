@@ -11,6 +11,7 @@ import {
   setOwners,
   setTreshold,
   transfer,
+  transferFunds,
 } from '../../redux';
 import { useDispatch, useSelector } from 'react-redux';
 import { PublicKey } from '@solana/web3.js';
@@ -51,7 +52,8 @@ export const MainPanel = () => {
   };
   const handleSendTokens = async () => {
     if (typeof amount === 'number') {
-      await dispatch(transfer({ to: new PublicKey(receiver), amount }));
+      // await dispatch(transfer({ to: new PublicKey(receiver), amount }));
+      await dispatch(transferFunds({ to: new PublicKey(receiver), amount }));
     } else {
       toast.error('Please enter a number');
     }

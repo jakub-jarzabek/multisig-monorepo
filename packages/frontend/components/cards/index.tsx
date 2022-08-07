@@ -25,7 +25,7 @@ export const Card: React.FC<CardProps> = ({ children, twStyles, onClick }) => {
       onClick={onClick}
       className={`${
         twStyles ? twStyles : ''
-      } w-full flex flex-row p-2 h-14 bg-purple-300 bg-opacity-50 rounded border border-slate-300 justify-between hover:shadow-lg transition-all duration-300 `}
+      } w-full overflow-hidden flex flex-row p-2 h-14 bg-purple-300 bg-opacity-50 rounded border border-slate-300 justify-between hover:shadow-lg transition-all duration-300 `}
     >
       {children}
     </div>

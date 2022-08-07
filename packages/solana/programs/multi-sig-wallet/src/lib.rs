@@ -275,57 +275,71 @@ pub fn create_transfer_transaction(
         Ok(())
     }
 
-  pub fn execute_transfer_transaction(ctx: Context<ExecuteTransferTransaction>) -> Result<()> {
-        msg!("Executing Transaction");
-        if ctx.accounts.transaction.did_execute {
-            return Err(ErrorCode::AlreadyExecuted.into());
-        }
+  pub fn execute_transfer_transaction(ctx: Context<ExecuteTransferTransaction>,amount:u64) -> Result<()> {
+    //     msg!("Executing Transaction");
+    //     if ctx.accounts.transaction.did_execute {
+    //         return Err(ErrorCode::AlreadyExecuted.into());
+    //     }
 
-       if ctx.accounts.transaction.deleted {
-                return Err(ErrorCode::TransactionIsDeleted.into());
-            }
+    //    if ctx.accounts.transaction.deleted {
+    //             return Err(ErrorCode::TransactionIsDeleted.into());
+    //         }
 
-        let sig_count = ctx
-            .accounts
-            .transaction
-            .signers
-            .iter()
-            .filter(|&did_sign| *did_sign)
-            .count() as u64;
-        if sig_count < ctx.accounts.wallet.threshold {
-            return Err(ErrorCode::NotEnoughSigners.into());
-        }
+    //     let sig_count = ctx
+    //         .accounts
+    //         .transaction
+    //         .signers
+    //         .iter()
+    //         .filter(|&did_sign| *did_sign)
+    //         .count() as u64;
+    //     if sig_count < ctx.accounts.wallet.threshold {
+    //         return Err(ErrorCode::NotEnoughSigners.into());
+    //     }
 
-        let amount_of_lamports = ctx.accounts.transaction.value;
+        // let amount_of_lamports = ctx.accounts.transaction.value;
+        let amount_of_lamports = amount;
         let from = ctx.accounts.from.to_account_info();
         let to = ctx.accounts.to.to_account_info();
 
-        if from.key() != ctx.accounts.transaction.from || from.key() != ctx.accounts.transaction.to{
-            return Err(ErrorCode::ForbiddenRecipientManipulation.into());
-        }
+        // if from.key() != ctx.accounts.transaction.from || from.key() != ctx.accounts.transaction.to{
+        //     return Err(ErrorCode::ForbiddenRecipientManipulation.into());
+        // }
         
-        if **from.try_borrow_lamports()? < amount_of_lamports {
-            return Err(ErrorCode::InsufficientFundsForTransaction.into());
-        }
+        // if **from.try_borrow_lamports()? < amount_of_lamports {
+        //     return Err(ErrorCode::InsufficientFundsForTransaction.into());
+        // }
         msg!("Transfering {} lamports from {} to {}", amount_of_lamports, from.key(), to.key());
 
         **from.try_borrow_mut_lamports()? -= amount_of_lamports;
         **to.try_borrow_mut_lamports()? += amount_of_lamports;
-        ctx.accounts.transaction.did_execute = true;
+        // ctx.accounts.transaction.did_execute = true;
 
-        emit!(TransferExecutedEvent {
-            wallet: ctx.accounts.wallet.key(),
-            transaction: ctx.accounts.transaction.key(),
-            from: from.key(),
-            to: to.key(),
-            amount: ctx.accounts.transaction.value,
-        });
+        // emit!(TransferExecutedEvent {
+        //     wallet: ctx.accounts.wallet.key(),
+        //     transaction: ctx.accounts.transaction.key(),
+        //     from: from.key(),
+        //     to: to.key(),
+        //     amount: ctx.accounts.transaction.value,
+        // });
 
         Ok(())
     }
 
-}
 
+ pub fn transfer_funds(ctx: Context<Transfer>,amount:u64) -> Result<()> {
+
+        let amount_of_lamports = amount;
+        let from = ctx.accounts.from.to_account_info();
+        let to = ctx.accounts.to.to_account_info();
+
+     if **from.try_borrow_lamports()? < amount_of_lamports {
+            return Err(ErrorCode::InsufficientFundsForTransaction.into());
+        }
+    **from.try_borrow_mut_lamports()? -= amount_of_lamports;
+    **to.try_borrow_mut_lamports()? += amount_of_lamports;
+    Ok(())
+ }
+}
 
 
 

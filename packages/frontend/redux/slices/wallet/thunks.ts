@@ -4,6 +4,7 @@ import { PublicKey, SystemProgram } from '@solana/web3.js';
 import { userAgent } from 'next/server';
 import { toast } from 'react-toastify';
 import { ReduxState } from '..';
+import connection from '../connection';
 
 export const loadWalletData = createAsyncThunk(
   'payload/loadWalletData',
@@ -205,34 +206,66 @@ export const executeTransferTransaction = createAsyncThunk(
     );
 
     try {
-      await state.connection.program.rpc.executeTransferTransaction({
-        accounts: {
-          wallet: new PublicKey(state.connection.msig),
-          transaction: tx.publicKey,
-          from: tx.account.from,
-          to: tx.account.to,
-          systemProgram: SystemProgram.programId,
-          user: state.connection.provider.wallet.publicKey,
-          walletSigner,
-        },
-        remainingAccounts: state.connection.program.instruction.setOwners
-          .accounts({
-            wallet: new PublicKey(state.connection.msig),
-            walletSigner,
-          })
+      await state.connection.program.rpc.executeTransferTransaction(
+        new BN(100),
+        {
+          accounts: {
+            // wallet: new PublicKey(state.connection.msig),
+            // transaction: tx.publicKey,
+            from: new PublicKey(state.connection.msig),
+            to: new PublicKey(tx.account.to.toString()),
+            systemProgram: SystemProgram.programId,
+            user: state.connection.provider.publicKey,
+            // walletSigner,
+          },
+        }
+      );
 
-          //eslint-disable-next-line
-          // @ts-ignore
-          .map((meta) =>
-            meta.pubkey.equals(walletSigner)
-              ? { ...meta, isSigner: false }
-              : meta
-          )
-          .concat({
-            pubkey: state.connection.program.programId,
-            isWritable: false,
-            isSigner: false,
-          }),
+      toast.success('Transaction executed');
+    } catch (err) {
+      toast.error(err.message);
+      console.log(err);
+    }
+  }
+);
+
+export const transferFunds = createAsyncThunk(
+  'payload/transfer',
+  async (args: any, thunkAPI) => {
+    const { tx } = args;
+    const state = thunkAPI.getState() as ReduxState;
+    const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
+      [new PublicKey(state.connection.msig).toBuffer()],
+      state.connection.program.programId
+    );
+
+    try {
+      await state.connection.program.rpc.transferFunds(new BN(args.amount), {
+        accounts: {
+          from: new PublicKey(state.connection.msig),
+          to: args.to,
+          user: state.connection.provider.publicKey,
+          systemProgram: SystemProgram.programId,
+          // walletSigner,
+        },
+        // remainingAccounts: state.connection.program.instruction.setOwners
+        //   .accounts({
+        //     wallet: new PublicKey(state.connection.msig),
+        //     walletSigner,
+        //   })
+
+        //eslint-disable-next-line
+        // @ts-ignore
+        // .map((meta) =>
+        //   meta.pubkey.equals(walletSigner)
+        //     ? { ...meta, isSigner: false }
+        //     : meta
+        // )
+        // .concat({
+        //   pubkey: state.connection.program.programId,
+        //   isWritable: false,
+        //   isSigner: false,
+        // }),
       });
 
       toast.success('Transaction executed');
