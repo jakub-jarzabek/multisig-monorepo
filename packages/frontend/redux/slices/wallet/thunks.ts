@@ -1,7 +1,6 @@
 import { BN, web3 } from '@project-serum/anchor';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PublicKey, SystemProgram } from '@solana/web3.js';
-import { userAgent } from 'next/server';
 import { toast } from 'react-toastify';
 import { ReduxState } from '..';
 
@@ -42,26 +41,34 @@ export const loadTransactions = createAsyncThunk(
       const transfer =
         await state.connection.program.account.transferTransaction.all();
       data = [...normal, ...transfer];
-      console.log(data);
       const myTransactions = data.filter(
         (transaction) =>
           transaction.account.wallet.toString() === state.connection.msig
       );
-      console.log(myTransactions);
       return {
-        peding: myTransactions.filter(
-          (transaction) =>
-            transaction.account.didExecute === false &&
-            transaction.account.deleted === false
-        ),
-        completed: myTransactions.filter(
-          (transaction) =>
-            transaction.account.didExecute === true &&
-            transaction.account.deleted === false
-        ),
-        deleted: myTransactions.filter(
-          (transaction) => transaction.account.deleted
-        ),
+        peding: myTransactions
+          .filter(
+            (transaction) =>
+              transaction.account.didExecute === false &&
+              transaction.account.deleted === false
+          )
+          .sort((a, b) => {
+            return b.account.createdAt - a.account.createdAt;
+          }),
+        completed: myTransactions
+          .filter(
+            (transaction) =>
+              transaction.account.didExecute === true &&
+              transaction.account.deleted === false
+          )
+          .sort((a, b) => {
+            return b.account.createdAt - a.account.createdAt;
+          }),
+        deleted: myTransactions
+          .filter((transaction) => transaction.account.deleted)
+          .sort((a, b) => {
+            return b.account.createdAt - a.account.createdAt;
+          }),
       };
     } catch (err) {
       console.log(err);
@@ -90,6 +97,8 @@ export const approveTransaction = createAsyncThunk(
       toast.error(err.message);
       console.log(err);
     }
+
+    return true;
   }
 );
 export const cancelTransactionApproval = createAsyncThunk(
@@ -109,6 +118,8 @@ export const cancelTransactionApproval = createAsyncThunk(
       toast.error(err.message);
       console.log(err);
     }
+
+    return true;
   }
 );
 export const deleteTransaction = createAsyncThunk(
@@ -128,6 +139,8 @@ export const deleteTransaction = createAsyncThunk(
       toast.error(err.message);
       console.log(err);
     }
+
+    return true;
   }
 );
 
@@ -175,10 +188,12 @@ export const executeTransaction = createAsyncThunk(
       toast.error(err.message);
       console.log(err);
     }
+
+    return true;
   }
 );
 
-interface ITransferTx {
+export interface ITransferTx {
   publicKey: PublicKey;
   account: {
     wallet: PublicKey;
@@ -191,6 +206,7 @@ interface ITransferTx {
     from: PublicKey;
     to: PublicKey;
     value: BN;
+    createdAt: BN;
   };
 }
 interface IexecuteTransferTransaction {
@@ -201,40 +217,17 @@ export const executeTransferTransaction = createAsyncThunk(
   async (args: IexecuteTransferTransaction, thunkAPI) => {
     const { tx } = args;
     const state = thunkAPI.getState() as ReduxState;
-    const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
-      [new PublicKey(state.connection.msig).toBuffer()],
-      state.connection.program.programId
-    );
 
     try {
       await state.connection.program.rpc.executeTransferTransaction({
         accounts: {
           wallet: new PublicKey(state.connection.msig),
           transaction: tx.publicKey,
-          from: tx.account.from,
+          from: new PublicKey(state.connection.msig),
           to: tx.account.to,
           systemProgram: SystemProgram.programId,
-          user: state.connection.provider.wallet.publicKey,
-          walletSigner,
+          user: state.connection.provider.publicKey,
         },
-        remainingAccounts: state.connection.program.instruction.setOwners
-          .accounts({
-            wallet: new PublicKey(state.connection.msig),
-            walletSigner,
-          })
-
-          //eslint-disable-next-line
-          // @ts-ignore
-          .map((meta) =>
-            meta.pubkey.equals(walletSigner)
-              ? { ...meta, isSigner: false }
-              : meta
-          )
-          .concat({
-            pubkey: state.connection.program.programId,
-            isWritable: false,
-            isSigner: false,
-          }),
       });
 
       toast.success('Transaction executed');
@@ -242,5 +235,6 @@ export const executeTransferTransaction = createAsyncThunk(
       toast.error(err.message);
       console.log(err);
     }
+    return true;
   }
 );

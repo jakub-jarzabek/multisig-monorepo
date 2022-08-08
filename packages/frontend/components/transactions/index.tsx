@@ -10,10 +10,12 @@ export const Transactions = () => {
     data: [],
     value: '',
     type: '',
+    ts: '',
   });
   const handleClose = () => {
-    setModalData({ open: false, data: [], value: '', type: '' });
+    setModalData({ open: false, data: [], value: '', type: '', ts: '' });
   };
+
   const { transactions } = wallet;
   return (
     <div className="flex flex-col items-center gap-10">
@@ -68,6 +70,7 @@ export const Transactions = () => {
         open={modalData.open}
         data={modalData.data}
         setOpen={handleClose}
+        ts={modalData.ts}
       />
     </div>
   );

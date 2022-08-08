@@ -75,7 +75,8 @@ pub struct Transaction {
     pub tx_type: u8,
     pub tx_data: Vec<Pubkey>,
     pub tx_value: u64,
-    pub deleted: bool
+    pub deleted: bool,
+    pub created_at:i64
 }
 
 #[account]
@@ -90,9 +91,11 @@ pub struct TransferTransaction {
     pub tx_data: Vec<Pubkey>,
     pub tx_value: u64,
     pub deleted: bool,
-   pub from:Pubkey,
+    pub from:Pubkey,
     pub to:Pubkey,
-    pub value:u64,}
+    pub value:u64,
+    pub created_at:i64
+}
 
 #[derive(Accounts)]
 pub struct CreateTransferTransaction<'info> {
@@ -105,11 +108,7 @@ pub struct CreateTransferTransaction<'info> {
 }
 #[derive(Accounts)]
 pub struct ExecuteTransferTransaction<'info> {
-    #[account(constraint = wallet.owner_seq == transaction.owner_seq)]
-    pub wallet: Box<Account<'info, Wallet>>,
-    #[account(mut, has_one = wallet)]
-    pub transaction: Box<Account<'info, TransferTransaction>>,
-    #[account(mut)]
+   #[account(mut)]
     /// CHECK: This is not dangerous
     pub from: AccountInfo<'info>,
     #[account(mut)]
@@ -118,13 +117,13 @@ pub struct ExecuteTransferTransaction<'info> {
     #[account()]
     pub system_program: Program<'info, System>,
     pub user: Signer<'info>,
-   #[account(
-        seeds = [wallet.key().as_ref()],
-        bump = wallet.nonce,
-    )]
-    /// CHECK: PDA program signer
-    pub wallet_signer: UncheckedAccount<'info>,
+     #[account(constraint = wallet.owner_seq == transaction.owner_seq)]
+     pub wallet: Box<Account<'info, Wallet>>,
+     #[account(mut, has_one = wallet)]
+     pub transaction: Box<Account<'info, TransferTransaction>>,
+    
 }
+
 
 
 

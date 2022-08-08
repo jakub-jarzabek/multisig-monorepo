@@ -76,7 +76,7 @@ export type MultiSigWallet = {
         },
         {
           "name": "txValue",
-          "type": "u8"
+          "type": "u64"
         }
       ]
     },
@@ -248,37 +248,6 @@ export type MultiSigWallet = {
       ]
     },
     {
-      "name": "transferFunds",
-      "accounts": [
-        {
-          "name": "from",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "to",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "user",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u64"
-        }
-      ]
-    },
-    {
       "name": "executeTransaction",
       "accounts": [
         {
@@ -303,16 +272,6 @@ export type MultiSigWallet = {
       "name": "executeTransferTransaction",
       "accounts": [
         {
-          "name": "wallet",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "transaction",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "from",
           "isMut": true,
           "isSigner": false
@@ -333,8 +292,13 @@ export type MultiSigWallet = {
           "isSigner": true
         },
         {
-          "name": "walletSigner",
+          "name": "wallet",
           "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "transaction",
+          "isMut": true,
           "isSigner": false
         }
       ],
@@ -428,6 +392,10 @@ export type MultiSigWallet = {
           {
             "name": "deleted",
             "type": "bool"
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
           }
         ]
       }
@@ -496,6 +464,10 @@ export type MultiSigWallet = {
           {
             "name": "value",
             "type": "u64"
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
           }
         ]
       }
@@ -672,6 +644,36 @@ export type MultiSigWallet = {
           "index": true
         }
       ]
+    },
+    {
+      "name": "TransferExecutedEvent",
+      "fields": [
+        {
+          "name": "wallet",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "transaction",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "from",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "to",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "amount",
+          "type": "u64",
+          "index": false
+        }
+      ]
     }
   ],
   "errors": [
@@ -724,6 +726,21 @@ export type MultiSigWallet = {
       "code": 6009,
       "name": "CannotDelete",
       "msg": "Transaction cannot be deleted"
+    },
+    {
+      "code": 6010,
+      "name": "InsufficientFundsForTransaction",
+      "msg": "Insufficient Funds"
+    },
+    {
+      "code": 6011,
+      "name": "ForbiddenRecipientManipulation",
+      "msg": "Forbidden manipulation of recipient"
+    },
+    {
+      "code": 6012,
+      "name": "TransactionIsDeleted",
+      "msg": "Cannot execute deleted transaction"
     }
   ]
 };
@@ -806,7 +823,7 @@ export const IDL: MultiSigWallet = {
         },
         {
           "name": "txValue",
-          "type": "u8"
+          "type": "u64"
         }
       ]
     },
@@ -978,37 +995,6 @@ export const IDL: MultiSigWallet = {
       ]
     },
     {
-      "name": "transferFunds",
-      "accounts": [
-        {
-          "name": "from",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "to",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "user",
-          "isMut": false,
-          "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u64"
-        }
-      ]
-    },
-    {
       "name": "executeTransaction",
       "accounts": [
         {
@@ -1033,16 +1019,6 @@ export const IDL: MultiSigWallet = {
       "name": "executeTransferTransaction",
       "accounts": [
         {
-          "name": "wallet",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "transaction",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "from",
           "isMut": true,
           "isSigner": false
@@ -1063,8 +1039,13 @@ export const IDL: MultiSigWallet = {
           "isSigner": true
         },
         {
-          "name": "walletSigner",
+          "name": "wallet",
           "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "transaction",
+          "isMut": true,
           "isSigner": false
         }
       ],
@@ -1158,6 +1139,10 @@ export const IDL: MultiSigWallet = {
           {
             "name": "deleted",
             "type": "bool"
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
           }
         ]
       }
@@ -1226,6 +1211,10 @@ export const IDL: MultiSigWallet = {
           {
             "name": "value",
             "type": "u64"
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
           }
         ]
       }
@@ -1402,6 +1391,36 @@ export const IDL: MultiSigWallet = {
           "index": true
         }
       ]
+    },
+    {
+      "name": "TransferExecutedEvent",
+      "fields": [
+        {
+          "name": "wallet",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "transaction",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "from",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "to",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "amount",
+          "type": "u64",
+          "index": false
+        }
+      ]
     }
   ],
   "errors": [
@@ -1454,6 +1473,21 @@ export const IDL: MultiSigWallet = {
       "code": 6009,
       "name": "CannotDelete",
       "msg": "Transaction cannot be deleted"
+    },
+    {
+      "code": 6010,
+      "name": "InsufficientFundsForTransaction",
+      "msg": "Insufficient Funds"
+    },
+    {
+      "code": 6011,
+      "name": "ForbiddenRecipientManipulation",
+      "msg": "Forbidden manipulation of recipient"
+    },
+    {
+      "code": 6012,
+      "name": "TransactionIsDeleted",
+      "msg": "Cannot execute deleted transaction"
     }
   ]
 };

@@ -1,16 +1,11 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import connection, { IConnectionSlice } from '.';
-import {
-  PublicKey,
-  SystemProgram,
-  Transaction,
-  TransactionInstruction,
-} from '@solana/web3.js';
+import { IConnectionSlice } from '.';
+import { PublicKey } from '@solana/web3.js';
 import { web3, BN } from '@project-serum/anchor';
-import { Storage } from '../../../utils';
 import { ReduxState } from '..';
 import { toast } from 'react-toastify';
 
+const SIZE = 1000;
 interface IcreateWallet {
   additionalAccounts?: PublicKey[];
 }
@@ -35,7 +30,7 @@ export const createWallet = createAsyncThunk(
           instructions: [
             await state.connection.program.account.wallet.createInstruction(
               baseAccount,
-              2000
+              SIZE
             ),
           ],
           signers: [baseAccount],
@@ -43,6 +38,7 @@ export const createWallet = createAsyncThunk(
       );
       return baseAccount.publicKey.toString();
     } catch (err) {
+      toast.error(err.message);
       console.log(err);
     }
     return null;
@@ -71,6 +67,7 @@ export const logInToWallet = createAsyncThunk(
         throw new Error('Unauthorized');
       }
     } catch (err) {
+      toast.error(err.message);
       console.log(err);
     }
 
@@ -109,7 +106,7 @@ export const setOwners = createAsyncThunk(
     ];
     const transaction = web3.Keypair.generate();
     try {
-      const tx = await state.connection.program.rpc.createTransaction(
+      await state.connection.program.rpc.createTransaction(
         state.connection.program.programId,
         accounts,
         data,
@@ -125,7 +122,7 @@ export const setOwners = createAsyncThunk(
           instructions: [
             await state.connection.program.account.wallet.createInstruction(
               transaction,
-              1000
+              SIZE
             ),
           ],
           signers: [transaction],
@@ -133,8 +130,11 @@ export const setOwners = createAsyncThunk(
       );
       toast.success('Transaction created and signed');
     } catch (err) {
+      toast.error(err.message);
       console.log(err);
     }
+
+    return true;
   }
 );
 interface IsetTreshold {
@@ -166,13 +166,13 @@ export const setTreshold = createAsyncThunk(
     ];
     const transaction = web3.Keypair.generate();
     try {
-      const tx = await state.connection.program.rpc.createTransaction(
+      await state.connection.program.rpc.createTransaction(
         state.connection.program.programId,
         accounts,
         data,
         new BN(1),
         [],
-        args.threshold,
+        new BN(args.threshold),
         {
           accounts: {
             wallet: new PublicKey(state.connection.msig),
@@ -182,7 +182,7 @@ export const setTreshold = createAsyncThunk(
           instructions: [
             await state.connection.program.account.wallet.createInstruction(
               transaction,
-              1000
+              SIZE
             ),
           ],
           signers: [transaction],
@@ -193,6 +193,8 @@ export const setTreshold = createAsyncThunk(
       toast.error(err.message);
       console.log(err);
     }
+
+    return true;
   }
 );
 
@@ -204,8 +206,6 @@ interface ITransfer {
 export const transfer = createAsyncThunk(
   'payload/transfer',
   async (args: ITransfer, thunkAPI) => {
-    console.log({ args: args });
-    console.log(typeof args.amount);
     const state = thunkAPI.getState() as { connection: IConnectionSlice };
     const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
       [new PublicKey(state.connection.msig).toBuffer()],
@@ -234,7 +234,7 @@ export const transfer = createAsyncThunk(
         [args.to],
         new BN(args.amount),
         new PublicKey(state.connection.msig),
-        new PublicKey(state.connection.msig),
+        args.to,
         new BN(args.amount),
         {
           accounts: {
@@ -256,6 +256,7 @@ export const transfer = createAsyncThunk(
       toast.error(err.message);
       console.log(err);
     }
+    return true;
   }
 );
 
@@ -267,10 +268,10 @@ export const fetchWallet = createAsyncThunk(
 
     try {
       data = await state.connection.program.account.wallet.all();
-      data.filter((wallet) =>
-        wallet.account.owners.includes(
-          state.connection.provider.wallet.publicKey
-        )
+      data = data.filter((wallet) =>
+        wallet.account.owners
+          .map((owner) => owner.toString())
+          .includes(state.connection.provider.wallet.publicKey.toString())
       );
       return data.map((wallet) => wallet.publicKey.toString());
     } catch (err) {

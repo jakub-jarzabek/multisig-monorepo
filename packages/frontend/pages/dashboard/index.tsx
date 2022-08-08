@@ -26,12 +26,14 @@ const Dashboard = () => {
   const router = useRouter();
   const parent = useRef(null);
   const [activeTab, setActiveTab] = useState(0);
+
+  const wallet = useWallet();
   const reloadData = () => {
     dispatch(loadWalletData());
     dispatch(loadTransactions());
   };
 
-  useSubscriveEvents(reloadData, connection.program);
+  useSubscriveEvents(reloadData, wallet);
 
   useEffect(() => {
     if (!publicKey || !program) {

@@ -54,7 +54,7 @@ pub mod multi_sig_wallet {
         data: Vec<u8>,
         tx_type: u8,
         tx_data: Vec<Pubkey>,
-        tx_value: u8,
+        tx_value: u64,
     ) -> Result<()> {
         let owner_index = ctx
             .accounts
@@ -79,6 +79,8 @@ pub mod multi_sig_wallet {
         tx.owner_seq = ctx.accounts.wallet.owner_seq;
         tx.tx_type = tx_type;
         tx.tx_data = tx_data;
+        tx.tx_value = tx_value;
+        tx.created_at=Clock::get()?.unix_timestamp;
 
 emit!(TransactionCreatedEvent {
             wallet: ctx.accounts.wallet.key(),
@@ -125,6 +127,7 @@ pub fn create_transfer_transaction(
         tx.from = from;
         tx.to = to;
         tx.value = value;
+        tx.created_at=Clock::get()?.unix_timestamp;
          let wallet = &mut ctx.accounts.wallet;
         wallet.num_transfer = unwrap_int!(wallet.num_transfer.checked_add(1));
         msg!("Creating Transfer");
@@ -300,6 +303,8 @@ pub fn create_transfer_transaction(
         let from = ctx.accounts.from.to_account_info();
         let to = ctx.accounts.to.to_account_info();
 
+   
+
         if from.key() != ctx.accounts.transaction.from || from.key() != ctx.accounts.transaction.to{
             return Err(ErrorCode::ForbiddenRecipientManipulation.into());
         }
@@ -312,16 +317,18 @@ pub fn create_transfer_transaction(
         **to.try_borrow_mut_lamports()? += amount_of_lamports;
         ctx.accounts.transaction.did_execute = true;
 
-    emit!(TransactionExecutedEvent {
-        wallet: ctx.accounts.wallet.key(),
-        transaction: ctx.accounts.transaction.key(),
-    });
+        emit!(TransferExecutedEvent {
+            wallet: ctx.accounts.wallet.key(),
+            transaction: ctx.accounts.transaction.key(),
+            from: from.key(),
+            to: to.key(),
+            amount: ctx.accounts.transaction.value,
+        });
 
         Ok(())
     }
 
 }
-
 
 
 

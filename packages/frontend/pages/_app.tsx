@@ -22,6 +22,7 @@ import {
 import { WalletModalProvider } from '@solana/wallet-adapter-react-ui';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Loader } from '../components';
 
 function CustomApp({ Component, pageProps }: AppProps) {
   const solNetwork = WalletAdapterNetwork.Devnet;
@@ -51,6 +52,7 @@ function CustomApp({ Component, pageProps }: AppProps) {
                 <>
                   <ToastContainer />
                   <Component {...pageProps} />
+                  <Loader />
                 </>
               </WalletModalProvider>
             </WalletProvider>

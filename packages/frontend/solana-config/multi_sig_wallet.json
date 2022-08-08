@@ -76,7 +76,7 @@
         },
         {
           "name": "txValue",
-          "type": "u8"
+          "type": "u64"
         }
       ]
     },
@@ -272,16 +272,6 @@
       "name": "executeTransferTransaction",
       "accounts": [
         {
-          "name": "wallet",
-          "isMut": false,
-          "isSigner": false
-        },
-        {
-          "name": "transaction",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
           "name": "from",
           "isMut": true,
           "isSigner": false
@@ -302,8 +292,13 @@
           "isSigner": true
         },
         {
-          "name": "walletSigner",
+          "name": "wallet",
           "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "transaction",
+          "isMut": true,
           "isSigner": false
         }
       ],
@@ -397,6 +392,10 @@
           {
             "name": "deleted",
             "type": "bool"
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
           }
         ]
       }
@@ -465,6 +464,10 @@
           {
             "name": "value",
             "type": "u64"
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
           }
         ]
       }
@@ -639,6 +642,36 @@
           "name": "transaction",
           "type": "publicKey",
           "index": true
+        }
+      ]
+    },
+    {
+      "name": "TransferExecutedEvent",
+      "fields": [
+        {
+          "name": "wallet",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "transaction",
+          "type": "publicKey",
+          "index": true
+        },
+        {
+          "name": "from",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "to",
+          "type": "publicKey",
+          "index": false
+        },
+        {
+          "name": "amount",
+          "type": "u64",
+          "index": false
         }
       ]
     }

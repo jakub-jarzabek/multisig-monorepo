@@ -9,6 +9,8 @@ import {
   deleteTransaction,
   executeTransaction,
   executeTransferTransaction,
+  loadTransactions,
+  loadWalletData,
   ReduxState,
   RootState,
 } from '../../redux';
@@ -25,7 +27,7 @@ export const Card: React.FC<CardProps> = ({ children, twStyles, onClick }) => {
       onClick={onClick}
       className={`${
         twStyles ? twStyles : ''
-      } w-full flex flex-row p-2 h-14 bg-purple-300 bg-opacity-50 rounded border border-slate-300 justify-between hover:shadow-lg transition-all duration-300 `}
+      } w-full overflow-hidden flex flex-row p-2 h-14 bg-purple-300 bg-opacity-50 rounded border border-slate-300 justify-between hover:shadow-lg transition-all duration-300 `}
     >
       {children}
     </div>
@@ -42,6 +44,7 @@ interface TransactionCardProps {
     value: string;
     open: boolean;
     type: string;
+    ts: string;
   }) => void;
 }
 export const TransactionCard: React.FC<TransactionCardProps> = ({
@@ -51,6 +54,10 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
   twStyles,
   setModalData,
 }) => {
+  const refreshData = () => {
+    dispatch(loadWalletData());
+    dispatch(loadTransactions());
+  };
   const dispatch = useDispatch<AppDispatch>();
   const { wallet, connection } = useSelector<RootState, ReduxState>(
     (state) => state
@@ -61,6 +68,7 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     await dispatch(
       cancelTransactionApproval({ transactionPublicKey: transaction.publicKey })
     );
+    refreshData();
   };
 
   const handleDelete = async (e: any) => {
@@ -68,28 +76,33 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     await dispatch(
       deleteTransaction({ transactionPublicKey: transaction.publicKey })
     );
+
+    refreshData();
   };
   const handleExecute = async (e: any) => {
     e.stopPropagation();
-    console.log(transaction.account.txType.toString());
     if (transaction.account.txType.toString() !== '2') {
       await dispatch(
         executeTransaction({
           transactionPublicKey: transaction.publicKey,
         })
       );
+
+      refreshData();
     } else {
       await dispatch(
         executeTransferTransaction({
           tx: transaction,
         })
       );
+      refreshData();
     }
   };
   const handleApprove = async (e: any) => {
     await dispatch(
       approveTransaction({ transactionPublicKey: transaction.publicKey })
     );
+    refreshData();
   };
   const countSigners = () => {
     let count = 0;
@@ -111,12 +124,12 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     <Card
       twStyles={twStyles}
       onClick={() => {
-        console.log(transaction);
         setModalData({
           open: true,
           data: transaction.account.txData,
           value: transaction.account.txValue.toString(),
           type: transaction.account.txType.toString(),
+          ts: transaction.account.createdAt.toString(),
         });
       }}
     >

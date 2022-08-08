@@ -64,3 +64,14 @@ pub struct TransactionExecutedEvent {
     #[index]
     pub transaction: Pubkey,
 }
+
+#[event]
+pub struct TransferExecutedEvent {
+    #[index]
+    pub wallet: Pubkey,
+    #[index]
+    pub transaction: Pubkey,
+    pub from: Pubkey,
+    pub to: Pubkey,
+    pub amount: u64,
+}

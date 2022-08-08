@@ -1,94 +1,158 @@
+# Multi Signature Wallet
 
+- [Multi Signature Wallet](#multi-signature-wallet)
+  - [Description](#description)
+  - [Preview](#preview)
+    - [Wallet Account Selection](#wallet-account-selection)
+    - [Dashboard](#dashboard)
+    - [Transactions](#transactions)
+  - [Getting Started](#getting-started)
+  - [Local development perequsites](#local-development-perequsites)
+  - [Statring local environment](#statring-local-environment)
+  - [Scripts](#scripts)
+    - [Build solana program](#build-solana-program)
+    - [Deploy solana program](#deploy-solana-program)
+    - [Sync idl with frontend config](#sync-idl-with-frontend-config)
+    - [Sync types with frontend config](#sync-types-with-frontend-config)
+    - [Prepare blockchain by invoking all above or run](#prepare-blockchain-by-invoking-all-above-or-run)
+    - [Change blockchain to localhost](#change-blockchain-to-localhost)
+    - [Change blockchain to devnet](#change-blockchain-to-devnet)
+    - [Run tests](#run-tests)
+    - [Serve frontend](#serve-frontend)
+    - [Build frontend](#build-frontend)
+  - [Required envs](#required-envs)
+  - [Project structure](#project-structure)
 
-# Multisig
+## Description
 
-This project was generated using [Nx](https://nx.dev).
+Implementation of Multisignature Wallet for solana blockchain. With future multichain impelmentation planned.
+##Preview
 
-<p style="text-align: center;"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="450"></p>
+## Preview
 
-🔎 **Smart, Fast and Extensible Build System**
+Live Preview is available at [Live Preview](https://multisig-monorepo.vercel.app 'Live Preview')
 
-## Adding capabilities to your workspace
+### Wallet Account Selection
 
-Nx supports many plugins which add capabilities for developing different types of applications and different tools.
+![Wallet Selection](/preview/wallet_select.png?raw=true 'Walllet Selection')
 
-These capabilities include generating applications, libraries, etc as well as the devtools to test, and build projects as well.
+### Dashboard
 
-Below are our core plugins:
+![Preview](/preview/dashboard.png?raw=true 'Dashboard')
 
-- [React](https://reactjs.org)
-  - `npm install --save-dev @nrwl/react`
-- Web (no framework frontends)
-  - `npm install --save-dev @nrwl/web`
-- [Angular](https://angular.io)
-  - `npm install --save-dev @nrwl/angular`
-- [Nest](https://nestjs.com)
-  - `npm install --save-dev @nrwl/nest`
-- [Express](https://expressjs.com)
-  - `npm install --save-dev @nrwl/express`
-- [Node](https://nodejs.org)
-  - `npm install --save-dev @nrwl/node`
+### Transactions
 
-There are also many [community plugins](https://nx.dev/community) you could add.
+![Transactions](/preview/transactions.png?raw=true 'Transactions')
 
-## Generate an application
+## Getting Started
 
-Run `nx g @nrwl/react:app my-app` to generate an application.
+1. Clone repo
+2. Run `cd multisig-monorepo && yarn`
+3. Install Solana dependencies `nx run solana:prepare`
+4. Set up required values in `.env` file
 
-> You can use any of the plugins above to generate applications as well.
+Now program is ready to be deployed to blockchain and frontend to run loccaly.
 
-When using Nx, you can create multiple applications and libraries in the same workspace.
+## Local development perequsites
 
-## Generate a library
+1. Solana cli installed
+2. anchor_lang installed
+3. (optional) `nx` cli installed (invoking commands without `npx`)
+4. Node.js installed
 
-Run `nx g @nrwl/react:lib my-lib` to generate a library.
+## Statring local environment
 
-> You can also use any of the plugins above to generate libraries as well.
+1. Make sure solana test validator is running
+2. Prepare solana package with `nx run solana:prepare`
+3. Run `nx run solana:exec` to build and deploy contract and sync config files with frontend
+4. Wait until contract get deployed
+5. Serve frontend locally with `nx serve`
 
-Libraries are shareable across libraries and applications. They can be imported from `@multisig/mylib`.
+## Scripts
 
-## Development server
+If `nx cli` is not installed scripts must be run with `npx nx` prefix instead of `nx`
 
-Run `nx serve my-app` for a dev server. Navigate to http://localhost:4200/. The app will automatically reload if you change any of the source files.
+#### Build solana program
 
-## Code scaffolding
+```
+nx run solana:build
+```
 
-Run `nx g @nrwl/react:component my-component --project=my-app` to generate a new component.
+#### Deploy solana program
 
-## Build
+```
+nx run solana:deploy
+```
 
-Run `nx build my-app` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+#### Sync idl with frontend config
 
-## Running unit tests
+```
+nx run solana:sync-idl
+```
 
-Run `nx test my-app` to execute the unit tests via [Jest](https://jestjs.io).
+#### Sync types with frontend config
 
-Run `nx affected:test` to execute the unit tests affected by a change.
+```
+nx run solana:sync-types
+```
 
-## Running end-to-end tests
+#### Prepare blockchain by invoking all above or run
 
-Run `nx e2e my-app` to execute the end-to-end tests via [Cypress](https://www.cypress.io).
+```
+nx run solana:execute
+```
 
-Run `nx affected:e2e` to execute the end-to-end tests affected by a change.
+#### Change blockchain to localhost
 
-## Understand your workspace
+```
+nx run solana:enable-localhost
+```
 
-Run `nx graph` to see a diagram of the dependencies of your projects.
+#### Change blockchain to devnet
 
-## Further help
+```
+nx run solana:enable-devnet
+```
 
-Visit the [Nx Documentation](https://nx.dev) to learn more.
+#### Run tests
 
+```
+nx run solana:test
+```
 
+#### Serve frontend
 
-## ☁ Nx Cloud
+```
+nx run serve
+```
 
-### Distributed Computation Caching & Distributed Task Execution
+#### Build frontend
 
-<p style="text-align: center;"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-cloud-card.png"></p>
+```
+nx run build
+```
 
-Nx Cloud pairs with Nx in order to enable you to build and test code more rapidly, by up to 10 times. Even teams that are new to Nx can connect to Nx Cloud and start saving time instantly.
+## Required envs
 
-Teams using Nx gain the advantage of building full-stack applications with their preferred framework alongside Nx’s advanced code generation and project dependency graph, plus a unified experience for both frontend and backend developers.
+Required Environment Values are shown in `env.example` file
 
-Visit [Nx Cloud](https://nx.app/) to learn more.
+| ENV                    | Description                   | Example Values        |
+| ---------------------- | ----------------------------- | --------------------- |
+| NEXT_PUBLIC_NETWORK    | Address to blockchain network | http://127.0.0.1:8899 |
+| NEXT_PUBLIC_COMMITMENT | Connection commitment         | processed             |
+
+## Project structure
+
+```
+multisig-monorepo/
+├─ tools/
+├─ packages/
+│  ├─ frontend/
+│  │  ├─ solana-config/
+│  │  │  ├─ <idl and types>
+│  ├─ solana/
+│  │  ├─ <anchor_solana_app>
+new_folder/
+├─ solana-config/
+│  │  │  ├─ <idl and types>
+```

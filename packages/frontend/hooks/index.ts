@@ -1,1 +1,1 @@
-export * from './useSubscriveEvents';
+export * from './useSubscribeEvents';

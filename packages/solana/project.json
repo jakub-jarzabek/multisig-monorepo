@@ -44,6 +44,19 @@
       "options": {
         "command": "solana config set --url http://127.0.0.1:8899"
       }
+    },
+    "prepare": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd packages/solana && yarn"
+      }
+    },
+
+    "execute": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd packages/solana && anchor build && anchor deploy && cd ../.. && node ./packages/solana/syncIdl.js && node ./packages/solana/syncTypes.js"
+      }
     }
   },
   "tags": []

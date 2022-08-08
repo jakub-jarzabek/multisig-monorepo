@@ -64,7 +64,6 @@ export const MainPanel = () => {
 
   useEffect(() => {
     if (accs) {
-      console.log(accs);
       setAccounts(cloneDeep(accs.map((_) => _.toString())));
     }
     if (threshold) {
@@ -88,7 +87,11 @@ export const MainPanel = () => {
             placeholder="Set Confirmations..."
           />
         </div>
-        <Button label="Confirm" onClick={handleChangeConfirmations} />
+        <Button
+          label="Confirm"
+          onClick={handleChangeConfirmations}
+          disabled={threshold === confirmations}
+        />
       </div>
 
       <div className="p-2 rounded bg-purple-300 border border-slate-300 shadow-xl bg-opacity-60 hover:shadow-2xl duration-300">
@@ -114,7 +117,11 @@ export const MainPanel = () => {
             placeholder="Receiver Address"
           />
         </div>
-        <Button label="Confirm" onClick={handleSendTokens} />
+        <Button
+          label="Confirm"
+          onClick={handleSendTokens}
+          disabled={amount === 0 || isNaN(amount) || receiver.length !== 44}
+        />
       </div>
 
       <div className="rounded p-2 bg-purple-300 border border-slate-300 shadow-xl bg-opacity-60 hover:shadow-2xl duration-300">
@@ -132,7 +139,11 @@ export const MainPanel = () => {
               placeholder="Add account..."
             />
 
-            <Button onClick={addAccount} label="Add" />
+            <Button
+              onClick={addAccount}
+              label="Add"
+              disabled={accountInput.length !== 44}
+            />
           </div>
         </div>
         <div className="flex flex-col gap-2 w-full mb-2" ref={parent}>
@@ -163,7 +174,16 @@ export const MainPanel = () => {
               </Card>
             ))}
         </div>
-        <Button label="Confirm Changes" onClick={handleChangeAccounts} />
+        <Button
+          label="Confirm Changes"
+          onClick={handleChangeAccounts}
+          disabled={
+            accounts &&
+            accs &&
+            accounts.map((acc) => acc.toString()).join('') ===
+              accs.map((acc) => acc.toString()).join('')
+          }
+        />
       </div>
     </div>
   );
