@@ -9,7 +9,7 @@ url = "https://api.apr.dev"
 
 [provider]
 cluster = "localnet"
-#cluster = "devnet"
+# cluster = "devnet"
 wallet = "/home/qbeetsu/.config/solana/id.json"
 
 [scripts]

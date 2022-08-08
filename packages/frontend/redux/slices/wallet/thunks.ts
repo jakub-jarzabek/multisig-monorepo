@@ -14,6 +14,7 @@ export const loadWalletData = createAsyncThunk(
       data = await state.connection.program.account.wallet.fetch(
         state.connection.msig
       );
+      console.log(data);
     } catch (err) {
       console.log(err);
     }
@@ -26,6 +27,7 @@ export const loadWalletData = createAsyncThunk(
     }
     return {
       accounts: data.owners,
+      ownerSeq: Number(data.ownerSeq.toString()),
       balance,
       threshold: Number(data.threshold.toString()),
     };
@@ -50,7 +52,8 @@ export const loadTransactions = createAsyncThunk(
           .filter(
             (transaction) =>
               transaction.account.didExecute === false &&
-              transaction.account.deleted === false
+              transaction.account.deleted === false &&
+              transaction.account.ownerSeq >= state.wallet.ownerSeq
           )
           .sort((a, b) => {
             return b.account.createdAt - a.account.createdAt;
