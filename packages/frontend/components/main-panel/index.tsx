@@ -88,7 +88,11 @@ export const MainPanel = () => {
             placeholder="Set Confirmations..."
           />
         </div>
-        <Button label="Confirm" onClick={handleChangeConfirmations} />
+        <Button
+          label="Confirm"
+          onClick={handleChangeConfirmations}
+          disabled={threshold === confirmations}
+        />
       </div>
 
       <div className="p-2 rounded bg-purple-300 border border-slate-300 shadow-xl bg-opacity-60 hover:shadow-2xl duration-300">
