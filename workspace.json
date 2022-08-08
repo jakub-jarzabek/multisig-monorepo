@@ -2,7 +2,8 @@
   "$schema": "./node_modules/nx/schemas/workspace-schema.json",
   "version": 2,
   "projects": {
-    "solana": "packages/solana",
-    "frontend": "packages/frontend"
+    "evm": "packages/evm",
+    "frontend": "packages/frontend",
+    "solana": "packages/solana"
   }
 }
