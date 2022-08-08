@@ -4,6 +4,8 @@ import autoAnimate from '@formkit/auto-animate';
 import { AppDispatch, createWallet, ReduxState, RootState } from '../../redux';
 import { useDispatch, useSelector } from 'react-redux';
 import { PublicKey } from '@solana/web3.js';
+import useMediaQuery from '../../hooks/useMediaQuery';
+import { trimAddress } from '../../utils/trimAddress';
 
 interface IAccountCreationProps {
   goBack: () => void;
@@ -11,6 +13,7 @@ interface IAccountCreationProps {
 export const AccountCreation: React.FC<IAccountCreationProps> = ({
   goBack,
 }) => {
+  const matches = useMediaQuery('(min-width: 768px)');
   const dispatch = useDispatch<AppDispatch>();
   const { connection } = useSelector<RootState, ReduxState>((state) => state);
   const [accounts, setAccounts] = useState<string[]>([]);
@@ -36,14 +39,14 @@ export const AccountCreation: React.FC<IAccountCreationProps> = ({
     parent.current && autoAnimate(parent.current);
   }, [parent]);
   return (
-    <div className="w-1/2 min-h-1/4 p-4 relative mx-auto mt-60 rounded-xl shadow-xl bg-purple-300 border-1 border-slate-300 flex flex-col pt-10 items-center transition-opacity">
+    <div className="w-full md:w-1/2 min-h-1/4 p-4 relative mx-auto mt-60 rounded-xl shadow-xl bg-purple-300 border-1 border-slate-300 flex flex-col pt-10 items-center transition-opacity">
       <span
         onClick={goBack}
-        className="text-purple-900 font-bold tracking-widest absolute p-6 left-0 top-0 text-xl cursor-pointer hover:text-purple-500 transition-color duration-300"
+        className="text-purple-900 font-bold tracking-widest absolute p-6 left-0 top-0 text-md md:text-xl cursor-pointer hover:text-purple-500 transition-color duration-300"
       >
         {'<'} Back
       </span>
-      <h1 className="text-2xl text-white font-semibold mb-6">
+      <h1 className="text-2xl text-white font-semibold mb-6 mt-6 md:mt-0">
         Create New Wallet
       </h1>
 
@@ -51,7 +54,7 @@ export const AccountCreation: React.FC<IAccountCreationProps> = ({
         <h2 className="text-white text-md font-semibold">
           Add additional owners
         </h2>
-        <div className="flex flex-row gap-10 justify-around items-center">
+        <div className="flex flex-col md:flex-row gap-10 justify-around items-center">
           <Input
             onChange={(e) => setAccountInput(e)}
             value={accountInput}
@@ -69,16 +72,23 @@ export const AccountCreation: React.FC<IAccountCreationProps> = ({
       </div>
       <div className="flex flex-col gap-2 w-full mt-6 p-2" ref={parent}>
         <Card twStyles="shadow-lg">
-          <span className="leading-10 mr-4">
-            {connection.provider.publicKey.toString()}
+          <span className="leading-10 mr-4 text-sm md:text-md">
+            {matches
+              ? connection.provider.publicKey.toString()
+              : trimAddress(connection.provider.publicKey.toString())}
           </span>
         </Card>
         {accounts &&
           accounts.map((acc, i) => (
             <Card key={i}>
               <>
-                <span className="leading-10 mr-4">{acc}</span>
-                <Button onClick={() => removeAccount(acc)} label="Remove" />
+                <span className="leading-10 mr-4">
+                  {matches ? acc : trimAddress(acc)}
+                </span>
+                <Button
+                  onClick={() => removeAccount(acc)}
+                  label={matches ? 'Remove' : 'X'}
+                />
               </>
             </Card>
           ))}

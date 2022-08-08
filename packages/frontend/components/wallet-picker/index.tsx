@@ -15,7 +15,7 @@ export const WalletPicker: React.FC<IWalletPickerProps> = ({ onCreateNew }) => {
     dispatch(logInToWallet({ pk }));
   };
   return (
-    <div className="flex items-center p-8 gap-4 flex-col w-1/2 mx-auto mt-20 rounded-3xl shadow-3xl  bg-gradient-to-r from-purple-100 to-purple-300 bg-opacity bg-opacity-50 border-1 border-slate-200  backdrop-blur-md">
+    <div className="flex items-center p-8 gap-4 flex-col w-full md:w-1/2 mx-auto mt-20 rounded-3xl shadow-3xl  bg-gradient-to-r from-purple-100 to-purple-300 bg-opacity bg-opacity-50 border-1 border-slate-200  backdrop-blur-md">
       <h1 className="text-2xl font-semibold text-purple-900">Choose Wallet</h1>
       {myWallets &&
         myWallets.map((wallet, i) => (

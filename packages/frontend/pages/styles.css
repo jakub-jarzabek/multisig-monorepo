@@ -37,6 +37,12 @@ body {
   background-color: white !important;
   border-radius: 8px !important;
 }
+@media (max-width: 768px) {
+  .rodal-dialog {
+    width: 95% !important;
+  }
+}
+
 .rodal-mask {
   background: rgba(0, 0, 0, 0.5) !important;
 }

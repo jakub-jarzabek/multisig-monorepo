@@ -1,4 +1,5 @@
 import { PublicKey, Transaction } from '@solana/web3.js';
+import useMediaQuery from '../../hooks/useMediaQuery';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button } from '..';
@@ -14,6 +15,7 @@ import {
   ReduxState,
   RootState,
 } from '../../redux';
+import { trimAddress } from '../../utils/trimAddress';
 
 interface CardProps {
   children: React.ReactNode;
@@ -27,7 +29,7 @@ export const Card: React.FC<CardProps> = ({ children, twStyles, onClick }) => {
       onClick={onClick}
       className={`${
         twStyles ? twStyles : ''
-      } w-full overflow-hidden flex flex-row p-2 h-14 bg-purple-300 bg-opacity-50 rounded border border-slate-300 justify-between hover:shadow-lg transition-all duration-300 `}
+      } w-full overflow-scroll md:overflow-hidden flex flex-row p-2 h-14 bg-purple-300 bg-opacity-50 rounded border border-slate-300 justify-between hover:shadow-lg transition-all duration-300 `}
     >
       {children}
     </div>
@@ -54,6 +56,7 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
   twStyles,
   setModalData,
 }) => {
+  const matches = useMediaQuery('(min-width: 768px)');
   const refreshData = () => {
     dispatch(loadWalletData());
     dispatch(loadTransactions());
@@ -134,12 +137,12 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
       }}
     >
       <>
-        <span className="font-semibold leading-10">{hash}</span>
+        <span className="font-semibold leading-10">{trimAddress(hash, 3)}</span>
         {!completed && (
           <div className="flex flex-row gap-6 items-center min-w-80">
             <div className="flex flex-row">
               <span className="text-white mr-2 font-semibold">
-                Required Signers
+                {matches ? 'Required Signers' : ''}
               </span>
               <div className="f-full bg-slate-100 roudned w-12 text-center text-purple-900 font-bold">
                 {countSigners()}/{threshold}
