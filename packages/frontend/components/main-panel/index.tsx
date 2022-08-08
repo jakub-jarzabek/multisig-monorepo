@@ -14,8 +14,11 @@ import {
 } from '../../redux';
 import { useDispatch, useSelector } from 'react-redux';
 import { PublicKey } from '@solana/web3.js';
+import useMediaQuery from '../../hooks/useMediaQuery';
+import { trimAddress } from '../../utils/trimAddress';
 
 export const MainPanel = () => {
+  const matches = useMediaQuery('(min-width: 768px)');
   const dispatch = useDispatch<AppDispatch>();
   const { connection, wallet } = useSelector<RootState, ReduxState>(
     (state) => state
@@ -160,7 +163,7 @@ export const MainPanel = () => {
               <Card key={i}>
                 <>
                   <span className="leading-10 mr-4">
-                    {acc}{' '}
+                    {matches ? acc : trimAddress(acc)}{' '}
                     {acc.toString() ===
                       connection.provider.publicKey.toString() && (
                       <span className="text-white font-bold"> (me)</span>
@@ -173,7 +176,10 @@ export const MainPanel = () => {
                   </span>
                   {acc.toString() !==
                     connection.provider.publicKey.toString() && (
-                    <Button onClick={() => removeAccount(acc)} label="Remove" />
+                    <Button
+                      onClick={() => removeAccount(acc)}
+                      label={matches ? 'Remove' : 'X'}
+                    />
                   )}
                 </>
               </Card>

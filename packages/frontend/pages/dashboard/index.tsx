@@ -56,12 +56,14 @@ const Dashboard = () => {
 
   return (
     <div
-      className=" p-4 w-5/6 min-h-9/10 max-h-full  absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-3xl  bg-gradient-to-r from-purple-500 to-purple-900 bg-opacity bg-opacity-50 border-4 border-slate-300 backdrop-blur-md"
+      className={`${
+        activeTab === 0 ? 'mt-20' : ''
+      } md:mt-0 p-4 w-full md:w-5/6 min-h-9/10  absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-3xl  bg-gradient-to-r from-purple-500 to-purple-900 bg-opacity bg-opacity-50 border-4 border-slate-300 backdrop-blur-md`}
       style={{ opacity: 0.5 }}
     >
-      <div className="flex flex-row items-center justify-between">
+      <div className="flex flex-col md:flex-row items-center justify-between gap-4 md:gap-0">
         <Tabs onChange={(e) => setActiveTab(e)} activeTab={activeTab} />
-        <div className="flex flex-row gap-10 items-center">
+        <div className="flex flex-col-reverse md:flex-row gap-2 md:gap-10 items-center">
           <div className="flex flex-row items-center gap-2 bg-slate-200 bg-opacity-20 px-2 rounded-xl shadow-lg magic">
             <AiOutlinePoweroff
               size={36}

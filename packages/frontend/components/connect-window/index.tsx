@@ -43,7 +43,7 @@ export const ConnectWindow = () => {
   return (
     <div ref={parent} className="w-screen h-screen">
       {!publicKey ? (
-        <div className="w-1/4 h-1/4 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl shadow-xl bg-purple-300 r  flex flex-col justify-center items-center">
+        <div className="w-5/6 md:1/4 h-1/4 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl shadow-xl bg-purple-300 r  flex flex-col justify-center items-center">
           <WalletMultiButton />
         </div>
       ) : myWallets?.length === 0 || createMode ? (
