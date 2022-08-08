@@ -98,7 +98,7 @@ export const MainPanel = () => {
         <h1 className="text-2xl mb-4 font-semibold text-white ">Send Tokens</h1>
         <div className="flex flex-col mb-2">
           <span className="text-sm text-purple-900 font-semibold">
-            Amount to transfer
+            Amount to transfer (In Lamports)
           </span>
           <Input
             onChange={(e) => setAmount(Number(e))}
