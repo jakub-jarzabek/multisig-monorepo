@@ -695,7 +695,7 @@
     {
       "code": 6003,
       "name": "NotEnoughSigners",
-      "msg": "Not enoguh signers"
+      "msg": "Not enough signers"
     },
     {
       "code": 6004,

@@ -695,7 +695,7 @@ export type MultiSigWallet = {
     {
       "code": 6003,
       "name": "NotEnoughSigners",
-      "msg": "Not enoguh signers"
+      "msg": "Not enough signers"
     },
     {
       "code": 6004,
@@ -1442,7 +1442,7 @@ export const IDL: MultiSigWallet = {
     {
       "code": 6003,
       "name": "NotEnoughSigners",
-      "msg": "Not enoguh signers"
+      "msg": "Not enough signers"
     },
     {
       "code": 6004,

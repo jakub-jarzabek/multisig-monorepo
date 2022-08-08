@@ -31,7 +31,7 @@ export const MainPanel = () => {
     setAccounts(accounts.filter((_) => _ !== acc));
   };
   const addAccount = () => {
-    setAccounts([...accounts, accountInput]);
+    setAccounts([...accounts, accountInput.trim()]);
     setAccountInput('');
   };
   const handleChangeConfirmations = () => {
@@ -112,7 +112,7 @@ export const MainPanel = () => {
             Receiver Address
           </span>
           <Input
-            onChange={(e) => setReceiver(e)}
+            onChange={(e) => setReceiver(e.trim())}
             value={receiver}
             placeholder="Receiver Address"
           />
@@ -120,7 +120,12 @@ export const MainPanel = () => {
         <Button
           label="Confirm"
           onClick={handleSendTokens}
-          disabled={amount === 0 || isNaN(amount) || receiver.length !== 44}
+          disabled={
+            amount === 0 ||
+            isNaN(amount) ||
+            receiver.length > 44 ||
+            receiver.length < 32
+          }
         />
       </div>
 
@@ -142,7 +147,7 @@ export const MainPanel = () => {
             <Button
               onClick={addAccount}
               label="Add"
-              disabled={accountInput.length !== 44}
+              disabled={accountInput.length > 44 || accountInput.length < 32}
             />
           </div>
         </div>

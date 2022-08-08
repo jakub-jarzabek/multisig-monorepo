@@ -14,6 +14,7 @@ export interface IWalletSlice {
   threshold: number;
   transactions: ITransactions;
   loading: boolean;
+  ownerSeq: number;
 }
 
 interface ITransactions {
@@ -27,6 +28,7 @@ const initialState: IWalletSlice = {
   accounts: null,
   balance: null,
   threshold: null,
+  ownerSeq: null,
   transactions: {
     peding: null,
     completed: null,
@@ -43,6 +45,7 @@ const walletSlice = createSlice({
       state.accounts = action.payload.accounts;
       state.balance = action.payload.balance;
       state.threshold = action.payload.threshold;
+      state.ownerSeq = action.payload.ownerSeq;
       state.loading = false;
     });
     builder.addCase(loadTransactions.fulfilled, (state, action) => {
