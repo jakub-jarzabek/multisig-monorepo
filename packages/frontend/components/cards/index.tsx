@@ -81,7 +81,6 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
   };
   const handleExecute = async (e: any) => {
     e.stopPropagation();
-    console.log(transaction.account.txType.toString());
     if (transaction.account.txType.toString() !== '2') {
       await dispatch(
         executeTransaction({
@@ -121,12 +120,10 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     );
     return transaction.account.signers[index];
   };
-  console.log(transaction.account.txValue.toString());
   return (
     <Card
       twStyles={twStyles}
       onClick={() => {
-        console.log(transaction);
         setModalData({
           open: true,
           data: transaction.account.txData,

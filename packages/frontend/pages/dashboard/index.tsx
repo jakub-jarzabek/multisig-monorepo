@@ -29,7 +29,6 @@ const Dashboard = () => {
 
   const wallet = useWallet();
   const reloadData = () => {
-    console.log('reloading');
     dispatch(loadWalletData());
     dispatch(loadTransactions());
   };

@@ -268,7 +268,6 @@ export const fetchWallet = createAsyncThunk(
 
     try {
       data = await state.connection.program.account.wallet.all();
-      console.log(data);
       data = data.filter((wallet) =>
         wallet.account.owners
           .map((owner) => owner.toString())

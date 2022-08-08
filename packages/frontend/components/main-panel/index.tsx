@@ -64,7 +64,6 @@ export const MainPanel = () => {
 
   useEffect(() => {
     if (accs) {
-      console.log(accs);
       setAccounts(cloneDeep(accs.map((_) => _.toString())));
     }
     if (threshold) {

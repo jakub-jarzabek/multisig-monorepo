@@ -32,7 +32,6 @@ export const Modal: React.FC<IModalProps> = ({
   open,
   setOpen,
 }) => {
-  console.log(value);
   return (
     <Rodal visible={open} onClose={setOpen}>
       <div className="flex flex-col gap-4">
