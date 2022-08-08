@@ -13,9 +13,12 @@ target
 **/target/*
 .anchor
 **/.anchor/*
-/packages/blockchain/.anchor
+/packages/solana/.anchor
 !target/idl/*
 !target
+/packages/evm/cache
+/packages/evm/artifacts
+/packages/evm/typechain-types
 
 # IDEs and editors
 /.idea

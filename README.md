@@ -10,16 +10,23 @@
   - [Local development perequsites](#local-development-perequsites)
   - [Statring local environment](#statring-local-environment)
   - [Scripts](#scripts)
-    - [Build solana program](#build-solana-program)
-    - [Deploy solana program](#deploy-solana-program)
-    - [Sync idl with frontend config](#sync-idl-with-frontend-config)
-    - [Sync types with frontend config](#sync-types-with-frontend-config)
-    - [Prepare blockchain by invoking all above or run](#prepare-blockchain-by-invoking-all-above-or-run)
-    - [Change blockchain to localhost](#change-blockchain-to-localhost)
-    - [Change blockchain to devnet](#change-blockchain-to-devnet)
-    - [Run tests](#run-tests)
-    - [Serve frontend](#serve-frontend)
-    - [Build frontend](#build-frontend)
+    - [Solana](#solana)
+      - [Build solana program](#build-solana-program)
+      - [Deploy solana program](#deploy-solana-program)
+      - [Sync idl with frontend config](#sync-idl-with-frontend-config)
+      - [Sync types with frontend config](#sync-types-with-frontend-config)
+      - [Prepare blockchain by invoking all above or run](#prepare-blockchain-by-invoking-all-above-or-run)
+      - [Change blockchain to localhost](#change-blockchain-to-localhost)
+      - [Change blockchain to devnet](#change-blockchain-to-devnet)
+      - [Run tests](#run-tests)
+    - [Evm](#evm)
+      - [Start node](#start-node)
+      - [Compile Contracts](#compile-contracts)
+      - [Run Tests](#run-tests-1)
+      - [Deplot contracts](#deplot-contracts)
+    - [Frontend](#frontend)
+      - [Serve frontend](#serve-frontend)
+      - [Build frontend](#build-frontend)
   - [Required envs](#required-envs)
   - [Project structure](#project-structure)
 
@@ -72,6 +79,8 @@ Now program is ready to be deployed to blockchain and frontend to run loccaly.
 
 If `nx cli` is not installed scripts must be run with `npx nx` prefix instead of `nx`
 
+### Solana
+
 #### Build solana program
 
 ```
@@ -119,6 +128,34 @@ nx run solana:enable-devnet
 ```
 nx run solana:test
 ```
+
+### Evm
+
+#### Start node
+
+```
+nx run evm:node
+```
+
+#### Compile Contracts
+
+```
+nx run evm:compile
+```
+
+#### Run Tests
+
+```
+nx run evm:test
+```
+
+#### Deplot contracts
+
+```
+nx run evm:deploy
+```
+
+### Frontend
 
 #### Serve frontend
 
