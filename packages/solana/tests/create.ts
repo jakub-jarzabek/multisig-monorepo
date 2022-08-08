@@ -1,19 +1,19 @@
 import { MultiSigWallet } from 'packages/solana/target/types/multi_sig_wallet';
 import * as anchor from '@project-serum/anchor';
-import { Program } from '@project-serum/anchor';
+import { AnchorError, Program } from '@project-serum/anchor';
 import { BN } from 'bn.js';
 import { assert } from 'chai';
 import Assert from 'assert';
 import { Keypair, PublicKey } from '@solana/web3.js';
 
-describe('Wallet creation', async () => {
+describe('Wallet and transaction creation', async () => {
   anchor.setProvider(anchor.AnchorProvider.env());
   const program = anchor.workspace.MultiSigWallet as Program<MultiSigWallet>;
   const connection = new anchor.web3.Connection(
     'http://localhost:8899',
     'processed'
   );
-  let walletSigner,
+  let walletSigner: PublicKey,
     nonce: any,
     size,
     ownerA: Keypair,
@@ -66,12 +66,13 @@ describe('Wallet creation', async () => {
       });
       assert.fail();
     } catch (err) {
-      console.log(err);
-      const error = err.error;
-      assert.strictEqual(
-        error.errorMessage,
-        'Threshold must be grater than zero and less than or equal to the number of owners.'
-      );
+      if (err instanceof AnchorError) {
+        const error = err.error;
+        assert.strictEqual(
+          error.errorMessage,
+          'Threshold must be grater than zero and less than or equal to the number of owners.'
+        );
+      }
     }
   });
   it('Should fail - owners not unique', async () => {
@@ -86,37 +87,164 @@ describe('Wallet creation', async () => {
       });
       assert.fail();
     } catch (err) {
-      console.log(err);
-      const error = err.error;
-      assert.strictEqual(error.errorMessage, 'Owners must be unique');
+      if (err instanceof AnchorError) {
+        const error = err.error;
+        assert.strictEqual(error.errorMessage, 'Owners must be unique');
+      }
     }
   });
-  // it('It should fire event', async () => {
-  //   let listener = null;
+  it('Should create transactions set Owner', async () => {
+    const accounts = [
+      {
+        pubkey: wallet.publicKey,
+        isWritable: true,
+        isSigner: false,
+      },
+      {
+        pubkey: walletSigner,
+        isWritable: false,
+        isSigner: true,
+      },
+    ];
+    await program.rpc.createWallet(owners, threshold, nonce, {
+      accounts: {
+        wallet: wallet.publicKey,
+      },
+      instructions: [ix],
+      signers: [wallet],
+    });
+    const accs = [ownerC.publicKey];
+    const data = program.coder.instruction.encode('set_owners', {
+      owners: accs,
+    });
+    const transaction = anchor.web3.Keypair.generate();
+    await program.rpc.createTransaction(
+      program.programId,
+      accounts,
+      data,
+      new BN(0),
+      accs,
+      new BN(0),
+      {
+        accounts: {
+          wallet: wallet.publicKey,
+          transaction: transaction.publicKey,
+          initiator: ownerA.publicKey,
+        },
+        instructions: [
+          await program.account.wallet.createInstruction(transaction, 2000),
+        ],
+        signers: [transaction, ownerA],
+      }
+    );
 
-  //   let [event, slot] = await new Promise(async (resolve, _reject) => {
-  //     listener = program.addEventListener(
-  //       'WalletCreatedEvent',
-  //       (event, slot) => {
-  //         resolve([event, slot]);
-  //         console.log('a');
-  //       }
-  //     );
-  //     console.log('b');
+    let tx = await program.account.transaction.fetch(transaction.publicKey);
+    assert.deepStrictEqual(tx.accounts, accounts);
+    assert.deepStrictEqual(tx.didExecute, false);
+    assert.deepStrictEqual(tx.txType.toString(), '0');
+    assert.deepStrictEqual(tx.txData, [ownerC.publicKey]);
+  });
+  it('Should create transactions set threshold', async () => {
+    await program.rpc.createWallet(owners, threshold, nonce, {
+      accounts: {
+        wallet: wallet.publicKey,
+      },
+      instructions: [ix],
+      signers: [wallet],
+    });
+    const accounts = [
+      {
+        pubkey: wallet.publicKey,
+        isWritable: true,
+        isSigner: false,
+      },
+      {
+        pubkey: walletSigner,
+        isWritable: false,
+        isSigner: true,
+      },
+    ];
+    const accs = [ownerC.publicKey];
+    const data = program.coder.instruction.encode('change_threshold', {
+      threshold: new BN(5),
+    });
+    const transaction = anchor.web3.Keypair.generate();
+    await program.rpc.createTransaction(
+      program.programId,
+      accounts,
+      data,
+      new BN(1),
+      accs,
+      new BN(5),
+      {
+        accounts: {
+          wallet: wallet.publicKey,
+          transaction: transaction.publicKey,
+          initiator: ownerA.publicKey,
+        },
+        instructions: [
+          await program.account.wallet.createInstruction(transaction, 2000),
+        ],
+        signers: [transaction, ownerA],
+      }
+    );
 
-  //     const x = program.rpc.createWallet(owners, threshold, nonce, {
-  //       accounts: {
-  //         wallet: wallet.publicKey,
-  //       },
-  //       instructions: [ix],
-  //       signers: [wallet],
-  //     });
-  //     console.log(x);
-  //   });
-  //   listener && (await program.removeEventListener(listener));
+    let tx = await program.account.transaction.fetch(transaction.publicKey);
+    assert.deepStrictEqual(tx.accounts, accounts);
+    assert.deepStrictEqual(tx.didExecute, false);
+    assert.deepStrictEqual(tx.txType.toString(), '1');
+    assert.deepStrictEqual(tx.txValue.toString(), '5');
+  });
+  it('Should create transactions transfer', async () => {
+    const accounts = [
+      {
+        pubkey: wallet.publicKey,
+        isWritable: true,
+        isSigner: false,
+      },
+      {
+        pubkey: walletSigner,
+        isWritable: false,
+        isSigner: true,
+      },
+    ];
+    await program.rpc.createWallet(owners, threshold, nonce, {
+      accounts: {
+        wallet: wallet.publicKey,
+      },
+      instructions: [ix],
+      signers: [wallet],
+    });
+    const accs = [ownerC.publicKey];
+    const transaction = anchor.web3.Keypair.generate();
+    await program.rpc.createTransferTransaction(
+      program.programId,
+      accounts,
+      new BN(2),
+      accs,
+      new BN(100),
+      wallet.publicKey,
+      ownerB.publicKey,
+      new BN(100),
+      {
+        accounts: {
+          wallet: wallet.publicKey,
+          transaction: transaction.publicKey,
+          initiator: ownerA.publicKey,
+        },
+        instructions: [
+          await program.account.wallet.createInstruction(transaction, 2000),
+        ],
+        signers: [transaction, ownerA],
+      }
+    );
 
-  //   assert.isAbove(slot, 0);
-  //   assert.strictEqual(event.data.toNumber(), 5);
-  //   assert.strictEqual(event.label, 'hello');
-  // });
+    let tx = await program.account.transferTransaction.fetch(
+      transaction.publicKey
+    );
+    assert.deepStrictEqual(tx.accounts, accounts);
+    assert.deepStrictEqual(tx.didExecute, false);
+    assert.deepStrictEqual(tx.txType.toString(), '2');
+    assert.deepStrictEqual(tx.txValue.toString(), '100');
+  });
 });

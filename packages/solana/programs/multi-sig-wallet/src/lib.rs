@@ -1,23 +1,19 @@
 #![deny(clippy::unwrap_used)]
 use anchor_lang::prelude::*;
-use anchor_lang::solana_program::instruction::Instruction;
 use anchor_lang::solana_program;
-use anchor_lang::solana_program::{
-    account_info::{
-        next_account_info,AccountInfo
-    }
-};
-use vipers::prelude::*;
+use anchor_lang::solana_program::account_info::{next_account_info, AccountInfo};
+use anchor_lang::solana_program::instruction::Instruction;
 use std::convert::Into;
 use std::ops::Deref;
+use vipers::prelude::*;
+mod errors;
 mod events;
 mod structs;
-mod errors;
 mod utils;
 
+pub use errors::ErrorCode;
 pub use events::*;
 pub use structs::*;
-pub use errors::ErrorCode;
 pub use utils::*;
 
 declare_id!("yqiXBbHxd9bQJ6u2bqjLkLvGQG4H9Nmxwfcivv2BLg3");
@@ -80,9 +76,9 @@ pub mod multi_sig_wallet {
         tx.tx_type = tx_type;
         tx.tx_data = tx_data;
         tx.tx_value = tx_value;
-        tx.created_at=Clock::get()?.unix_timestamp;
+        tx.created_at = Clock::get()?.unix_timestamp;
 
-emit!(TransactionCreatedEvent {
+        emit!(TransactionCreatedEvent {
             wallet: ctx.accounts.wallet.key(),
             transaction: ctx.accounts.transaction.key(),
             initiator: ctx.accounts.initiator.key(),
@@ -90,16 +86,16 @@ emit!(TransactionCreatedEvent {
         Ok(())
     }
 
-pub fn create_transfer_transaction(
+    pub fn create_transfer_transaction(
         ctx: Context<CreateTransferTransaction>,
         pid: Pubkey,
         accs: Vec<TransactionAccount>,
         tx_type: u8,
         tx_data: Vec<Pubkey>,
         tx_value: u64,
-        from:Pubkey,
-        to:Pubkey,
-        value:u64,
+        from: Pubkey,
+        to: Pubkey,
+        value: u64,
     ) -> Result<()> {
         let owner_index = ctx
             .accounts
@@ -127,14 +123,13 @@ pub fn create_transfer_transaction(
         tx.from = from;
         tx.to = to;
         tx.value = value;
-        tx.created_at=Clock::get()?.unix_timestamp;
-         let wallet = &mut ctx.accounts.wallet;
+        tx.created_at = Clock::get()?.unix_timestamp;
+        let wallet = &mut ctx.accounts.wallet;
         wallet.num_transfer = unwrap_int!(wallet.num_transfer.checked_add(1));
         msg!("Creating Transfer");
 
         Ok(())
     }
-
 
     pub fn approve(ctx: Context<Approve>) -> Result<()> {
         let owner_index = ctx
@@ -147,11 +142,11 @@ pub fn create_transfer_transaction(
 
         ctx.accounts.transaction.signers[owner_index] = true;
 
-    emit!(ApprovedEvent {
-        wallet: ctx.accounts.wallet.key(),
-        transaction: ctx.accounts.transaction.key(),
-        owner: ctx.accounts.owner.key(),
-    });
+        emit!(ApprovedEvent {
+            wallet: ctx.accounts.wallet.key(),
+            transaction: ctx.accounts.transaction.key(),
+            owner: ctx.accounts.owner.key(),
+        });
 
         Ok(())
     }
@@ -166,15 +161,15 @@ pub fn create_transfer_transaction(
             .ok_or(ErrorCode::UnauthorizedOwner)?;
 
         ctx.accounts.transaction.signers[owner_index] = false;
-    emit!(CancelledAprovalEvent {
-        wallet: ctx.accounts.wallet.key(),
-        transaction: ctx.accounts.transaction.key(),
-        owner: ctx.accounts.owner.key(),
-    });
+        emit!(CancelledAprovalEvent {
+            wallet: ctx.accounts.wallet.key(),
+            transaction: ctx.accounts.transaction.key(),
+            owner: ctx.accounts.owner.key(),
+        });
         Ok(())
     }
 
-    pub fn delete_transaction(ctx: Context<Approve>) -> Result<()>{
+    pub fn delete_transaction(ctx: Context<Approve>) -> Result<()> {
         let owner_index = ctx
             .accounts
             .wallet
@@ -182,17 +177,20 @@ pub fn create_transfer_transaction(
             .iter()
             .position(|i| i == ctx.accounts.owner.key)
             .ok_or(ErrorCode::UnauthorizedOwner)?;
-        
-        require!(!ctx.accounts.transaction.signers.contains(&true),ErrorCode::CannotDelete);
+
+        require!(
+            !ctx.accounts.transaction.signers.contains(&true),
+            ErrorCode::CannotDelete
+        );
 
         let tx = &mut ctx.accounts.transaction;
         tx.deleted = true;
 
- emit!(DeletedEvent {
-        wallet: ctx.accounts.wallet.key(),
-        transaction: ctx.accounts.transaction.key(),
-        owner: ctx.accounts.owner.key(),
-    });
+        emit!(DeletedEvent {
+            wallet: ctx.accounts.wallet.key(),
+            transaction: ctx.accounts.transaction.key(),
+            owner: ctx.accounts.owner.key(),
+        });
         Ok(())
     }
 
@@ -209,14 +207,13 @@ pub fn create_transfer_transaction(
         wallet.owners = owners.clone();
         wallet.owner_seq += 1;
 
-        emit!(WalletOwnersSetEvent{
+        emit!(WalletOwnersSetEvent {
             wallet: wallet.key(),
-            owners:owners,
+            owners: owners,
         });
         Ok(())
     }
 
- 
     pub fn change_threshold(ctx: Context<Auth>, threshold: u64) -> Result<()> {
         require!(threshold > 0, InvalidThreshold);
         if threshold > ctx.accounts.wallet.owners.len() as u64 {
@@ -224,7 +221,7 @@ pub fn create_transfer_transaction(
         }
         let wallet = &mut ctx.accounts.wallet;
         wallet.threshold = threshold;
-        emit!(WalletThresholdSetEvent{
+        emit!(WalletThresholdSetEvent {
             wallet: wallet.key(),
             threshold,
         });
@@ -236,9 +233,9 @@ pub fn create_transfer_transaction(
         if ctx.accounts.transaction.did_execute {
             return Err(ErrorCode::AlreadyExecuted.into());
         }
-       if ctx.accounts.transaction.deleted {
-                return Err(ErrorCode::TransactionIsDeleted.into());
-            }
+        if ctx.accounts.transaction.deleted {
+            return Err(ErrorCode::TransactionIsDeleted.into());
+        }
 
         let sig_count = ctx
             .accounts
@@ -270,23 +267,23 @@ pub fn create_transfer_transaction(
         solana_program::program::invoke_signed(&ix, accounts, signer)?;
 
         ctx.accounts.transaction.did_execute = true;
-    emit!(TransactionExecutedEvent {
-        wallet: ctx.accounts.wallet.key(),
-        transaction: ctx.accounts.transaction.key(),
-    });
+        emit!(TransactionExecutedEvent {
+            wallet: ctx.accounts.wallet.key(),
+            transaction: ctx.accounts.transaction.key(),
+        });
 
         Ok(())
     }
 
-  pub fn execute_transfer_transaction(ctx: Context<ExecuteTransferTransaction>) -> Result<()> {
+    pub fn execute_transfer_transaction(ctx: Context<ExecuteTransferTransaction>) -> Result<()> {
         msg!("Executing Transaction");
         if ctx.accounts.transaction.did_execute {
             return Err(ErrorCode::AlreadyExecuted.into());
         }
 
-       if ctx.accounts.transaction.deleted {
-                return Err(ErrorCode::TransactionIsDeleted.into());
-            }
+        if ctx.accounts.transaction.deleted {
+            return Err(ErrorCode::TransactionIsDeleted.into());
+        }
 
         let sig_count = ctx
             .accounts
@@ -303,12 +300,11 @@ pub fn create_transfer_transaction(
         let from = ctx.accounts.from.to_account_info();
         let to = ctx.accounts.to.to_account_info();
 
-   
-
-        if from.key() != ctx.accounts.transaction.from || from.key() != ctx.accounts.transaction.to{
+        if from.key() != ctx.accounts.transaction.from || from.key() != ctx.accounts.transaction.to
+        {
             return Err(ErrorCode::ForbiddenRecipientManipulation.into());
         }
-        
+
         if **from.try_borrow_lamports()? < amount_of_lamports {
             return Err(ErrorCode::InsufficientFundsForTransaction.into());
         }
@@ -327,12 +323,7 @@ pub fn create_transfer_transaction(
 
         Ok(())
     }
-
 }
-
-
-
-
 
 impl From<&TransactionAccount> for AccountMeta {
     fn from(account: &TransactionAccount) -> AccountMeta {
@@ -352,4 +343,3 @@ impl From<&AccountMeta> for TransactionAccount {
         }
     }
 }
-
