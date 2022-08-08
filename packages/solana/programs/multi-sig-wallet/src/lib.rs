@@ -300,8 +300,14 @@ pub mod multi_sig_wallet {
         let from = ctx.accounts.from.to_account_info();
         let to = ctx.accounts.to.to_account_info();
 
-        if from.key() != ctx.accounts.transaction.from || from.key() != ctx.accounts.transaction.to
-        {
+
+   
+      
+        let eq_1 = ctx.accounts.transaction.from == from.key();
+        let eq_2 = ctx.accounts.transaction.to == to.key();
+      
+
+        if !(eq_1&&eq_2) {
             return Err(ErrorCode::ForbiddenRecipientManipulation.into());
         }
 

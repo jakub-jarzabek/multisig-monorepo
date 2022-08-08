@@ -19,7 +19,7 @@ export const AccountCreation: React.FC<IAccountCreationProps> = ({
     setAccounts(accounts.filter((_) => _ !== acc));
   };
   const addAccount = () => {
-    setAccounts([...accounts, accountInput]);
+    setAccounts([...accounts, accountInput.trim()]);
     setAccountInput('');
   };
 
@@ -61,7 +61,7 @@ export const AccountCreation: React.FC<IAccountCreationProps> = ({
             <Button
               onClick={addAccount}
               label="Add"
-              disabled={accountInput.length !== 44}
+              disabled={accountInput.length > 44 || accountInput.length < 32}
             />
             <Button onClick={handleCreateWallet} primary label="Create" />
           </div>
