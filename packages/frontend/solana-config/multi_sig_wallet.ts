@@ -76,7 +76,7 @@ export type MultiSigWallet = {
         },
         {
           "name": "txValue",
-          "type": "u8"
+          "type": "u64"
         }
       ]
     },
@@ -823,7 +823,7 @@ export const IDL: MultiSigWallet = {
         },
         {
           "name": "txValue",
-          "type": "u8"
+          "type": "u64"
         }
       ]
     },

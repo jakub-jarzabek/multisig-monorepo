@@ -1,10 +1,17 @@
+import { AppDispatch, loadTransactions, loadWalletData } from '../../redux';
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 
 interface TabsProps {
   onChange: (x: number) => void;
-  activeTab:number
+  activeTab: number;
 }
-export const Tabs: React.FC<TabsProps> = ({ onChange,activeTab }) => {
+export const Tabs: React.FC<TabsProps> = ({ onChange, activeTab }) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const refreshData = () => {
+    dispatch(loadWalletData());
+    dispatch(loadTransactions());
+  };
   return (
     <div className="shadow h-10 w-80 bg-slate-100 rounded relative">
       <div
@@ -14,14 +21,20 @@ export const Tabs: React.FC<TabsProps> = ({ onChange,activeTab }) => {
       />
       <div
         className="cursor-pointer w-1/2 h-10 left-0 absolute z-20 text-center leading-10"
-        onClick={() => onChange(0)}
+        onClick={() => {
+          refreshData();
+          onChange(0);
+        }}
       >
         Dashboard
       </div>
 
       <div
         className="cursor-pointer w-1/2 h-10 left-1/2 absolute z-20 text-center leading-10"
-        onClick={() => onChange(1)}
+        onClick={() => {
+          refreshData();
+          onChange(1);
+        }}
       >
         Transactions
       </div>

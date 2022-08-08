@@ -1,16 +1,11 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import connection, { IConnectionSlice } from '.';
-import {
-  PublicKey,
-  SystemProgram,
-  Transaction,
-  TransactionInstruction,
-} from '@solana/web3.js';
+import { IConnectionSlice } from '.';
+import { PublicKey } from '@solana/web3.js';
 import { web3, BN } from '@project-serum/anchor';
-import { Storage } from '../../../utils';
 import { ReduxState } from '..';
 import { toast } from 'react-toastify';
 
+const SIZE = 1000;
 interface IcreateWallet {
   additionalAccounts?: PublicKey[];
 }
@@ -35,7 +30,7 @@ export const createWallet = createAsyncThunk(
           instructions: [
             await state.connection.program.account.wallet.createInstruction(
               baseAccount,
-              2000
+              SIZE
             ),
           ],
           signers: [baseAccount],
@@ -111,7 +106,7 @@ export const setOwners = createAsyncThunk(
     ];
     const transaction = web3.Keypair.generate();
     try {
-      const tx = await state.connection.program.rpc.createTransaction(
+      await state.connection.program.rpc.createTransaction(
         state.connection.program.programId,
         accounts,
         data,
@@ -127,7 +122,7 @@ export const setOwners = createAsyncThunk(
           instructions: [
             await state.connection.program.account.wallet.createInstruction(
               transaction,
-              1000
+              SIZE
             ),
           ],
           signers: [transaction],
@@ -138,6 +133,8 @@ export const setOwners = createAsyncThunk(
       toast.error(err.message);
       console.log(err);
     }
+
+    return true;
   }
 );
 interface IsetTreshold {
@@ -169,7 +166,7 @@ export const setTreshold = createAsyncThunk(
     ];
     const transaction = web3.Keypair.generate();
     try {
-      const tx = await state.connection.program.rpc.createTransaction(
+      await state.connection.program.rpc.createTransaction(
         state.connection.program.programId,
         accounts,
         data,
@@ -185,7 +182,7 @@ export const setTreshold = createAsyncThunk(
           instructions: [
             await state.connection.program.account.wallet.createInstruction(
               transaction,
-              1000
+              SIZE
             ),
           ],
           signers: [transaction],
@@ -196,6 +193,8 @@ export const setTreshold = createAsyncThunk(
       toast.error(err.message);
       console.log(err);
     }
+
+    return true;
   }
 );
 
@@ -257,6 +256,7 @@ export const transfer = createAsyncThunk(
       toast.error(err.message);
       console.log(err);
     }
+    return true;
   }
 );
 

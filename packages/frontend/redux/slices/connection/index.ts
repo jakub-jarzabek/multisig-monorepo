@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { AnchorProvider, Program } from '@project-serum/anchor';
 import {
   Commitment,
@@ -9,13 +9,21 @@ import {
 import { WalletContextState } from '@solana/wallet-adapter-react';
 import idl from '../../../solana-config/multi_sig_wallet.json';
 import { MultiSigWallet } from '../../../solana-config/multi_sig_wallet';
-import { createWallet, fetchWallet, logInToWallet } from './thunks';
+import {
+  createWallet,
+  fetchWallet,
+  logInToWallet,
+  setOwners,
+  setTreshold,
+  transfer,
+} from './thunks';
 export interface IConnectionSlice {
   provider: AnchorProvider;
   program: Program<MultiSigWallet>;
   msig: string;
   web3: Web3Connection;
   myWallets: string[];
+  loading: boolean;
 }
 
 const initialState: IConnectionSlice = {
@@ -24,6 +32,7 @@ const initialState: IConnectionSlice = {
   program: null,
   web3: null,
   myWallets: null,
+  loading: false,
 };
 interface IsetProviderPayload {
   wallet: WalletContextState;
@@ -58,14 +67,46 @@ const connectionSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    builder.addCase(createWallet.pending, (state, action) => {
+      state.loading = true;
+    });
     builder.addCase(createWallet.fulfilled, (state, action) => {
       state.msig = action.payload;
+      state.loading = false;
     });
     builder.addCase(logInToWallet.fulfilled, (state, action) => {
       state.msig = action.payload;
+      state.loading = false;
+    });
+    builder.addCase(logInToWallet.pending, (state, action) => {
+      state.loading = true;
     });
     builder.addCase(fetchWallet.fulfilled, (state, action) => {
       state.myWallets = action.payload;
+      state.loading = false;
+    });
+    builder.addCase(fetchWallet.pending, (state, action) => {
+      state.loading = true;
+    });
+    builder.addCase(setOwners.pending, (state, action) => {
+      state.loading = true;
+    });
+    builder.addCase(setOwners.fulfilled, (state, action) => {
+      state.loading = false;
+    });
+
+    builder.addCase(setTreshold.pending, (state, action) => {
+      state.loading = true;
+    });
+    builder.addCase(setTreshold.fulfilled, (state, action) => {
+      state.loading = false;
+    });
+
+    builder.addCase(transfer.pending, (state, action) => {
+      state.loading = true;
+    });
+    builder.addCase(transfer.fulfilled, (state, action) => {
+      state.loading = false;
     });
   },
 });

@@ -9,6 +9,8 @@ import {
   deleteTransaction,
   executeTransaction,
   executeTransferTransaction,
+  loadTransactions,
+  loadWalletData,
   ReduxState,
   RootState,
 } from '../../redux';
@@ -52,6 +54,10 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
   twStyles,
   setModalData,
 }) => {
+  const refreshData = () => {
+    dispatch(loadWalletData());
+    dispatch(loadTransactions());
+  };
   const dispatch = useDispatch<AppDispatch>();
   const { wallet, connection } = useSelector<RootState, ReduxState>(
     (state) => state
@@ -62,6 +68,7 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     await dispatch(
       cancelTransactionApproval({ transactionPublicKey: transaction.publicKey })
     );
+    refreshData();
   };
 
   const handleDelete = async (e: any) => {
@@ -69,6 +76,8 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     await dispatch(
       deleteTransaction({ transactionPublicKey: transaction.publicKey })
     );
+
+    refreshData();
   };
   const handleExecute = async (e: any) => {
     e.stopPropagation();
@@ -79,18 +88,22 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
           transactionPublicKey: transaction.publicKey,
         })
       );
+
+      refreshData();
     } else {
       await dispatch(
         executeTransferTransaction({
           tx: transaction,
         })
       );
+      refreshData();
     }
   };
   const handleApprove = async (e: any) => {
     await dispatch(
       approveTransaction({ transactionPublicKey: transaction.publicKey })
     );
+    refreshData();
   };
   const countSigners = () => {
     let count = 0;
@@ -108,6 +121,7 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     );
     return transaction.account.signers[index];
   };
+  console.log(transaction.account.txValue.toString());
   return (
     <Card
       twStyles={twStyles}

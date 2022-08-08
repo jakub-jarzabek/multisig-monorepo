@@ -140,7 +140,11 @@ export const MainPanel = () => {
               placeholder="Add account..."
             />
 
-            <Button onClick={addAccount} label="Add" />
+            <Button
+              onClick={addAccount}
+              label="Add"
+              disabled={accountInput.length !== 44}
+            />
           </div>
         </div>
         <div className="flex flex-col gap-2 w-full mb-2" ref={parent}>

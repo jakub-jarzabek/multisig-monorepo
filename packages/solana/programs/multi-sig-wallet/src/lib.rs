@@ -54,7 +54,7 @@ pub mod multi_sig_wallet {
         data: Vec<u8>,
         tx_type: u8,
         tx_data: Vec<Pubkey>,
-        tx_value: u8,
+        tx_value: u64,
     ) -> Result<()> {
         let owner_index = ctx
             .accounts
@@ -79,6 +79,7 @@ pub mod multi_sig_wallet {
         tx.owner_seq = ctx.accounts.wallet.owner_seq;
         tx.tx_type = tx_type;
         tx.tx_data = tx_data;
+        tx.tx_value = tx_value;
         tx.created_at=Clock::get()?.unix_timestamp;
 
 emit!(TransactionCreatedEvent {

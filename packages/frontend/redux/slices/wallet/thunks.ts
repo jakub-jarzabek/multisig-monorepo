@@ -1,10 +1,8 @@
 import { BN, web3 } from '@project-serum/anchor';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
-import { userAgent } from 'next/server';
+import { PublicKey, SystemProgram } from '@solana/web3.js';
 import { toast } from 'react-toastify';
 import { ReduxState } from '..';
-import connection from '../connection';
 
 export const loadWalletData = createAsyncThunk(
   'payload/loadWalletData',
@@ -99,6 +97,8 @@ export const approveTransaction = createAsyncThunk(
       toast.error(err.message);
       console.log(err);
     }
+
+    return true;
   }
 );
 export const cancelTransactionApproval = createAsyncThunk(
@@ -118,6 +118,8 @@ export const cancelTransactionApproval = createAsyncThunk(
       toast.error(err.message);
       console.log(err);
     }
+
+    return true;
   }
 );
 export const deleteTransaction = createAsyncThunk(
@@ -137,6 +139,8 @@ export const deleteTransaction = createAsyncThunk(
       toast.error(err.message);
       console.log(err);
     }
+
+    return true;
   }
 );
 
@@ -184,10 +188,12 @@ export const executeTransaction = createAsyncThunk(
       toast.error(err.message);
       console.log(err);
     }
+
+    return true;
   }
 );
 
-interface ITransferTx {
+export interface ITransferTx {
   publicKey: PublicKey;
   account: {
     wallet: PublicKey;
@@ -200,6 +206,7 @@ interface ITransferTx {
     from: PublicKey;
     to: PublicKey;
     value: BN;
+    createdAt: BN;
   };
 }
 interface IexecuteTransferTransaction {
@@ -228,5 +235,6 @@ export const executeTransferTransaction = createAsyncThunk(
       toast.error(err.message);
       console.log(err);
     }
+    return true;
   }
 );

@@ -9,3 +9,4 @@ export * from './transactions';
 export * from './account-info';
 export * from './wallet-picker';
 export * from './modal';
+export * from './loader';

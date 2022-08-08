@@ -28,7 +28,7 @@ export const useSubscriveEvents = (callback: () => void, wallet) => {
     ) as Program<MultiSigWallet>;
     console.log({ sub_program: program });
 
-    const listener_1 = program.addEventListener(
+    const walletCreatedListener = program.addEventListener(
       'WalletCreatedEvent',
       (event, slot) => {
         console.log({ e: event });
@@ -36,7 +36,7 @@ export const useSubscriveEvents = (callback: () => void, wallet) => {
       }
     );
 
-    const listener_2 = program.addEventListener(
+    const ownersSetListener = program.addEventListener(
       'WalletOwnersSetEvent',
       (event, slot) => {
         console.log({ e: event });
@@ -44,35 +44,35 @@ export const useSubscriveEvents = (callback: () => void, wallet) => {
       }
     );
 
-    const listener_3 = program.addEventListener(
+    const tresholdSetListener = program.addEventListener(
       'WalletThresholdSetEvent',
       (event, slot) => {
         console.log({ e: event });
         callback();
       }
     );
-    const listener_4 = program.addEventListener(
+    const transactionCreatedListener = program.addEventListener(
       'TransactionCreatedEvent',
       (event, slot) => {
         console.log({ e: event });
         callback();
       }
     );
-    const listener_5 = program.addEventListener(
+    const approvedListener = program.addEventListener(
       'ApprovedEvent',
       (event, slot) => {
         console.log({ e: event });
         callback();
       }
     );
-    const listener_6 = program.addEventListener(
+    const deletedListener = program.addEventListener(
       'DeletedEvent',
       (event, slot) => {
         console.log({ e: event });
         callback();
       }
     );
-    const listener_7 = program.addEventListener(
+    const transactionExecutedListener = program.addEventListener(
       'TransactionExecutedEvent',
       (event, slot) => {
         console.log({ e: event });
@@ -80,7 +80,7 @@ export const useSubscriveEvents = (callback: () => void, wallet) => {
       }
     );
 
-    const listener_8 = program.addEventListener(
+    const transferExecutedListener = program.addEventListener(
       'TransferExecutedEvent',
       (event, slot) => {
         console.log(event);
@@ -88,14 +88,14 @@ export const useSubscriveEvents = (callback: () => void, wallet) => {
       }
     );
     return () => {
-      program.removeEventListener(listener_1);
-      program.removeEventListener(listener_2);
-      program.removeEventListener(listener_3);
-      program.removeEventListener(listener_4);
-      program.removeEventListener(listener_5);
-      program.removeEventListener(listener_6);
-      program.removeEventListener(listener_7);
-      program.removeEventListener(listener_8);
+      program.removeEventListener(transactionCreatedListener);
+      program.removeEventListener(transactionExecutedListener);
+      program.removeEventListener(transferExecutedListener);
+      program.removeEventListener(approvedListener);
+      program.removeEventListener(deletedListener);
+      program.removeEventListener(walletCreatedListener);
+      program.removeEventListener(tresholdSetListener);
+      program.removeEventListener(ownersSetListener);
     };
   }, []);
 };

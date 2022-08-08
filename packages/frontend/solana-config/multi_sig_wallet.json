@@ -76,7 +76,7 @@
         },
         {
           "name": "txValue",
-          "type": "u8"
+          "type": "u64"
         }
       ]
     },
