@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { IConnectionSlice } from '.';
 import { PublicKey } from '@solana/web3.js';
-import { web3, BN } from '@project-serum/anchor';
+import { web3, BN, AnchorError } from '@project-serum/anchor';
 import { ReduxState } from '..';
 import { toast } from 'react-toastify';
 
@@ -38,7 +38,11 @@ export const createWallet = createAsyncThunk(
       );
       return baseAccount.publicKey.toString();
     } catch (err) {
-      toast.error(err.message);
+      if (err instanceof AnchorError) {
+        toast.error(err.error.errorMessage);
+      } else {
+        toast.error(err.message);
+      }
       console.log(err);
     }
     return null;
@@ -67,7 +71,11 @@ export const logInToWallet = createAsyncThunk(
         throw new Error('Unauthorized');
       }
     } catch (err) {
-      toast.error(err.message);
+      if (err instanceof AnchorError) {
+        toast.error(err.error.errorMessage);
+      } else {
+        toast.error(err.message);
+      }
       console.log(err);
     }
 
@@ -275,6 +283,11 @@ export const fetchWallet = createAsyncThunk(
       );
       return data.map((wallet) => wallet.publicKey.toString());
     } catch (err) {
+      if (err instanceof AnchorError) {
+        toast.error(err.error.errorMessage);
+      } else {
+        toast.error(err.message);
+      }
       console.log(err);
     }
 

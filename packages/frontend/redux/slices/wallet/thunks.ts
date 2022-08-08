@@ -1,4 +1,4 @@
-import { BN, web3 } from '@project-serum/anchor';
+import { AnchorError, BN, web3 } from '@project-serum/anchor';
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { PublicKey, SystemProgram } from '@solana/web3.js';
 import { toast } from 'react-toastify';
@@ -94,7 +94,11 @@ export const approveTransaction = createAsyncThunk(
       });
       toast.success('Transaction approved');
     } catch (err) {
-      toast.error(err.message);
+      if (err instanceof AnchorError) {
+        toast.error(err.error.errorMessage);
+      } else {
+        toast.error(err.message);
+      }
       console.log(err);
     }
 
@@ -115,7 +119,11 @@ export const cancelTransactionApproval = createAsyncThunk(
       });
       toast.success('Approval revoked');
     } catch (err) {
-      toast.error(err.message);
+      if (err instanceof AnchorError) {
+        toast.error(err.error.errorMessage);
+      } else {
+        toast.error(err.message);
+      }
       console.log(err);
     }
 
@@ -136,7 +144,11 @@ export const deleteTransaction = createAsyncThunk(
       });
       toast.success('Transaction deleted');
     } catch (err) {
-      toast.error(err.message);
+      if (err instanceof AnchorError) {
+        toast.error(err.error.errorMessage);
+      } else {
+        toast.error(err.message);
+      }
       console.log(err);
     }
 
@@ -185,7 +197,11 @@ export const executeTransaction = createAsyncThunk(
 
       toast.success('Transaction executed');
     } catch (err) {
-      toast.error(err.message);
+      if (err instanceof AnchorError) {
+        toast.error(err.error.errorMessage);
+      } else {
+        toast.error(err.message);
+      }
       console.log(err);
     }
 
@@ -232,7 +248,11 @@ export const executeTransferTransaction = createAsyncThunk(
 
       toast.success('Transaction executed');
     } catch (err) {
-      toast.error(err.message);
+      if (err instanceof AnchorError) {
+        toast.error(err.error.errorMessage);
+      } else {
+        toast.error(err.message);
+      }
       console.log(err);
     }
     return true;
