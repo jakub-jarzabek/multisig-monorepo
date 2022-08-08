@@ -7,7 +7,7 @@ pub enum ErrorCode {
     NotUniqueOwners,
     #[msg("Owners array cannot be empty")]
     ForbiddenLength,
-    #[msg("Not enoguh signers")]
+    #[msg("Not enough signers")]
     NotEnoughSigners,
     #[msg("Cannot delete transaction signed by an owner")]
     TransactionAlreadySigned,
