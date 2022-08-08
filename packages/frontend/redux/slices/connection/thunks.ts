@@ -175,7 +175,7 @@ export const setTreshold = createAsyncThunk(
         data,
         new BN(1),
         [],
-        args.threshold,
+        new BN(args.threshold),
         {
           accounts: {
             wallet: new PublicKey(state.connection.msig),
