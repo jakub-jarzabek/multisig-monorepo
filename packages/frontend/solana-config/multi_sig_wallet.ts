@@ -290,45 +290,19 @@ export type MultiSigWallet = {
           "name": "user",
           "isMut": false,
           "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "transferFunds",
-      "accounts": [
-        {
-          "name": "from",
-          "isMut": true,
-          "isSigner": false
         },
         {
-          "name": "to",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
+          "name": "wallet",
           "isMut": false,
           "isSigner": false
         },
         {
-          "name": "user",
-          "isMut": false,
-          "isSigner": true
+          "name": "transaction",
+          "isMut": true,
+          "isSigner": false
         }
       ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u64"
-        }
-      ]
+      "args": []
     }
   ],
   "accounts": [
@@ -1055,45 +1029,19 @@ export const IDL: MultiSigWallet = {
           "name": "user",
           "isMut": false,
           "isSigner": true
-        }
-      ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u64"
-        }
-      ]
-    },
-    {
-      "name": "transferFunds",
-      "accounts": [
-        {
-          "name": "from",
-          "isMut": true,
-          "isSigner": false
         },
         {
-          "name": "to",
-          "isMut": true,
-          "isSigner": false
-        },
-        {
-          "name": "systemProgram",
+          "name": "wallet",
           "isMut": false,
           "isSigner": false
         },
         {
-          "name": "user",
-          "isMut": false,
-          "isSigner": true
+          "name": "transaction",
+          "isMut": true,
+          "isSigner": false
         }
       ],
-      "args": [
-        {
-          "name": "amount",
-          "type": "u64"
-        }
-      ]
+      "args": []
     }
   ],
   "accounts": [

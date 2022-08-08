@@ -52,8 +52,7 @@ export const MainPanel = () => {
   };
   const handleSendTokens = async () => {
     if (typeof amount === 'number') {
-      // await dispatch(transfer({ to: new PublicKey(receiver), amount }));
-      await dispatch(transferFunds({ to: new PublicKey(receiver), amount }));
+      await dispatch(transfer({ to: new PublicKey(receiver), amount }));
     } else {
       toast.error('Please enter a number');
     }

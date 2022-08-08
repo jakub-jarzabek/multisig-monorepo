@@ -1,6 +1,6 @@
 import { BN, web3 } from '@project-serum/anchor';
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import { PublicKey, SystemProgram } from '@solana/web3.js';
+import { PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
 import { userAgent } from 'next/server';
 import { toast } from 'react-toastify';
 import { ReduxState } from '..';
@@ -200,72 +200,17 @@ export const executeTransferTransaction = createAsyncThunk(
   async (args: IexecuteTransferTransaction, thunkAPI) => {
     const { tx } = args;
     const state = thunkAPI.getState() as ReduxState;
-    const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
-      [new PublicKey(state.connection.msig).toBuffer()],
-      state.connection.program.programId
-    );
 
     try {
-      await state.connection.program.rpc.executeTransferTransaction(
-        new BN(100),
-        {
-          accounts: {
-            // wallet: new PublicKey(state.connection.msig),
-            // transaction: tx.publicKey,
-            from: new PublicKey(state.connection.msig),
-            to: new PublicKey(tx.account.to.toString()),
-            systemProgram: SystemProgram.programId,
-            user: state.connection.provider.publicKey,
-            // walletSigner,
-          },
-        }
-      );
-
-      toast.success('Transaction executed');
-    } catch (err) {
-      toast.error(err.message);
-      console.log(err);
-    }
-  }
-);
-
-export const transferFunds = createAsyncThunk(
-  'payload/transfer',
-  async (args: any, thunkAPI) => {
-    const { tx } = args;
-    const state = thunkAPI.getState() as ReduxState;
-    const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
-      [new PublicKey(state.connection.msig).toBuffer()],
-      state.connection.program.programId
-    );
-
-    try {
-      await state.connection.program.rpc.transferFunds(new BN(args.amount), {
+      await state.connection.program.rpc.executeTransferTransaction({
         accounts: {
+          wallet: new PublicKey(state.connection.msig),
+          transaction: tx.publicKey,
           from: new PublicKey(state.connection.msig),
-          to: args.to,
-          user: state.connection.provider.publicKey,
+          to: tx.account.to,
           systemProgram: SystemProgram.programId,
-          // walletSigner,
+          user: state.connection.provider.publicKey,
         },
-        // remainingAccounts: state.connection.program.instruction.setOwners
-        //   .accounts({
-        //     wallet: new PublicKey(state.connection.msig),
-        //     walletSigner,
-        //   })
-
-        //eslint-disable-next-line
-        // @ts-ignore
-        // .map((meta) =>
-        //   meta.pubkey.equals(walletSigner)
-        //     ? { ...meta, isSigner: false }
-        //     : meta
-        // )
-        // .concat({
-        //   pubkey: state.connection.program.programId,
-        //   isWritable: false,
-        //   isSigner: false,
-        // }),
       });
 
       toast.success('Transaction executed');

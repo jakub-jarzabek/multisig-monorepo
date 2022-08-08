@@ -235,7 +235,7 @@ export const transfer = createAsyncThunk(
         [args.to],
         new BN(args.amount),
         new PublicKey(state.connection.msig),
-        new PublicKey(state.connection.msig),
+        args.to,
         new BN(args.amount),
         {
           accounts: {
