@@ -79,6 +79,7 @@ pub mod multi_sig_wallet {
         tx.owner_seq = ctx.accounts.wallet.owner_seq;
         tx.tx_type = tx_type;
         tx.tx_data = tx_data;
+        tx.created_at=Clock::get()?.unix_timestamp;
 
 emit!(TransactionCreatedEvent {
             wallet: ctx.accounts.wallet.key(),
@@ -125,6 +126,7 @@ pub fn create_transfer_transaction(
         tx.from = from;
         tx.to = to;
         tx.value = value;
+        tx.created_at=Clock::get()?.unix_timestamp;
          let wallet = &mut ctx.accounts.wallet;
         wallet.num_transfer = unwrap_int!(wallet.num_transfer.checked_add(1));
         msg!("Creating Transfer");

@@ -48,19 +48,29 @@ export const loadTransactions = createAsyncThunk(
           transaction.account.wallet.toString() === state.connection.msig
       );
       return {
-        peding: myTransactions.filter(
-          (transaction) =>
-            transaction.account.didExecute === false &&
-            transaction.account.deleted === false
-        ),
-        completed: myTransactions.filter(
-          (transaction) =>
-            transaction.account.didExecute === true &&
-            transaction.account.deleted === false
-        ),
-        deleted: myTransactions.filter(
-          (transaction) => transaction.account.deleted
-        ),
+        peding: myTransactions
+          .filter(
+            (transaction) =>
+              transaction.account.didExecute === false &&
+              transaction.account.deleted === false
+          )
+          .sort((a, b) => {
+            return b.account.createdAt - a.account.createdAt;
+          }),
+        completed: myTransactions
+          .filter(
+            (transaction) =>
+              transaction.account.didExecute === true &&
+              transaction.account.deleted === false
+          )
+          .sort((a, b) => {
+            return b.account.createdAt - a.account.createdAt;
+          }),
+        deleted: myTransactions
+          .filter((transaction) => transaction.account.deleted)
+          .sort((a, b) => {
+            return b.account.createdAt - a.account.createdAt;
+          }),
       };
     } catch (err) {
       console.log(err);

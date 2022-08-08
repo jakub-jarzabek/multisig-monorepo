@@ -392,6 +392,10 @@
           {
             "name": "deleted",
             "type": "bool"
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
           }
         ]
       }
@@ -460,6 +464,10 @@
           {
             "name": "value",
             "type": "u64"
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
           }
         ]
       }

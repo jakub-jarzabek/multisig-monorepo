@@ -75,7 +75,8 @@ pub struct Transaction {
     pub tx_type: u8,
     pub tx_data: Vec<Pubkey>,
     pub tx_value: u64,
-    pub deleted: bool
+    pub deleted: bool,
+    pub created_at:i64
 }
 
 #[account]
@@ -90,9 +91,11 @@ pub struct TransferTransaction {
     pub tx_data: Vec<Pubkey>,
     pub tx_value: u64,
     pub deleted: bool,
-   pub from:Pubkey,
+    pub from:Pubkey,
     pub to:Pubkey,
-    pub value:u64,}
+    pub value:u64,
+    pub created_at:i64
+}
 
 #[derive(Accounts)]
 pub struct CreateTransferTransaction<'info> {

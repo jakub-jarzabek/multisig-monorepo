@@ -392,6 +392,10 @@ export type MultiSigWallet = {
           {
             "name": "deleted",
             "type": "bool"
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
           }
         ]
       }
@@ -460,6 +464,10 @@ export type MultiSigWallet = {
           {
             "name": "value",
             "type": "u64"
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
           }
         ]
       }
@@ -1131,6 +1139,10 @@ export const IDL: MultiSigWallet = {
           {
             "name": "deleted",
             "type": "bool"
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
           }
         ]
       }
@@ -1199,6 +1211,10 @@ export const IDL: MultiSigWallet = {
           {
             "name": "value",
             "type": "u64"
+          },
+          {
+            "name": "createdAt",
+            "type": "i64"
           }
         ]
       }

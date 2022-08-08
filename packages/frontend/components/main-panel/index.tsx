@@ -11,7 +11,6 @@ import {
   setOwners,
   setTreshold,
   transfer,
-  transferFunds,
 } from '../../redux';
 import { useDispatch, useSelector } from 'react-redux';
 import { PublicKey } from '@solana/web3.js';

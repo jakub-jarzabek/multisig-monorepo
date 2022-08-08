@@ -3,9 +3,11 @@ import Rodal from 'rodal';
 import { Card } from '..';
 import { PublicKey } from '@solana/web3.js';
 import 'rodal/lib/rodal.css';
+import { format } from 'date-fns';
 interface IModalProps {
   type: '0' | '1' | '2';
   value: string;
+  ts: string;
   data: PublicKey[];
   open: boolean;
   setOpen: () => void;
@@ -24,6 +26,7 @@ const parseType = (type: '0' | '1' | '2') => {
 };
 export const Modal: React.FC<IModalProps> = ({
   type,
+  ts,
   value,
   data,
   open,
@@ -32,8 +35,14 @@ export const Modal: React.FC<IModalProps> = ({
   return (
     <Rodal visible={open} onClose={setOpen}>
       <div className="flex flex-col gap-4">
-        <h1 className="text-xl font-semibold text-purple-900 mb-10">
+        <h1 className="text-xl font-semibold text-purple-900 ">
           Type: <span className="text-slate-700">{parseType(type)}</span>
+        </h1>
+        <h1 className="text-xl font-semibold text-purple-900 mb-2">
+          Creation time:{' '}
+          <span className="text-slate-700">
+            {format(Number(ts + '000'), 'dd/MM/yyyy HH:mm')}
+          </span>
         </h1>
         {type === '0' && (
           <>
@@ -53,7 +62,7 @@ export const Modal: React.FC<IModalProps> = ({
         {type === '1' && (
           <>
             <Card>
-              <h1 className="text-xl font-semibold text-purple-900 mb-6 leading-10">
+              <h1 className="text-xl font-semibold text-purple-900  leading-10">
                 New Value: <span className="text-slate-700">{value}</span>
               </h1>
             </Card>
@@ -61,7 +70,7 @@ export const Modal: React.FC<IModalProps> = ({
         )}
         {type === '2' && (
           <>
-            <h1 className="text-xl font-semibold text-purple-900 mb-6">
+            <h1 className="text-xl font-semibold text-purple-900 mb">
               Transfer <span className="text-slate-700">{value}</span> To:
             </h1>
             <Card>
