@@ -15,6 +15,7 @@ import {
 import { WalletPicker, AccountCreation } from "..";
 import { ConnectButton } from "@web3uikit/web3";
 import { useMoralis } from "react-moralis";
+import { Evm } from "../../redux";
 
 export const ConnectWindow = () => {
   const [createMode, setCreateMode] = useState<boolean>(false);
@@ -41,8 +42,8 @@ export const ConnectWindow = () => {
         }
       }
       if (account) {
-        dispatch(Connection.setProviderAndProgram({ wallet: provider }));
-        dispatch(Connection.setAccount(account));
+        dispatch(Evm.setProviderAndDB());
+        dispatch(Evm.setWallet(account));
         await dispatch(fetchWallet());
         if (msig) {
           router.push("dashboard");

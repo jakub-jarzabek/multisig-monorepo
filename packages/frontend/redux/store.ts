@@ -1,12 +1,14 @@
-import { configureStore } from '@reduxjs/toolkit';
-import thunkMiddleware from 'redux-thunk';
-import connectionReducer from './slices/connection';
-import walletReducer from './slices/wallet';
+import { configureStore } from "@reduxjs/toolkit";
+import thunkMiddleware from "redux-thunk";
+import connectionReducer from "./slices/connection";
+import walletReducer from "./slices/wallet";
+import evmReducer from "./slices/evm";
 
 export const store = configureStore({
   reducer: {
     connection: connectionReducer,
     wallet: walletReducer,
+    evm: evmReducer,
   },
   devTools: true,
   middleware: (getDefaultMiddleware) =>

@@ -16,12 +16,13 @@ async function main() {
   const DB = await ethers.getContractFactory("MultisigDB");
   const tx = await DB.deploy();
   content.DB = tx.address;
+  console.log(tx.address);
   fs.writeFileSync(
     path.resolve("../frontend/evm-config/ethereum.json"),
     JSON.stringify(content)
   );
   fs.writeFileSync(
-    path.resolve("../evm/utils.add.json"),
+    path.resolve("../evm/utils/add.json"),
     JSON.stringify(content)
   );
   const MultisigABI = fs.readFileSync(

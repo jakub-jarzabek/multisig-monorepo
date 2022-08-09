@@ -4,9 +4,6 @@ import { PublicKey } from "@solana/web3.js";
 import { web3, BN, AnchorError } from "@project-serum/anchor";
 import { ReduxState } from "..";
 import { toast } from "react-toastify";
-import Moralis from "moralis-v1";
-import MultisigDBAbi from "../../../evm-config/MultisigDB.json";
-import MultisigAddresses from "../../../evm-config/ethereum.json";
 
 const SIZE = 1000;
 interface IcreateWallet {
@@ -287,17 +284,8 @@ export const fetchWallet = createAsyncThunk(
         );
         return data.map((wallet) => wallet.publicKey.toString());
       } else {
-        const ethers = Moralis.web3Library;
-        const walletContract = new ethers.Contract(
-          MultisigAddresses.DB,
-          MultisigDBAbi.abi,
-          ethers.getDefaultProvider()
-        );
-        console.log({ acc: state.connection.account });
-        console.log(state.connection.provider);
-        const wallets = await walletContract
-          // .connect(state.connection.provider)
-          .getWallets(state.connection.account);
+        const data = await state.evm.DB.getWallets(state.evm.wallet);
+        return data;
       }
     } catch (err) {
       if (err instanceof AnchorError) {
