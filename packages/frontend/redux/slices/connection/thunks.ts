@@ -1,16 +1,19 @@
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import { IConnectionSlice } from '.';
-import { PublicKey } from '@solana/web3.js';
-import { web3, BN, AnchorError } from '@project-serum/anchor';
-import { ReduxState } from '..';
-import { toast } from 'react-toastify';
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import { IConnectionSlice } from ".";
+import { PublicKey } from "@solana/web3.js";
+import { web3, BN, AnchorError } from "@project-serum/anchor";
+import { ReduxState } from "..";
+import { toast } from "react-toastify";
+import Moralis from "moralis-v1";
+import MultisigDBAbi from "../../../evm-config/MultisigDB.json";
+import MultisigAddresses from "../../../evm-config/ethereum.json";
 
 const SIZE = 1000;
 interface IcreateWallet {
   additionalAccounts?: PublicKey[];
 }
 export const createWallet = createAsyncThunk(
-  'payload/createWallet',
+  "payload/createWallet",
   async (args: IcreateWallet, thunkAPI) => {
     const baseAccount = web3.Keypair.generate();
 
@@ -53,7 +56,7 @@ interface IlogInToWallet {
   pk: string;
 }
 export const logInToWallet = createAsyncThunk(
-  'payload/LogInToWallet',
+  "payload/LogInToWallet",
   async (args: IlogInToWallet, thunkAPI) => {
     const state = thunkAPI.getState() as ReduxState;
     let data;
@@ -67,8 +70,8 @@ export const logInToWallet = createAsyncThunk(
       ) {
         return args.pk;
       } else {
-        toast.error('Unauthorized for this wallet');
-        throw new Error('Unauthorized');
+        toast.error("Unauthorized for this wallet");
+        throw new Error("Unauthorized");
       }
     } catch (err) {
       if (err instanceof AnchorError) {
@@ -87,7 +90,7 @@ interface IsetOwners extends IcreateWallet {
   signer: PublicKey;
 }
 export const setOwners = createAsyncThunk(
-  'payload/setOwners',
+  "payload/setOwners",
   async (args: IsetOwners, thunkAPI) => {
     const state = thunkAPI.getState() as { connection: IConnectionSlice };
     const pK = state.connection.provider.publicKey as PublicKey;
@@ -97,7 +100,7 @@ export const setOwners = createAsyncThunk(
       state.connection.program.programId
     );
     const data = state.connection.program.coder.instruction.encode(
-      'set_owners',
+      "set_owners",
       { owners: newOwners }
     );
     const accounts = [
@@ -136,7 +139,7 @@ export const setOwners = createAsyncThunk(
           signers: [transaction],
         }
       );
-      toast.success('Transaction created and signed');
+      toast.success("Transaction created and signed");
     } catch (err) {
       toast.error(err.message);
       console.log(err);
@@ -149,7 +152,7 @@ interface IsetTreshold {
   threshold: number;
 }
 export const setTreshold = createAsyncThunk(
-  'payload/setTreshold',
+  "payload/setTreshold",
   async (args: IsetTreshold, thunkAPI) => {
     const state = thunkAPI.getState() as { connection: IConnectionSlice };
     const [walletSigner] = await web3.PublicKey.findProgramAddress(
@@ -157,7 +160,7 @@ export const setTreshold = createAsyncThunk(
       state.connection.program.programId
     );
     const data = state.connection.program.coder.instruction.encode(
-      'change_threshold',
+      "change_threshold",
       { threshold: new BN(args.threshold) }
     );
     const accounts = [
@@ -196,7 +199,7 @@ export const setTreshold = createAsyncThunk(
           signers: [transaction],
         }
       );
-      toast.success('Transaction created and signed');
+      toast.success("Transaction created and signed");
     } catch (err) {
       toast.error(err.message);
       console.log(err);
@@ -212,7 +215,7 @@ interface ITransfer {
 }
 
 export const transfer = createAsyncThunk(
-  'payload/transfer',
+  "payload/transfer",
   async (args: ITransfer, thunkAPI) => {
     const state = thunkAPI.getState() as { connection: IConnectionSlice };
     const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
@@ -259,7 +262,7 @@ export const transfer = createAsyncThunk(
           signers: [transaction],
         }
       );
-      toast.success('Transaction created and signed');
+      toast.success("Transaction created and signed");
     } catch (err) {
       toast.error(err.message);
       console.log(err);
@@ -269,19 +272,33 @@ export const transfer = createAsyncThunk(
 );
 
 export const fetchWallet = createAsyncThunk(
-  'payload/fetchWallet',
+  "payload/fetchWallet",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState() as ReduxState;
     let data;
 
     try {
-      data = await state.connection.program.account.wallet.all();
-      data = data.filter((wallet) =>
-        wallet.account.owners
-          .map((owner) => owner.toString())
-          .includes(state.connection.provider.wallet.publicKey.toString())
-      );
-      return data.map((wallet) => wallet.publicKey.toString());
+      if (state.connection.chain === "sol") {
+        data = await state.connection.program.account.wallet.all();
+        data = data.filter((wallet) =>
+          wallet.account.owners
+            .map((owner) => owner.toString())
+            .includes(state.connection.provider.wallet.publicKey.toString())
+        );
+        return data.map((wallet) => wallet.publicKey.toString());
+      } else {
+        const ethers = Moralis.web3Library;
+        const walletContract = new ethers.Contract(
+          MultisigAddresses.DB,
+          MultisigDBAbi.abi,
+          ethers.getDefaultProvider()
+        );
+        console.log({ acc: state.connection.account });
+        console.log(state.connection.provider);
+        const wallets = await walletContract
+          // .connect(state.connection.provider)
+          .getWallets(state.connection.account);
+      }
     } catch (err) {
       if (err instanceof AnchorError) {
         toast.error(err.error.errorMessage);

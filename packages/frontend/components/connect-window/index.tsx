@@ -1,26 +1,29 @@
-import { useState, useRef, useEffect } from 'react';
-import autoAnimate from '@formkit/auto-animate';
-import { useRouter } from 'next/router';
-import '@solana/wallet-adapter-react-ui/styles.css';
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { useWallet } from '@solana/wallet-adapter-react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState, useRef, useEffect } from "react";
+import autoAnimate from "@formkit/auto-animate";
+import { useRouter } from "next/router";
+import "@solana/wallet-adapter-react-ui/styles.css";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   AppDispatch,
   Connection,
   fetchWallet,
   ReduxState,
   RootState,
-} from '../../redux';
-import { WalletPicker, AccountCreation, Modal } from '..';
+} from "../../redux";
+import { WalletPicker, AccountCreation } from "..";
+import { ConnectButton } from "@web3uikit/web3";
+import { useMoralis } from "react-moralis";
 
 export const ConnectWindow = () => {
   const [createMode, setCreateMode] = useState<boolean>(false);
   const dispatch = useDispatch<AppDispatch>();
   const wallet = useWallet();
+  const { account, provider } = useMoralis();
   const { publicKey } = wallet;
   const { connection } = useSelector<RootState, ReduxState>((state) => state);
-  const { msig, myWallets } = connection;
+  const { msig, myWallets, chain } = connection;
   const router = useRouter();
   const parent = useRef(null);
 
@@ -34,17 +37,25 @@ export const ConnectWindow = () => {
         dispatch(Connection.setProviderAndProgram({ wallet }));
         await dispatch(fetchWallet());
         if (msig) {
-          router.push('dashboard');
+          router.push("dashboard");
+        }
+      }
+      if (account) {
+        dispatch(Connection.setProviderAndProgram({ wallet: provider }));
+        dispatch(Connection.setAccount(account));
+        await dispatch(fetchWallet());
+        if (msig) {
+          router.push("dashboard");
         }
       }
     })();
-  }, [publicKey, msig]);
+  }, [publicKey, msig, account]);
 
   return (
     <div ref={parent} className="w-screen h-screen">
-      {!publicKey ? (
+      {!publicKey && !account ? (
         <div className="w-5/6 md:1/4 h-1/4 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-xl shadow-xl bg-purple-300 r  flex flex-col justify-center items-center">
-          <WalletMultiButton />
+          {chain === "sol" ? <WalletMultiButton /> : <ConnectButton />}
         </div>
       ) : myWallets?.length === 0 || createMode ? (
         <AccountCreation goBack={() => setCreateMode(false)} />

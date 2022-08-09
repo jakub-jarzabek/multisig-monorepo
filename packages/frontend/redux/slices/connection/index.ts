@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { AnchorProvider, Program } from "@project-serum/anchor";
+import Moralis from "moralis-v1";
 import {
   Commitment,
   ConfirmOptions,
@@ -25,6 +26,7 @@ export interface IConnectionSlice {
   myWallets: string[];
   loading: boolean;
   chain: "sol" | "eth";
+  account?: string;
 }
 
 const initialState: IConnectionSlice = {
@@ -35,37 +37,45 @@ const initialState: IConnectionSlice = {
   myWallets: null,
   loading: false,
   chain: "sol",
+  account: null,
 };
 interface IsetProviderPayload {
-  wallet: WalletContextState;
+  wallet: WalletContextState | any;
 }
 const connectionSlice = createSlice({
   name: "connection",
   initialState,
   reducers: {
     setProviderAndProgram(state, action: PayloadAction<IsetProviderPayload>) {
-      const connection = new Web3Connection(
-        process.env.NEXT_PUBLIC_NETWORK,
-        process.env.NEXT_PUBLIC_COMMITMENT as Commitment
-      );
-      state.web3 = connection;
-      state.provider = new AnchorProvider(
-        connection,
-        action.payload.wallet,
-        process.env.NEXT_PUBLIC_COMMITMENT as ConfirmOptions
-      );
-      const programID = new PublicKey(idl.metadata.address);
-      state.program = new Program(
-        JSON.parse(JSON.stringify(idl)),
-        programID,
-        state.provider
-      ) as Program<MultiSigWallet>;
+      if (state.chain === "sol") {
+        const connection = new Web3Connection(
+          process.env.NEXT_PUBLIC_NETWORK,
+          process.env.NEXT_PUBLIC_COMMITMENT as Commitment
+        );
+        state.web3 = connection;
+        state.provider = new AnchorProvider(
+          connection,
+          action.payload.wallet,
+          process.env.NEXT_PUBLIC_COMMITMENT as ConfirmOptions
+        );
+        const programID = new PublicKey(idl.metadata.address);
+        state.program = new Program(
+          JSON.parse(JSON.stringify(idl)),
+          programID,
+          state.provider
+        ) as Program<MultiSigWallet>;
+      } else {
+        const ethers = Moralis.web3Library;
+      }
     },
     setWallet(state, action: PayloadAction<string>) {
       state.msig = action.payload;
     },
     setChain(state, action: PayloadAction<"sol" | "eth">) {
       state.chain = action.payload;
+    },
+    setAccount(state, action: PayloadAction<string>) {
+      state.account = action.payload;
     },
     clearMsig(state) {
       state.msig = null;
@@ -116,13 +126,14 @@ const connectionSlice = createSlice({
   },
 });
 
-const { setProviderAndProgram, setWallet, clearMsig, setChain } =
+const { setProviderAndProgram, setWallet, clearMsig, setChain, setAccount } =
   connectionSlice.actions;
 export const Connection = {
   setProviderAndProgram,
   setWallet,
   clearMsig,
   setChain,
+  setAccount,
 };
 export default connectionSlice.reducer;
 export * from "./thunks";

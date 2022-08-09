@@ -8,7 +8,7 @@ interface IContent {
 async function main() {
   const content = JSON.parse(
     fs.readFileSync(
-      path.resolve("./packages/frontend/evm-config/ethereum.json"),
+      path.resolve("../frontend/evm-config/ethereum.json"),
       "utf8"
     )
   ) as IContent;
@@ -17,10 +17,29 @@ async function main() {
   const tx = await DB.deploy();
   content.DB = tx.address;
   fs.writeFileSync(
-    path.resolve("./packages/frontend/evm-config/ethereum.json"),
+    path.resolve("../frontend/evm-config/ethereum.json"),
     JSON.stringify(content)
   );
-
+  fs.writeFileSync(
+    path.resolve("../evm/utils.add.json"),
+    JSON.stringify(content)
+  );
+  const MultisigABI = fs.readFileSync(
+    path.resolve("../evm/artifacts/contracts/Multisig.sol/Multisig.json"),
+    "utf8"
+  );
+  fs.writeFileSync(
+    path.resolve("../frontend/evm-config/Multisig.json"),
+    MultisigABI
+  );
+  const MultisigDBABI = fs.readFileSync(
+    path.resolve("../evm/artifacts/contracts/MultisigDB.sol/MultisigDB.json"),
+    "utf8"
+  );
+  fs.writeFileSync(
+    path.resolve("../frontend/evm-config/MultisigDB.json"),
+    MultisigDBABI
+  );
   return null;
 }
 
