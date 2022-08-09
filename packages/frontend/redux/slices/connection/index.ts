@@ -1,14 +1,14 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AnchorProvider, Program } from '@project-serum/anchor';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { AnchorProvider, Program } from "@project-serum/anchor";
 import {
   Commitment,
   ConfirmOptions,
   Connection as Web3Connection,
   PublicKey,
-} from '@solana/web3.js';
-import { WalletContextState } from '@solana/wallet-adapter-react';
-import idl from '../../../solana-config/multi_sig_wallet.json';
-import { MultiSigWallet } from '../../../solana-config/multi_sig_wallet';
+} from "@solana/web3.js";
+import { WalletContextState } from "@solana/wallet-adapter-react";
+import idl from "../../../solana-config/multi_sig_wallet.json";
+import { MultiSigWallet } from "../../../solana-config/multi_sig_wallet";
 import {
   createWallet,
   fetchWallet,
@@ -16,7 +16,7 @@ import {
   setOwners,
   setTreshold,
   transfer,
-} from './thunks';
+} from "./thunks";
 export interface IConnectionSlice {
   provider: AnchorProvider;
   program: Program<MultiSigWallet>;
@@ -24,6 +24,7 @@ export interface IConnectionSlice {
   web3: Web3Connection;
   myWallets: string[];
   loading: boolean;
+  chain: "sol" | "eth";
 }
 
 const initialState: IConnectionSlice = {
@@ -33,12 +34,13 @@ const initialState: IConnectionSlice = {
   web3: null,
   myWallets: null,
   loading: false,
+  chain: "sol",
 };
 interface IsetProviderPayload {
   wallet: WalletContextState;
 }
 const connectionSlice = createSlice({
-  name: 'connection',
+  name: "connection",
   initialState,
   reducers: {
     setProviderAndProgram(state, action: PayloadAction<IsetProviderPayload>) {
@@ -61,6 +63,9 @@ const connectionSlice = createSlice({
     },
     setWallet(state, action: PayloadAction<string>) {
       state.msig = action.payload;
+    },
+    setChain(state, action: PayloadAction<"sol" | "eth">) {
+      state.chain = action.payload;
     },
     clearMsig(state) {
       state.msig = null;
@@ -111,7 +116,13 @@ const connectionSlice = createSlice({
   },
 });
 
-const { setProviderAndProgram, setWallet, clearMsig } = connectionSlice.actions;
-export const Connection = { setProviderAndProgram, setWallet, clearMsig };
+const { setProviderAndProgram, setWallet, clearMsig, setChain } =
+  connectionSlice.actions;
+export const Connection = {
+  setProviderAndProgram,
+  setWallet,
+  clearMsig,
+  setChain,
+};
 export default connectionSlice.reducer;
-export * from './thunks';
+export * from "./thunks";
