@@ -49,12 +49,11 @@ const evmSlice = createSlice({
     setWallet(state, action: PayloadAction<string>) {
       state.wallet = action.payload;
     },
-    setWalletContract(state) {
-      const signer = state.provider.getSigner();
+    setWalletContract(state, action) {
       const contract = new Moralis.web3Library.Contract(
-        state.wallet,
+        action.payload,
         Multisig.abi,
-        signer
+        state.provider.getSigner()
       ) as unknown;
       state.walletContract = contract as WritableDraft<MultisigT>;
     },

@@ -34,15 +34,16 @@ export const loadWalletData = createAsyncThunk(
       };
     } else {
       try {
-        const balance = await state.evm.provider.getBalance(state.evm.wallet);
-
+        const balance = await state.evm.provider.getBalance(
+          state.connection.msig
+        );
         const threshold = await state.evm.walletContract.threshold();
-        console.log({ b: balance, o: null, t: threshold });
+        const owners = await state.evm.walletContract.getOwners();
         return {
-          accounts: null,
-          ownerSeq: null,
-          balance: null,
-          threshold: null,
+          accounts: owners.map((owner) => owner.toString()),
+          ownerSeq: 0,
+          balance: Number(balance.toString()),
+          threshold: Number(threshold.toString()),
         };
       } catch (err) {
         console.log(err);
@@ -92,7 +93,11 @@ export const loadTransactions = createAsyncThunk(
             }),
         };
       } else {
-        console.log("xd");
+        return {
+          peding: [],
+          completed: [],
+          deleted: [],
+        };
       }
     } catch (err) {
       console.log(err);

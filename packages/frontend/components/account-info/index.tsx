@@ -1,8 +1,8 @@
-import { ReduxState, RootState } from '../../redux';
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
-import { shrortenAddress } from '../../utils';
-import Blockies from 'react-blockies';
+import { ReduxState, RootState } from "../../redux";
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import { shrortenAddress } from "../../utils";
+import Blockies from "react-blockies";
 
 const Tooltip = ({
   visible,
@@ -13,19 +13,19 @@ const Tooltip = ({
 }) => (
   <div
     className={`bg-purple-900 shadow-2xl shadow-slate-600 absolute z-10 px-2 leading-0 rounded ${
-      !visible ? 'opacity-0' : 'opacity-80'
+      !visible ? "opacity-0" : "opacity-80"
     } transition-opacity ${
-      copied ? 'translate-x-10' : 'translate-x-6'
+      copied ? "translate-x-10" : "translate-x-6"
     } duration-500 pointer-events-none`}
   >
-    {copied ? 'Copied!' : 'Copy Address'}
+    {copied ? "Copied!" : "Copy Address"}
   </div>
 );
 
 export const AccountInfo = () => {
   const [visible, setVisible] = useState(false);
   const [copied, setCopied] = useState(false);
-  const { connection, wallet } = useSelector<RootState, ReduxState>(
+  const { connection, wallet, evm } = useSelector<RootState, ReduxState>(
     (state) => state
   );
   const { msig } = connection;
@@ -37,6 +37,7 @@ export const AccountInfo = () => {
           onClick={() => {
             navigator.clipboard.writeText(msig);
             setCopied(true);
+            evm.walletContract.deposit({ value: "10000" });
           }}
           onMouseOver={() => setVisible(true)}
           onMouseLeave={() => {

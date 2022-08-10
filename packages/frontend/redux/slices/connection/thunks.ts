@@ -50,7 +50,7 @@ export const createWallet = createAsyncThunk(
           1
         );
         console.log(tx);
-        return null;
+        return tx.toString();
       }
     } catch (err) {
       if (err instanceof AnchorError) {
@@ -60,7 +60,6 @@ export const createWallet = createAsyncThunk(
       }
       console.log(err);
     }
-    return null;
   }
 );
 
@@ -306,7 +305,6 @@ export const fetchWallet = createAsyncThunk(
         return data.map((wallet) => wallet.publicKey.toString());
       } else {
         const data = await state.evm.factory.getUserWallets();
-        console.log(data);
 
         return data.map((wallet) => wallet.walletAddress);
       }

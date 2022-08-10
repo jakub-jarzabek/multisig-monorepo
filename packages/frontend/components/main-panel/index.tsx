@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Card, Button, Input } from '..';
-import { toast } from 'react-toastify';
-import autoAnimate from '@formkit/auto-animate';
-import { cloneDeep } from 'lodash';
+import React, { useState, useEffect, useRef } from "react";
+import { Card, Button, Input } from "..";
+import { toast } from "react-toastify";
+import autoAnimate from "@formkit/auto-animate";
+import { cloneDeep } from "lodash";
 import {
   AppDispatch,
   loadWalletData,
@@ -11,16 +11,16 @@ import {
   setOwners,
   setTreshold,
   transfer,
-} from '../../redux';
-import { useDispatch, useSelector } from 'react-redux';
-import { PublicKey } from '@solana/web3.js';
-import useMediaQuery from '../../hooks/useMediaQuery';
-import { trimAddress } from '../../utils/trimAddress';
+} from "../../redux";
+import { useDispatch, useSelector } from "react-redux";
+import { PublicKey } from "@solana/web3.js";
+import useMediaQuery from "../../hooks/useMediaQuery";
+import { trimAddress } from "../../utils/trimAddress";
 
 export const MainPanel = () => {
-  const matches = useMediaQuery('(min-width: 768px)');
+  const matches = useMediaQuery("(min-width: 768px)");
   const dispatch = useDispatch<AppDispatch>();
-  const { connection, wallet } = useSelector<RootState, ReduxState>(
+  const { connection, wallet, evm } = useSelector<RootState, ReduxState>(
     (state) => state
   );
   const { msig, provider, program } = connection;
@@ -28,20 +28,20 @@ export const MainPanel = () => {
   const [confirmations, setConfirmations] = useState<number>(0);
   const [accounts, setAccounts] = useState<string[]>([]);
   const [amount, setAmount] = useState<number>(0);
-  const [receiver, setReceiver] = useState<string>('');
-  const [accountInput, setAccountInput] = useState('');
+  const [receiver, setReceiver] = useState<string>("");
+  const [accountInput, setAccountInput] = useState("");
   const removeAccount = (acc: string) => {
     setAccounts(accounts.filter((_) => _ !== acc));
   };
   const addAccount = () => {
     setAccounts([...accounts, accountInput.trim()]);
-    setAccountInput('');
+    setAccountInput("");
   };
   const handleChangeConfirmations = () => {
-    if (typeof confirmations === 'number') {
+    if (typeof confirmations === "number") {
       dispatch(setTreshold({ threshold: confirmations }));
     } else {
-      toast.error('Please enter a number');
+      toast.error("Please enter a number");
     }
   };
   const handleChangeAccounts = async () => {
@@ -53,10 +53,10 @@ export const MainPanel = () => {
     );
   };
   const handleSendTokens = async () => {
-    if (typeof amount === 'number') {
+    if (typeof amount === "number") {
       await dispatch(transfer({ to: new PublicKey(receiver), amount }));
     } else {
-      toast.error('Please enter a number');
+      toast.error("Please enter a number");
     }
   };
   const parent = useRef(null);
@@ -162,10 +162,15 @@ export const MainPanel = () => {
             accounts.map((acc, i) => (
               <Card key={i}>
                 <>
+                  {console.log(evm.wallet)}
+                  {console.log(acc)}
                   <span className="leading-10 mr-4">
-                    {matches ? acc : trimAddress(acc)}{' '}
-                    {acc.toString() ===
-                      connection.provider.publicKey.toString() && (
+                    {matches ? acc : trimAddress(acc)}
+                    {((connection.chain === "sol" &&
+                      acc.toString() ===
+                        connection.provider.publicKey.toString()) ||
+                      (connection.chain === "eth" &&
+                        acc.toLowerCase() === evm.wallet.toLowerCase())) && (
                       <span className="text-white font-bold"> (me)</span>
                     )}
                     {!accs
@@ -174,11 +179,14 @@ export const MainPanel = () => {
                       <span className="text-white font-bold"> (Temporary)</span>
                     )}
                   </span>
-                  {acc.toString() !==
-                    connection.provider.publicKey.toString() && (
+                  {((connection.chain === "sol" &&
+                    acc.toString() !==
+                      connection.provider.publicKey.toString()) ||
+                    (connection.chain === "eth" &&
+                      acc.toLowerCase() !== evm.wallet.toLowerCase())) && (
                     <Button
                       onClick={() => removeAccount(acc)}
-                      label={matches ? 'Remove' : 'X'}
+                      label={matches ? "Remove" : "X"}
                     />
                   )}
                 </>
@@ -191,8 +199,8 @@ export const MainPanel = () => {
           disabled={
             accounts &&
             accs &&
-            accounts.map((acc) => acc.toString()).join('') ===
-              accs.map((acc) => acc.toString()).join('')
+            accounts.map((acc) => acc.toString()).join("") ===
+              accs.map((acc) => acc.toString()).join("")
           }
         />
       </div>

@@ -139,7 +139,9 @@ export interface MultisigFactory extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    getUserWallets(overrides?: CallOverrides): Promise<
+    getUserWallets(
+      overrides?: CallOverrides
+    ): Promise<
       [MultisigFactory.UserWalletsStructOutput[]] & {
         walets: MultisigFactory.UserWalletsStructOutput[];
       }

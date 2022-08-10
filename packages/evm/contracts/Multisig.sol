@@ -106,7 +106,7 @@ contract Multisig {
         threshold = _threshold;
     }
 
-    function deposit() external payable {
+    function deposit() public payable {
         emit Deposit(msg.sender, msg.value, address(this).balance);
     }
 
@@ -339,9 +339,12 @@ contract MultisigFactory {
         Multisig newWalletInstance = new Multisig(_owners, _threshold);
         multisigInstances.push(newWalletInstance);
 
-        UserWallets[] storage newWallet = userWallet[msg.sender];
-        newWallet.push(UserWallets(address(newWalletInstance), id));
-
+        // UserWallets[] storage newWallet = userWallet[msg.sender];
+        // newWallet.push(UserWallets(address(newWalletInstance), id));
+        for (uint256 i = 0; i < _owners.length; i++) {
+            UserWallets[] storage newWallet = userWallet[_owners[i]];
+            newWallet.push(UserWallets(address(newWalletInstance), id));
+        }
         emit multisigInstanceCreated(
             block.timestamp,
             msg.sender,

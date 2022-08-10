@@ -20,7 +20,7 @@ export const WalletPicker: React.FC<IWalletPickerProps> = ({ onCreateNew }) => {
   const handleLogIn = (pk: string) => {
     dispatch(logInToWallet({ pk }));
     if (connection.chain === "eth") {
-      dispatch(Evm.setWalletContract());
+      dispatch(Evm.setWalletContract(pk));
     }
   };
   return (
