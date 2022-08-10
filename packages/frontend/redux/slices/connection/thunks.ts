@@ -4,10 +4,13 @@ import { PublicKey } from "@solana/web3.js";
 import { web3, BN, AnchorError } from "@project-serum/anchor";
 import { ReduxState } from "..";
 import { toast } from "react-toastify";
+import Moralis from "moralis-v1";
+import Addresses from "../../../evm-config/ethereum.json";
+import Multisig from "../../../evm-config/Multisig.json";
 
 const SIZE = 1000;
 interface IcreateWallet {
-  additionalAccounts?: PublicKey[];
+  additionalAccounts?: PublicKey[] | string[];
 }
 export const createWallet = createAsyncThunk(
   "payload/createWallet",
@@ -15,28 +18,40 @@ export const createWallet = createAsyncThunk(
     const baseAccount = web3.Keypair.generate();
 
     const state = thunkAPI.getState() as ReduxState;
-    const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
-      [baseAccount.publicKey.toBuffer()],
-      state.connection.program.programId
-    );
-    const pK = state.connection.provider.publicKey as PublicKey;
     try {
-      await state.connection.program.rpc.createWallet(
-        [pK, ...args.additionalAccounts],
-        new BN(1),
-        nonce,
-        {
-          accounts: { wallet: baseAccount.publicKey },
-          instructions: [
-            await state.connection.program.account.wallet.createInstruction(
-              baseAccount,
-              SIZE
-            ),
-          ],
-          signers: [baseAccount],
-        }
-      );
-      return baseAccount.publicKey.toString();
+      if (state.connection.chain === "sol") {
+        const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
+          [baseAccount.publicKey.toBuffer()],
+          state.connection.program.programId
+        );
+
+        const pK = state.connection.provider.publicKey as PublicKey;
+        await state.connection.program.rpc.createWallet(
+          [pK, ...(args.additionalAccounts as PublicKey[])],
+          new BN(1),
+          nonce,
+          {
+            accounts: { wallet: baseAccount.publicKey },
+            instructions: [
+              await state.connection.program.account.wallet.createInstruction(
+                baseAccount,
+                SIZE
+              ),
+            ],
+            signers: [baseAccount],
+          }
+        );
+        return baseAccount.publicKey.toString();
+      } else {
+        console.log("else");
+
+        const tx = await state.evm.factory.createMultiSig(
+          [state.evm.wallet, ...(args.additionalAccounts as string[])],
+          1
+        );
+        console.log(tx);
+        return null;
+      }
     } catch (err) {
       if (err instanceof AnchorError) {
         toast.error(err.error.errorMessage);
@@ -57,18 +72,23 @@ export const logInToWallet = createAsyncThunk(
   async (args: IlogInToWallet, thunkAPI) => {
     const state = thunkAPI.getState() as ReduxState;
     let data;
-
     try {
-      data = await state.connection.program.account.wallet.fetch(args.pk);
-      if (
-        data.owners
-          .map((owner) => owner.toString())
-          .includes(state.connection.provider.publicKey.toString())
-      ) {
-        return args.pk;
+      if (state.connection.chain === "sol") {
+        console.log("sol");
+        data = await state.connection.program.account.wallet.fetch(args.pk);
+        if (
+          data.owners
+            .map((owner) => owner.toString())
+            .includes(state.connection.provider.publicKey.toString())
+        ) {
+          return args.pk;
+        } else {
+          toast.error("Unauthorized for this wallet");
+          throw new Error("Unauthorized");
+        }
       } else {
-        toast.error("Unauthorized for this wallet");
-        throw new Error("Unauthorized");
+        console.log("evm");
+        return args.pk;
       }
     } catch (err) {
       if (err instanceof AnchorError) {
@@ -91,7 +111,8 @@ export const setOwners = createAsyncThunk(
   async (args: IsetOwners, thunkAPI) => {
     const state = thunkAPI.getState() as { connection: IConnectionSlice };
     const pK = state.connection.provider.publicKey as PublicKey;
-    const newOwners: PublicKey[] = args.additionalAccounts || [];
+    const newOwners: PublicKey[] =
+      (args.additionalAccounts as PublicKey[]) || [];
     const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
       [new PublicKey(state.connection.msig).toBuffer()],
       state.connection.program.programId
@@ -284,8 +305,10 @@ export const fetchWallet = createAsyncThunk(
         );
         return data.map((wallet) => wallet.publicKey.toString());
       } else {
-        const data = await state.evm.DB.getWallets(state.evm.wallet);
-        return data;
+        const data = await state.evm.factory.getUserWallets();
+        console.log(data);
+
+        return data.map((wallet) => wallet.walletAddress);
       }
     } catch (err) {
       if (err instanceof AnchorError) {

@@ -1,6 +1,6 @@
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import { Multisig, MultisigDB, Multisig__factory } from "../typechain-types";
+import { Multisig, Multisig__factory } from "../typechain-types";
 import { ethers } from "hardhat";
 import { ContractReceipt } from "ethers";
 
@@ -11,7 +11,6 @@ describe("Multisig", async () => {
   let MultisigFactory: Multisig__factory;
   let owners: string[];
   let external: SignerWithAddress;
-  let multisigDB: MultisigDB;
   const provider = ethers.getDefaultProvider();
   describe("Wallet creation", async () => {
     beforeEach(async () => {
@@ -20,26 +19,22 @@ describe("Multisig", async () => {
       deployer = accounts[0];
       external = accounts[4];
       MultisigFactory = await ethers.getContractFactory("Multisig");
-      const MultisigDBFactory = await ethers.getContractFactory("MultisigDB");
-      multisigDB = await MultisigDBFactory.deploy();
     });
     it("Should create wallet successfully", async () => {
-      multisig = (await MultisigFactory.deploy(
-        owners,
-        2,
-        multisigDB.address
-      )) as Multisig;
+      multisig = (await MultisigFactory.deploy(owners, 2)) as Multisig;
       expect(await multisig.getOwners()).to.deep.equal(owners);
     });
     it("Should fail wallet creation due to threshold", async () => {
-      expect(
-        MultisigFactory.deploy(owners, 4, multisigDB.address)
-      ).to.be.revertedWithCustomError(multisig, "Multisig__Invalid_Threshold");
+      expect(MultisigFactory.deploy(owners, 4)).to.be.revertedWithCustomError(
+        multisig,
+        "Multisig__Invalid_Threshold"
+      );
     });
     it("Should fail wallet creation due to not enugh owners", async () => {
-      expect(
-        MultisigFactory.deploy([], 0, multisigDB.address)
-      ).to.be.revertedWithCustomError(multisig, "Multisig__Not_Enough_Owners");
+      expect(MultisigFactory.deploy([], 0)).to.be.revertedWithCustomError(
+        multisig,
+        "Multisig__Not_Enough_Owners"
+      );
     });
   });
   describe("Transactions", async () => {
@@ -48,11 +43,7 @@ describe("Multisig", async () => {
       owners = [accounts[1].address, accounts[2].address, accounts[3].address];
       deployer = accounts[0];
       MultisigFactory = await ethers.getContractFactory("Multisig");
-      multisig = (await MultisigFactory.deploy(
-        owners,
-        2,
-        multisigDB.address
-      )) as Multisig;
+      multisig = (await MultisigFactory.deploy(owners, 2)) as Multisig;
     });
     it("Should create transaction", async () => {
       const tx = await multisig

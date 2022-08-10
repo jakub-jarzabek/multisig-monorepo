@@ -36,7 +36,7 @@ const initialState: IConnectionSlice = {
   web3: null,
   myWallets: null,
   loading: false,
-  chain: "sol",
+  chain: "eth",
   account: null,
 };
 interface IsetProviderPayload {

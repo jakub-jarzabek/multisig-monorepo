@@ -4,7 +4,6 @@ import fs from "fs";
 import add from "../utils/add.json";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
-import { Multisig, MultisigDB, Multisig__factory } from "../typechain-types";
 import { ContractReceipt } from "ethers";
 
 async function main() {
@@ -18,9 +17,9 @@ async function main() {
   const deployer = accounts[0];
   const external = accounts[4];
   const MultisigFactory = await ethers.getContractFactory("Multisig");
-  const multisig = await MultisigFactory.deploy(owners, 2, add.DB);
-  const multisig2 = await MultisigFactory.deploy(owners, 2, add.DB);
-  const multisig3 = await MultisigFactory.deploy(owners, 2, add.DB);
+  const multisig = await MultisigFactory.deploy(owners, 2);
+  const multisig2 = await MultisigFactory.deploy(owners, 2);
+  const multisig3 = await MultisigFactory.deploy(owners, 2);
 
   return null;
 }

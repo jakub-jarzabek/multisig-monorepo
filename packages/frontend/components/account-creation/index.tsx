@@ -1,11 +1,11 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Card, Button, Input } from '..';
-import autoAnimate from '@formkit/auto-animate';
-import { AppDispatch, createWallet, ReduxState, RootState } from '../../redux';
-import { useDispatch, useSelector } from 'react-redux';
-import { PublicKey } from '@solana/web3.js';
-import useMediaQuery from '../../hooks/useMediaQuery';
-import { trimAddress } from '../../utils/trimAddress';
+import React, { useState, useRef, useEffect } from "react";
+import { Card, Button, Input } from "..";
+import autoAnimate from "@formkit/auto-animate";
+import { AppDispatch, createWallet, ReduxState, RootState } from "../../redux";
+import { useDispatch, useSelector } from "react-redux";
+import { PublicKey } from "@solana/web3.js";
+import useMediaQuery from "../../hooks/useMediaQuery";
+import { trimAddress } from "../../utils/trimAddress";
 
 interface IAccountCreationProps {
   goBack: () => void;
@@ -13,17 +13,19 @@ interface IAccountCreationProps {
 export const AccountCreation: React.FC<IAccountCreationProps> = ({
   goBack,
 }) => {
-  const matches = useMediaQuery('(min-width: 768px)');
+  const matches = useMediaQuery("(min-width: 768px)");
   const dispatch = useDispatch<AppDispatch>();
-  const { connection } = useSelector<RootState, ReduxState>((state) => state);
+  const { connection, evm } = useSelector<RootState, ReduxState>(
+    (state) => state
+  );
   const [accounts, setAccounts] = useState<string[]>([]);
-  const [accountInput, setAccountInput] = useState('');
+  const [accountInput, setAccountInput] = useState("");
   const removeAccount = (acc: string) => {
     setAccounts(accounts.filter((_) => _ !== acc));
   };
   const addAccount = () => {
     setAccounts([...accounts, accountInput.trim()]);
-    setAccountInput('');
+    setAccountInput("");
   };
 
   const handleCreateWallet = () => {
@@ -44,7 +46,7 @@ export const AccountCreation: React.FC<IAccountCreationProps> = ({
         onClick={goBack}
         className="text-purple-900 font-bold tracking-widest absolute p-6 left-0 top-0 text-md md:text-xl cursor-pointer hover:text-purple-500 transition-color duration-300"
       >
-        {'<'} Back
+        {"<"} Back
       </span>
       <h1 className="text-2xl text-white font-semibold mb-6 mt-6 md:mt-0">
         Create New Wallet
@@ -74,8 +76,12 @@ export const AccountCreation: React.FC<IAccountCreationProps> = ({
         <Card twStyles="shadow-lg">
           <span className="leading-10 mr-4 text-sm md:text-md">
             {matches
-              ? connection.provider.publicKey.toString()
-              : trimAddress(connection.provider.publicKey.toString())}
+              ? connection.chain === "sol"
+                ? connection.provider.publicKey.toString()
+                : evm.wallet
+              : connection.chain === "sol"
+              ? trimAddress(connection.provider.publicKey.toString())
+              : trimAddress(evm.wallet.toString())}
           </span>
         </Card>
         {accounts &&
@@ -87,7 +93,7 @@ export const AccountCreation: React.FC<IAccountCreationProps> = ({
                 </span>
                 <Button
                   onClick={() => removeAccount(acc)}
-                  label={matches ? 'Remove' : 'X'}
+                  label={matches ? "Remove" : "X"}
                 />
               </>
             </Card>

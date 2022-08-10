@@ -3,7 +3,7 @@ import path from "path";
 import fs from "fs";
 
 interface IContent {
-  DB: string;
+  Factory: string;
 }
 async function main() {
   const content = JSON.parse(
@@ -13,10 +13,9 @@ async function main() {
     )
   ) as IContent;
 
-  const DB = await ethers.getContractFactory("MultisigDB");
-  const tx = await DB.deploy();
-  content.DB = tx.address;
-  console.log(tx.address);
+  const Factory = await ethers.getContractFactory("MultisigFactory");
+  const tx = await Factory.deploy();
+  content.Factory = tx.address;
   fs.writeFileSync(
     path.resolve("../frontend/evm-config/ethereum.json"),
     JSON.stringify(content)
@@ -29,17 +28,35 @@ async function main() {
     path.resolve("../evm/artifacts/contracts/Multisig.sol/Multisig.json"),
     "utf8"
   );
+  const Multisig = fs.readFileSync(
+    path.resolve("../evm/typechain-types/Multisig.ts"),
+    "utf8"
+  );
+  fs.writeFileSync(
+    path.resolve("../frontend/evm-config/Multisig.ts"),
+    Multisig
+  );
+  const MultisigFactory = fs.readFileSync(
+    path.resolve("../evm/typechain-types/MultisigFactory.ts"),
+    "utf8"
+  );
+  fs.writeFileSync(
+    path.resolve("../frontend/evm-config/MultisigFactory.ts"),
+    MultisigFactory
+  );
   fs.writeFileSync(
     path.resolve("../frontend/evm-config/Multisig.json"),
     MultisigABI
   );
-  const MultisigDBABI = fs.readFileSync(
-    path.resolve("../evm/artifacts/contracts/MultisigDB.sol/MultisigDB.json"),
+  const MultisigFactoryABI = fs.readFileSync(
+    path.resolve(
+      "../evm/artifacts/contracts/Multisig.sol/MultisigFactory.json"
+    ),
     "utf8"
   );
   fs.writeFileSync(
-    path.resolve("../frontend/evm-config/MultisigDB.json"),
-    MultisigDBABI
+    path.resolve("../frontend/evm-config/MultisigFactory.json"),
+    MultisigFactoryABI
   );
   return null;
 }

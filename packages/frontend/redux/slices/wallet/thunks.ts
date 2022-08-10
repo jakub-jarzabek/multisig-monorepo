@@ -1,78 +1,99 @@
-import { AnchorError, BN, web3 } from '@project-serum/anchor';
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import { PublicKey, SystemProgram } from '@solana/web3.js';
-import { toast } from 'react-toastify';
-import { ReduxState } from '..';
+import { AnchorError, BN, web3 } from "@project-serum/anchor";
+import { bindActionCreators, createAsyncThunk } from "@reduxjs/toolkit";
+import { PublicKey, SystemProgram } from "@solana/web3.js";
+import { toast } from "react-toastify";
+import { ReduxState } from "..";
 
 export const loadWalletData = createAsyncThunk(
-  'payload/loadWalletData',
+  "payload/loadWalletData",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState() as ReduxState;
     let data;
     let balance;
-    try {
-      data = await state.connection.program.account.wallet.fetch(
-        state.connection.msig
-      );
-      console.log(data);
-    } catch (err) {
-      console.log(err);
+    if (state.connection.chain === "sol") {
+      try {
+        data = await state.connection.program.account.wallet.fetch(
+          state.connection.msig
+        );
+        console.log(data);
+      } catch (err) {
+        console.log(err);
+      }
+      try {
+        balance = await state.connection.web3.getBalance(
+          new PublicKey(state.connection.msig)
+        );
+      } catch (err) {
+        console.log(err);
+      }
+      return {
+        accounts: data.owners,
+        ownerSeq: Number(data.ownerSeq.toString()),
+        balance,
+        threshold: Number(data.threshold.toString()),
+      };
+    } else {
+      try {
+        const balance = await state.evm.provider.getBalance(state.evm.wallet);
+
+        const threshold = await state.evm.walletContract.threshold();
+        console.log({ b: balance, o: null, t: threshold });
+        return {
+          accounts: null,
+          ownerSeq: null,
+          balance: null,
+          threshold: null,
+        };
+      } catch (err) {
+        console.log(err);
+      }
     }
-    try {
-      balance = await state.connection.web3.getBalance(
-        new PublicKey(state.connection.msig)
-      );
-    } catch (err) {
-      console.log(err);
-    }
-    return {
-      accounts: data.owners,
-      ownerSeq: Number(data.ownerSeq.toString()),
-      balance,
-      threshold: Number(data.threshold.toString()),
-    };
   }
 );
 export const loadTransactions = createAsyncThunk(
-  'payload/loadTransactions',
+  "payload/loadTransactions",
   async (args, thunkAPI) => {
     const state = thunkAPI.getState() as ReduxState;
     let data;
     try {
-      const normal = await state.connection.program.account.transaction.all();
-      const transfer =
-        await state.connection.program.account.transferTransaction.all();
-      data = [...normal, ...transfer];
-      const myTransactions = data.filter(
-        (transaction) =>
-          transaction.account.wallet.toString() === state.connection.msig
-      );
-      return {
-        peding: myTransactions
-          .filter(
-            (transaction) =>
-              transaction.account.didExecute === false &&
-              transaction.account.deleted === false &&
-              transaction.account.ownerSeq >= state.wallet.ownerSeq
-          )
-          .sort((a, b) => {
-            return b.account.createdAt - a.account.createdAt;
-          }),
-        completed: myTransactions
-          .filter(
-            (transaction) =>
-              transaction.account.didExecute === true &&
-              transaction.account.deleted === false
-          )
-          .sort((a, b) => {
-            return b.account.createdAt - a.account.createdAt;
-          }),
-        deleted: myTransactions
-          .filter((transaction) => transaction.account.deleted)
-          .sort((a, b) => {
-            return b.account.createdAt - a.account.createdAt;
-          }),
-      };
+      if (state.connection.chain === "sol") {
+        const normal = await state.connection.program.account.transaction.all();
+        const transfer =
+          await state.connection.program.account.transferTransaction.all();
+        data = [...normal, ...transfer];
+        const myTransactions = data.filter(
+          (transaction) =>
+            transaction.account.wallet.toString() === state.connection.msig
+        );
+        return {
+          peding: myTransactions
+            .filter(
+              (transaction) =>
+                transaction.account.didExecute === false &&
+                transaction.account.deleted === false &&
+                transaction.account.ownerSeq >= state.wallet.ownerSeq
+            )
+            .sort((a, b) => {
+              return b.account.createdAt - a.account.createdAt;
+            }),
+          completed: myTransactions
+            .filter(
+              (transaction) =>
+                transaction.account.didExecute === true &&
+                transaction.account.deleted === false
+            )
+            .sort((a, b) => {
+              return b.account.createdAt - a.account.createdAt;
+            }),
+          deleted: myTransactions
+            .filter((transaction) => transaction.account.deleted)
+            .sort((a, b) => {
+              return b.account.createdAt - a.account.createdAt;
+            }),
+        };
+      } else {
+        console.log("xd");
+      }
     } catch (err) {
       console.log(err);
     }
@@ -84,7 +105,7 @@ interface IapproveTransaction {
   transactionPublicKey: PublicKey;
 }
 export const approveTransaction = createAsyncThunk(
-  'payload/approveTransaction',
+  "payload/approveTransaction",
   async (args: IapproveTransaction, thunkAPI) => {
     const state = thunkAPI.getState() as ReduxState;
     try {
@@ -95,7 +116,7 @@ export const approveTransaction = createAsyncThunk(
           owner: state.connection.provider.wallet.publicKey,
         },
       });
-      toast.success('Transaction approved');
+      toast.success("Transaction approved");
     } catch (err) {
       if (err instanceof AnchorError) {
         toast.error(err.error.errorMessage);
@@ -109,7 +130,7 @@ export const approveTransaction = createAsyncThunk(
   }
 );
 export const cancelTransactionApproval = createAsyncThunk(
-  'payload/cancelTransaction',
+  "payload/cancelTransaction",
   async (args: IapproveTransaction, thunkAPI) => {
     const state = thunkAPI.getState() as ReduxState;
     try {
@@ -120,7 +141,7 @@ export const cancelTransactionApproval = createAsyncThunk(
           owner: state.connection.provider.wallet.publicKey,
         },
       });
-      toast.success('Approval revoked');
+      toast.success("Approval revoked");
     } catch (err) {
       if (err instanceof AnchorError) {
         toast.error(err.error.errorMessage);
@@ -134,7 +155,7 @@ export const cancelTransactionApproval = createAsyncThunk(
   }
 );
 export const deleteTransaction = createAsyncThunk(
-  'payload/deleteTransaction',
+  "payload/deleteTransaction",
   async (args: IapproveTransaction, thunkAPI) => {
     const state = thunkAPI.getState() as ReduxState;
     try {
@@ -145,7 +166,7 @@ export const deleteTransaction = createAsyncThunk(
           owner: state.connection.provider.wallet.publicKey,
         },
       });
-      toast.success('Transaction deleted');
+      toast.success("Transaction deleted");
     } catch (err) {
       if (err instanceof AnchorError) {
         toast.error(err.error.errorMessage);
@@ -163,7 +184,7 @@ interface IexecuteTransaction {
   transactionPublicKey: PublicKey;
 }
 export const executeTransaction = createAsyncThunk(
-  'payload/executeTransaction',
+  "payload/executeTransaction",
   async (args: IexecuteTransaction, thunkAPI) => {
     const state = thunkAPI.getState() as ReduxState;
     const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
@@ -198,7 +219,7 @@ export const executeTransaction = createAsyncThunk(
           }),
       });
 
-      toast.success('Transaction executed');
+      toast.success("Transaction executed");
     } catch (err) {
       if (err instanceof AnchorError) {
         toast.error(err.error.errorMessage);
@@ -232,7 +253,7 @@ interface IexecuteTransferTransaction {
   tx: ITransferTx;
 }
 export const executeTransferTransaction = createAsyncThunk(
-  'payload/executeTransferTransaction',
+  "payload/executeTransferTransaction",
   async (args: IexecuteTransferTransaction, thunkAPI) => {
     const { tx } = args;
     const state = thunkAPI.getState() as ReduxState;
@@ -249,7 +270,7 @@ export const executeTransferTransaction = createAsyncThunk(
         },
       });
 
-      toast.success('Transaction executed');
+      toast.success("Transaction executed");
     } catch (err) {
       if (err instanceof AnchorError) {
         toast.error(err.error.errorMessage);

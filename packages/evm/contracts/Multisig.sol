@@ -36,6 +36,7 @@ contract Multisig {
     address[] public owners;
     mapping(address => bool) public isOwner;
     uint256 public threshold;
+    address DBAddress;
 
     struct Tx {
         address to;
@@ -82,11 +83,7 @@ contract Multisig {
         _;
     }
 
-    constructor(
-        address[] memory _owners,
-        uint256 _threshold,
-        address DBAddress
-    ) {
+    constructor(address[] memory _owners, uint256 _threshold) {
         if (_owners.length == 0) {
             revert Multisig__Not_Enough_Owners();
         }
@@ -104,17 +101,6 @@ contract Multisig {
             }
             isOwner[owner] = true;
             owners.push(owner);
-            bytes memory data = abi.encodeWithSignature(
-                "setWallet(address,address)",
-                owner,
-                address(this)
-            );
-
-            (bool success, ) = DBAddress.call{value: 0}(data);
-
-            if (!success) {
-                revert Multisig__Write_To_DB_Failed();
-            }
         }
 
         threshold = _threshold;
@@ -327,5 +313,48 @@ contract Multisig {
             transaction.didExecute,
             transaction.confirmationsCount
         );
+    }
+}
+
+contract MultisigFactory {
+    struct UserWallets {
+        address walletAddress;
+        uint256 walletID;
+    }
+
+    uint256 id = 0;
+    UserWallets[] public wallets;
+    Multisig[] public multisigInstances;
+
+    mapping(address => UserWallets[]) userWallet;
+    event multisigInstanceCreated(
+        uint256 date,
+        address walletOwner,
+        address multiSigAddress
+    );
+
+    function createMultiSig(address[] memory _owners, uint256 _threshold)
+        public
+    {
+        Multisig newWalletInstance = new Multisig(_owners, _threshold);
+        multisigInstances.push(newWalletInstance);
+
+        UserWallets[] storage newWallet = userWallet[msg.sender];
+        newWallet.push(UserWallets(address(newWalletInstance), id));
+
+        emit multisigInstanceCreated(
+            block.timestamp,
+            msg.sender,
+            address(newWalletInstance)
+        );
+        id++;
+    }
+
+    function getUserWallets()
+        public
+        view
+        returns (UserWallets[] memory walets)
+    {
+        return userWallet[msg.sender];
     }
 }
