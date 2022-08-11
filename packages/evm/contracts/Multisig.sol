@@ -193,7 +193,7 @@ contract Multisig {
     {
         Tx storage transaction = transactions[_txIndex];
 
-        if (!transaction.isDeleted) {
+        if (transaction.isDeleted) {
             revert Multisig__Transaction_Already_Deleted();
         }
         if (transaction.confirmationsCount != 0) {

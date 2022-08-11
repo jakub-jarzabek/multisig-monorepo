@@ -68,17 +68,37 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
   const { threshold } = wallet;
   const handleCancel = async (e: any) => {
     e.stopPropagation();
-    await dispatch(
-      cancelTransactionApproval({ transactionPublicKey: transaction.publicKey })
-    );
+    if (connection.chain === "sol") {
+      await dispatch(
+        cancelTransactionApproval({
+          transactionPublicKey: transaction.publicKey,
+        })
+      );
+    } else {
+      await dispatch(
+        cancelTransactionApproval({
+          transactionPublicKey: transaction.publicKey,
+          index: transaction.account.index,
+        })
+      );
+    }
     refreshData();
   };
 
   const handleDelete = async (e: any) => {
     e.stopPropagation();
-    await dispatch(
-      deleteTransaction({ transactionPublicKey: transaction.publicKey })
-    );
+    if (connection.chain === "sol") {
+      await dispatch(
+        deleteTransaction({ transactionPublicKey: transaction.publicKey })
+      );
+    } else {
+      await dispatch(
+        deleteTransaction({
+          transactionPublicKey: transaction.publicKey,
+          index: transaction.account.index,
+        })
+      );
+    }
 
     refreshData();
   };
@@ -102,9 +122,19 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     }
   };
   const handleApprove = async (e: any) => {
-    await dispatch(
-      approveTransaction({ transactionPublicKey: transaction.publicKey })
-    );
+    e.stopPropagation();
+    if (connection.chain === "sol") {
+      await dispatch(
+        approveTransaction({ transactionPublicKey: transaction.publicKey })
+      );
+    } else {
+      await dispatch(
+        approveTransaction({
+          transactionPublicKey: transaction.publicKey,
+          index: transaction.account.index,
+        })
+      );
+    }
     refreshData();
   };
   const countSigners = () => {
@@ -120,7 +150,7 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
       return transaction.account.threshold;
     }
   };
-  const isSigner = async () => {
+  const isSigner = () => {
     if (connection.chain === "sol") {
       const index = wallet.accounts.findIndex(
         (acc) =>
@@ -128,11 +158,9 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
       );
       return transaction.account.signers[index];
     } else {
-      const data = await evm.walletContract.isApprovedBySender(
-        transaction.account.index
-      );
-      console.log(data);
-      return data;
+      return transaction.account.signers
+        .map((sig) => sig.toString().toLowerCase())
+        .includes(evm.wallet.toLowerCase());
     }
   };
   return (
