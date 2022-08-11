@@ -45,16 +45,30 @@ export const MainPanel = () => {
     }
   };
   const handleChangeAccounts = async () => {
-    await dispatch(
+    if (connection.chain === "sol") {
+      await dispatch(
+        setOwners({
+          additionalAccounts: accounts.map((_) => new PublicKey(_)),
+          signer: provider.wallet.publicKey,
+        })
+      );
+    } else {
       setOwners({
-        additionalAccounts: accounts.map((_) => new PublicKey(_)),
+        additionalAccounts: accounts,
         signer: provider.wallet.publicKey,
-      })
-    );
+      });
+    }
   };
   const handleSendTokens = async () => {
     if (typeof amount === "number") {
+
+    if(connection.chain==='sol'){
+
       await dispatch(transfer({ to: new PublicKey(receiver), amount }));
+    }else{
+
+      await dispatch(transfer({ to: receiver, amount }));
+      }
     } else {
       toast.error("Please enter a number");
     }

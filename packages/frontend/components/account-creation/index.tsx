@@ -29,11 +29,19 @@ export const AccountCreation: React.FC<IAccountCreationProps> = ({
   };
 
   const handleCreateWallet = () => {
-    dispatch(
-      createWallet({
-        additionalAccounts: accounts.map((_) => new PublicKey(_)),
-      })
-    );
+    if (connection.chain === "sol") {
+      dispatch(
+        createWallet({
+          additionalAccounts: accounts.map((_) => new PublicKey(_)),
+        })
+      );
+    } else {
+      dispatch(
+        createWallet({
+          additionalAccounts: accounts,
+        })
+      );
+    }
   };
 
   const parent = useRef(null);

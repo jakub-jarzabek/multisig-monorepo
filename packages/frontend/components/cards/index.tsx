@@ -104,21 +104,31 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
   };
   const handleExecute = async (e: any) => {
     e.stopPropagation();
-    if (transaction.account.txType.toString() !== "2") {
+    if (connection.chain === "eth") {
       await dispatch(
         executeTransaction({
           transactionPublicKey: transaction.publicKey,
+          index: transaction.account.index,
         })
       );
-
       refreshData();
     } else {
-      await dispatch(
-        executeTransferTransaction({
-          tx: transaction,
-        })
-      );
-      refreshData();
+      if (transaction.account.txType.toString() !== "2") {
+        await dispatch(
+          executeTransaction({
+            transactionPublicKey: transaction.publicKey,
+          })
+        );
+
+        refreshData();
+      } else {
+        await dispatch(
+          executeTransferTransaction({
+            tx: transaction,
+          })
+        );
+        refreshData();
+      }
     }
   };
   const handleApprove = async (e: any) => {

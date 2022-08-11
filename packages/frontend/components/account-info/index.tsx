@@ -37,7 +37,6 @@ export const AccountInfo = () => {
           onClick={() => {
             navigator.clipboard.writeText(msig);
             setCopied(true);
-            evm.walletContract.deposit({ value: "10000" });
           }}
           onMouseOver={() => setVisible(true)}
           onMouseLeave={() => {

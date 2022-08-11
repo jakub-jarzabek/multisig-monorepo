@@ -327,7 +327,7 @@ contract MultisigFactory {
     );
 
     function createMultiSig(address[] memory _owners, uint256 _threshold)
-        public
+        public returns(Multisig)
     {
         Multisig newWalletInstance = new Multisig(_owners, _threshold);
         multisigInstances.push(newWalletInstance);
@@ -342,6 +342,7 @@ contract MultisigFactory {
             address(newWalletInstance)
         );
         id++;
+        return newWalletInstance;
     }
 
     function getUserWallets()

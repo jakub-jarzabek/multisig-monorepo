@@ -50,8 +50,10 @@ export const createWallet = createAsyncThunk(
           [state.evm.wallet, ...(args.additionalAccounts as string[])],
           1
         );
-        await tx.wait();
-        return tx.toString();
+        const receipt = await tx.wait();
+        const wallets = await state.evm.factory.getUserWallets()
+        console.log(wallets)
+        return wallets[wallets.length-1].walletAddress.toString()
       }
     } catch (err) {
       if (err instanceof AnchorError) {
@@ -265,7 +267,7 @@ export const setTreshold = createAsyncThunk(
 );
 
 interface ITransfer {
-  to: PublicKey;
+  to: PublicKey|string;
   amount: number;
 }
 
@@ -332,7 +334,7 @@ export const transfer = createAsyncThunk(
           data,
           owners,
           threshold,
-          TransactionType.SET_THRESHOLD
+          TransactionType.TRANSFER
         );
         const receipt = tx.wait();
       }

@@ -187,7 +187,7 @@ export interface MultisigFactory extends BaseContract {
       _owners: PromiseOrValue<string>[],
       _threshold: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<string>;
 
     getUserWallets(
       overrides?: CallOverrides
