@@ -44,6 +44,7 @@ export const ConnectWindow = () => {
       if (account) {
         dispatch(Evm.setProviderAndDB());
         dispatch(Evm.setWallet(account));
+        await dispatch(Evm.setWalletContract);
         await dispatch(fetchWallet());
         if (msig) {
           router.push("dashboard");

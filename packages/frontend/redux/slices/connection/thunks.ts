@@ -4,6 +4,7 @@ import { PublicKey } from "@solana/web3.js";
 import { web3, BN, AnchorError } from "@project-serum/anchor";
 import { ReduxState } from "..";
 import { toast } from "react-toastify";
+import { TransactionType } from "../../../constants";
 import Moralis from "moralis-v1";
 import Addresses from "../../../evm-config/ethereum.json";
 import Multisig from "../../../evm-config/Multisig.json";
@@ -49,7 +50,7 @@ export const createWallet = createAsyncThunk(
           [state.evm.wallet, ...(args.additionalAccounts as string[])],
           1
         );
-        console.log(tx);
+        await tx.wait();
         return tx.toString();
       }
     } catch (err) {
@@ -108,54 +109,72 @@ interface IsetOwners extends IcreateWallet {
 export const setOwners = createAsyncThunk(
   "payload/setOwners",
   async (args: IsetOwners, thunkAPI) => {
-    const state = thunkAPI.getState() as { connection: IConnectionSlice };
-    const pK = state.connection.provider.publicKey as PublicKey;
-    const newOwners: PublicKey[] =
-      (args.additionalAccounts as PublicKey[]) || [];
-    const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
-      [new PublicKey(state.connection.msig).toBuffer()],
-      state.connection.program.programId
-    );
-    const data = state.connection.program.coder.instruction.encode(
-      "set_owners",
-      { owners: newOwners }
-    );
-    const accounts = [
-      {
-        pubkey: new PublicKey(state.connection.msig),
-        isWritable: true,
-        isSigner: false,
-      },
-      {
-        pubkey: walletSigner,
-        isWritable: false,
-        isSigner: true,
-      },
-    ];
-    const transaction = web3.Keypair.generate();
+    const state = thunkAPI.getState() as ReduxState;
     try {
-      await state.connection.program.rpc.createTransaction(
-        state.connection.program.programId,
-        accounts,
-        data,
-        new BN(0),
-        newOwners,
-        new BN(0),
-        {
-          accounts: {
-            wallet: new PublicKey(state.connection.msig),
-            transaction: transaction.publicKey,
-            initiator: state.connection.provider.wallet.publicKey,
+      if (state.connection.chain === "sol") {
+        const pK = state.connection.provider.publicKey as PublicKey;
+        const newOwners: PublicKey[] =
+          (args.additionalAccounts as PublicKey[]) || [];
+        const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
+          [new PublicKey(state.connection.msig).toBuffer()],
+          state.connection.program.programId
+        );
+        const data = state.connection.program.coder.instruction.encode(
+          "set_owners",
+          { owners: newOwners }
+        );
+        const accounts = [
+          {
+            pubkey: new PublicKey(state.connection.msig),
+            isWritable: true,
+            isSigner: false,
           },
-          instructions: [
-            await state.connection.program.account.wallet.createInstruction(
-              transaction,
-              SIZE
-            ),
-          ],
-          signers: [transaction],
-        }
-      );
+          {
+            pubkey: walletSigner,
+            isWritable: false,
+            isSigner: true,
+          },
+        ];
+        const transaction = web3.Keypair.generate();
+        await state.connection.program.rpc.createTransaction(
+          state.connection.program.programId,
+          accounts,
+          data,
+          new BN(0),
+          newOwners,
+          new BN(0),
+          {
+            accounts: {
+              wallet: new PublicKey(state.connection.msig),
+              transaction: transaction.publicKey,
+              initiator: state.connection.provider.wallet.publicKey,
+            },
+            instructions: [
+              await state.connection.program.account.wallet.createInstruction(
+                transaction,
+                SIZE
+              ),
+            ],
+            signers: [transaction],
+          }
+        );
+      } else {
+        const threshold = 0;
+        const owners = args.additionalAccounts as string[];
+        const value = 0;
+        const data = "0x";
+        const to = state.evm.walletContract.address;
+
+        const tx = await state.evm.walletContract.addTransaction(
+          to,
+          value,
+          data,
+          owners,
+          threshold,
+          TransactionType.SET_OWNERS
+        );
+        const receipt = tx.wait();
+      }
       toast.success("Transaction created and signed");
     } catch (err) {
       toast.error(err.message);
@@ -171,51 +190,70 @@ interface IsetTreshold {
 export const setTreshold = createAsyncThunk(
   "payload/setTreshold",
   async (args: IsetTreshold, thunkAPI) => {
-    const state = thunkAPI.getState() as { connection: IConnectionSlice };
-    const [walletSigner] = await web3.PublicKey.findProgramAddress(
-      [new PublicKey(state.connection.msig).toBuffer()],
-      state.connection.program.programId
-    );
-    const data = state.connection.program.coder.instruction.encode(
-      "change_threshold",
-      { threshold: new BN(args.threshold) }
-    );
-    const accounts = [
-      {
-        pubkey: new PublicKey(state.connection.msig),
-        isWritable: true,
-        isSigner: false,
-      },
-      {
-        pubkey: walletSigner,
-        isWritable: false,
-        isSigner: true,
-      },
-    ];
-    const transaction = web3.Keypair.generate();
+    const state = thunkAPI.getState() as ReduxState;
+
     try {
-      await state.connection.program.rpc.createTransaction(
-        state.connection.program.programId,
-        accounts,
-        data,
-        new BN(1),
-        [],
-        new BN(args.threshold),
-        {
-          accounts: {
-            wallet: new PublicKey(state.connection.msig),
-            transaction: transaction.publicKey,
-            initiator: state.connection.provider.wallet.publicKey,
+      if (state.connection.chain === "sol") {
+        const [walletSigner] = await web3.PublicKey.findProgramAddress(
+          [new PublicKey(state.connection.msig).toBuffer()],
+          state.connection.program.programId
+        );
+        const data = state.connection.program.coder.instruction.encode(
+          "change_threshold",
+          { threshold: new BN(args.threshold) }
+        );
+        const accounts = [
+          {
+            pubkey: new PublicKey(state.connection.msig),
+            isWritable: true,
+            isSigner: false,
           },
-          instructions: [
-            await state.connection.program.account.wallet.createInstruction(
-              transaction,
-              SIZE
-            ),
-          ],
-          signers: [transaction],
-        }
-      );
+          {
+            pubkey: walletSigner,
+            isWritable: false,
+            isSigner: true,
+          },
+        ];
+        const transaction = web3.Keypair.generate();
+        await state.connection.program.rpc.createTransaction(
+          state.connection.program.programId,
+          accounts,
+          data,
+          new BN(1),
+          [],
+          new BN(args.threshold),
+          {
+            accounts: {
+              wallet: new PublicKey(state.connection.msig),
+              transaction: transaction.publicKey,
+              initiator: state.connection.provider.wallet.publicKey,
+            },
+            instructions: [
+              await state.connection.program.account.wallet.createInstruction(
+                transaction,
+                SIZE
+              ),
+            ],
+            signers: [transaction],
+          }
+        );
+      } else {
+        const threshold = args.threshold;
+        const owners = [];
+        const value = 0;
+        const data = "0x";
+        const to = state.evm.walletContract.address;
+
+        const tx = await state.evm.walletContract.addTransaction(
+          to,
+          value,
+          data,
+          owners,
+          threshold,
+          TransactionType.SET_THRESHOLD
+        );
+        const receipt = tx.wait();
+      }
       toast.success("Transaction created and signed");
     } catch (err) {
       toast.error(err.message);
@@ -234,51 +272,70 @@ interface ITransfer {
 export const transfer = createAsyncThunk(
   "payload/transfer",
   async (args: ITransfer, thunkAPI) => {
-    const state = thunkAPI.getState() as { connection: IConnectionSlice };
-    const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
-      [new PublicKey(state.connection.msig).toBuffer()],
-      state.connection.program.programId
-    );
-
-    const accounts = [
-      {
-        pubkey: new PublicKey(state.connection.msig),
-        isWritable: true,
-        isSigner: false,
-      },
-      {
-        pubkey: walletSigner,
-        isWritable: false,
-        isSigner: true,
-      },
-    ];
-    const transaction = web3.Keypair.generate();
+    const state = thunkAPI.getState() as ReduxState;
 
     try {
-      await state.connection.program.rpc.createTransferTransaction(
-        state.connection.program.programId,
-        accounts,
-        new BN(2),
-        [args.to],
-        new BN(args.amount),
-        new PublicKey(state.connection.msig),
-        args.to,
-        new BN(args.amount),
-        {
-          accounts: {
-            wallet: new PublicKey(state.connection.msig),
-            transaction: transaction.publicKey,
-            initiator: state.connection.provider.wallet.publicKey,
+      if (state.connection.chain === "sol") {
+        const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
+          [new PublicKey(state.connection.msig).toBuffer()],
+          state.connection.program.programId
+        );
+
+        const accounts = [
+          {
+            pubkey: new PublicKey(state.connection.msig),
+            isWritable: true,
+            isSigner: false,
           },
-          instructions: [
-            await state.connection.program.account.wallet.createInstruction(
-              transaction,
-              1000
-            ),
-          ],
-          signers: [transaction],
-        }
-      );
+          {
+            pubkey: walletSigner,
+            isWritable: false,
+            isSigner: true,
+          },
+        ];
+        const transaction = web3.Keypair.generate();
+
+        await state.connection.program.rpc.createTransferTransaction(
+          state.connection.program.programId,
+          accounts,
+          new BN(2),
+          [args.to],
+          new BN(args.amount),
+          new PublicKey(state.connection.msig),
+          args.to,
+          new BN(args.amount),
+          {
+            accounts: {
+              wallet: new PublicKey(state.connection.msig),
+              transaction: transaction.publicKey,
+              initiator: state.connection.provider.wallet.publicKey,
+            },
+            instructions: [
+              await state.connection.program.account.wallet.createInstruction(
+                transaction,
+                1000
+              ),
+            ],
+            signers: [transaction],
+          }
+        );
+      } else {
+        const threshold = 0;
+        const owners = [];
+        const value = args.amount;
+        const data = "0x";
+        const to = args.to;
+
+        const tx = await state.evm.walletContract.addTransaction(
+          args.to,
+          value,
+          data,
+          owners,
+          threshold,
+          TransactionType.SET_THRESHOLD
+        );
+        const receipt = tx.wait();
+      }
       toast.success("Transaction created and signed");
     } catch (err) {
       toast.error(err.message);

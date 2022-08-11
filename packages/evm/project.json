@@ -32,6 +32,12 @@
       "options": {
         "command": "cd packages/evm && npx hardhat compile"
       }
+    },
+    "clean": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd packages/evm && npx hardhat clean"
+      }
     }
   },
   "tags": []

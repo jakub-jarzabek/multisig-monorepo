@@ -1,8 +1,8 @@
-import { PublicKey, Transaction } from '@solana/web3.js';
-import useMediaQuery from '../../hooks/useMediaQuery';
-import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Button } from '..';
+import { PublicKey, Transaction } from "@solana/web3.js";
+import useMediaQuery from "../../hooks/useMediaQuery";
+import React from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Button } from "..";
 import {
   AppDispatch,
   approveTransaction,
@@ -14,8 +14,8 @@ import {
   loadWalletData,
   ReduxState,
   RootState,
-} from '../../redux';
-import { trimAddress } from '../../utils/trimAddress';
+} from "../../redux";
+import { trimAddress } from "../../utils/trimAddress";
 
 interface CardProps {
   children: React.ReactNode;
@@ -28,7 +28,7 @@ export const Card: React.FC<CardProps> = ({ children, twStyles, onClick }) => {
     <div
       onClick={onClick}
       className={`${
-        twStyles ? twStyles : ''
+        twStyles ? twStyles : ""
       } w-full overflow-scroll md:overflow-hidden flex flex-row p-2 h-14 bg-purple-300 bg-opacity-50 rounded border border-slate-300 justify-between hover:shadow-lg transition-all duration-300 `}
     >
       {children}
@@ -56,13 +56,13 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
   twStyles,
   setModalData,
 }) => {
-  const matches = useMediaQuery('(min-width: 768px)');
+  const matches = useMediaQuery("(min-width: 768px)");
   const refreshData = () => {
     dispatch(loadWalletData());
     dispatch(loadTransactions());
   };
   const dispatch = useDispatch<AppDispatch>();
-  const { wallet, connection } = useSelector<RootState, ReduxState>(
+  const { wallet, connection, evm } = useSelector<RootState, ReduxState>(
     (state) => state
   );
   const { threshold } = wallet;
@@ -84,7 +84,7 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
   };
   const handleExecute = async (e: any) => {
     e.stopPropagation();
-    if (transaction.account.txType.toString() !== '2') {
+    if (transaction.account.txType.toString() !== "2") {
       await dispatch(
         executeTransaction({
           transactionPublicKey: transaction.publicKey,
@@ -108,20 +108,32 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     refreshData();
   };
   const countSigners = () => {
-    let count = 0;
-    transaction.account.signers.forEach((signer) => {
-      if (signer) {
-        count++;
-      }
-    });
-    return count;
+    if (connection.chain === "sol") {
+      let count = 0;
+      transaction.account.signers.forEach((signer) => {
+        if (signer) {
+          count++;
+        }
+      });
+      return count;
+    } else {
+      return transaction.account.threshold;
+    }
   };
-  const isSigner = () => {
-    const index = wallet.accounts.findIndex(
-      (acc) =>
-        acc.toString() === connection.provider.wallet.publicKey.toString()
-    );
-    return transaction.account.signers[index];
+  const isSigner = async () => {
+    if (connection.chain === "sol") {
+      const index = wallet.accounts.findIndex(
+        (acc) =>
+          acc.toString() === connection.provider.wallet.publicKey.toString()
+      );
+      return transaction.account.signers[index];
+    } else {
+      const data = await evm.walletContract.isApprovedBySender(
+        transaction.account.index
+      );
+      console.log(data);
+      return data;
+    }
   };
   return (
     <Card
@@ -142,7 +154,7 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
           <div className="flex flex-row gap-6 items-center min-w-80">
             <div className="flex flex-row">
               <span className="text-white mr-2 font-semibold">
-                {matches ? 'Required Signers' : ''}
+                {matches ? "Required Signers" : ""}
               </span>
               <div className="f-full bg-slate-100 roudned w-12 text-center text-purple-900 font-bold">
                 {countSigners()}/{threshold}

@@ -25,6 +25,7 @@
       - [Run Tests](#run-tests-1)
       - [Deploy contracts on localhost](#deploy-contracts-on-localhost)
       - [Deploy mock data on localhost](#deploy-mock-data-on-localhost)
+      - [Clear artifiacts and cache](#clear-artifiacts-and-cache)
     - [Frontend](#frontend)
       - [Serve frontend](#serve-frontend)
       - [Build frontend](#build-frontend)
@@ -160,6 +161,12 @@ nx run evm:deploy
 
 ```
 nx run evm:mock
+```
+
+#### Clear artifiacts and cache
+
+```
+nx run evm:clean
 ```
 
 ### Frontend

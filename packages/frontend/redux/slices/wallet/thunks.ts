@@ -1,6 +1,7 @@
 import { AnchorError, BN, web3 } from "@project-serum/anchor";
 import { bindActionCreators, createAsyncThunk } from "@reduxjs/toolkit";
 import { PublicKey, SystemProgram } from "@solana/web3.js";
+import { parseTransaction } from "../../../utils/parseTransaction";
 import { toast } from "react-toastify";
 import { ReduxState } from "..";
 
@@ -93,10 +94,19 @@ export const loadTransactions = createAsyncThunk(
             }),
         };
       } else {
+        const data = await state.evm.walletContract.getTransactions();
+        console.log(data);
+        console.log(data);
         return {
-          peding: [],
-          completed: [],
-          deleted: [],
+          peding: data
+            .filter((tx) => tx.didExecute === false && tx.isDeleted === false)
+            .map((tx) => parseTransaction(tx)),
+          completed: data
+            .filter((tx) => tx.didExecute === true && tx.isDeleted === false)
+            .map((tx) => parseTransaction(tx)),
+          deleted: data
+            .filter((tx) => tx.isDeleted === true)
+            .map((tx) => parseTransaction(tx)),
         };
       }
     } catch (err) {
@@ -108,19 +118,28 @@ export const loadTransactions = createAsyncThunk(
 );
 interface IapproveTransaction {
   transactionPublicKey: PublicKey;
+  index?: number;
 }
 export const approveTransaction = createAsyncThunk(
   "payload/approveTransaction",
   async (args: IapproveTransaction, thunkAPI) => {
     const state = thunkAPI.getState() as ReduxState;
     try {
-      const tx = await state.connection.program.rpc.approve({
-        accounts: {
-          wallet: new PublicKey(state.connection.msig),
-          transaction: args.transactionPublicKey,
-          owner: state.connection.provider.wallet.publicKey,
-        },
-      });
+      if (state.connection.chain === "sol") {
+        const tx = await state.connection.program.rpc.approve({
+          accounts: {
+            wallet: new PublicKey(state.connection.msig),
+            transaction: args.transactionPublicKey,
+            owner: state.connection.provider.wallet.publicKey,
+          },
+        });
+      } else {
+        const tx = await state.evm.walletContract.approveTransaction(
+          args.index
+        );
+
+        const receipt = await tx.wait();
+      }
       toast.success("Transaction approved");
     } catch (err) {
       if (err instanceof AnchorError) {
@@ -139,13 +158,18 @@ export const cancelTransactionApproval = createAsyncThunk(
   async (args: IapproveTransaction, thunkAPI) => {
     const state = thunkAPI.getState() as ReduxState;
     try {
-      const tx = await state.connection.program.rpc.cancelApproval({
-        accounts: {
-          wallet: new PublicKey(state.connection.msig),
-          transaction: args.transactionPublicKey,
-          owner: state.connection.provider.wallet.publicKey,
-        },
-      });
+      if (state.connection.chain === "sol") {
+        const tx = await state.connection.program.rpc.cancelApproval({
+          accounts: {
+            wallet: new PublicKey(state.connection.msig),
+            transaction: args.transactionPublicKey,
+            owner: state.connection.provider.wallet.publicKey,
+          },
+        });
+      } else {
+        const tx = await state.evm.walletContract.revokeApproval(args.index);
+        const receipt = await tx.wait();
+      }
       toast.success("Approval revoked");
     } catch (err) {
       if (err instanceof AnchorError) {
@@ -164,13 +188,18 @@ export const deleteTransaction = createAsyncThunk(
   async (args: IapproveTransaction, thunkAPI) => {
     const state = thunkAPI.getState() as ReduxState;
     try {
-      const tx = await state.connection.program.rpc.deleteTransaction({
-        accounts: {
-          wallet: new PublicKey(state.connection.msig),
-          transaction: args.transactionPublicKey,
-          owner: state.connection.provider.wallet.publicKey,
-        },
-      });
+      if (state.connection.chain === "sol") {
+        const tx = await state.connection.program.rpc.deleteTransaction({
+          accounts: {
+            wallet: new PublicKey(state.connection.msig),
+            transaction: args.transactionPublicKey,
+            owner: state.connection.provider.wallet.publicKey,
+          },
+        });
+      } else {
+        const tx = await state.evm.walletContract.deleteTransaction(args.index);
+        const receipt = await tx.wait();
+      }
       toast.success("Transaction deleted");
     } catch (err) {
       if (err instanceof AnchorError) {
@@ -187,43 +216,50 @@ export const deleteTransaction = createAsyncThunk(
 
 interface IexecuteTransaction {
   transactionPublicKey: PublicKey;
+  index?: number;
 }
 export const executeTransaction = createAsyncThunk(
   "payload/executeTransaction",
   async (args: IexecuteTransaction, thunkAPI) => {
     const state = thunkAPI.getState() as ReduxState;
-    const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
-      [new PublicKey(state.connection.msig).toBuffer()],
-      state.connection.program.programId
-    );
 
     try {
-      await state.connection.program.rpc.executeTransaction({
-        accounts: {
-          wallet: new PublicKey(state.connection.msig),
-          walletSigner,
-          transaction: args.transactionPublicKey,
-        },
-        remainingAccounts: state.connection.program.instruction.setOwners
-          .accounts({
+      if (state.connection.chain === "sol") {
+        const [walletSigner, nonce] = await web3.PublicKey.findProgramAddress(
+          [new PublicKey(state.connection.msig).toBuffer()],
+          state.connection.program.programId
+        );
+        await state.connection.program.rpc.executeTransaction({
+          accounts: {
             wallet: new PublicKey(state.connection.msig),
             walletSigner,
-          })
+            transaction: args.transactionPublicKey,
+          },
+          remainingAccounts: state.connection.program.instruction.setOwners
+            .accounts({
+              wallet: new PublicKey(state.connection.msig),
+              walletSigner,
+            })
 
-          //eslint-disable-next-line
-          // @ts-ignore
-          .map((meta) =>
-            meta.pubkey.equals(walletSigner)
-              ? { ...meta, isSigner: false }
-              : meta
-          )
-          .concat({
-            pubkey: state.connection.program.programId,
-            isWritable: false,
-            isSigner: false,
-          }),
-      });
-
+            //eslint-disable-next-line
+            // @ts-ignore
+            .map((meta) =>
+              meta.pubkey.equals(walletSigner)
+                ? { ...meta, isSigner: false }
+                : meta
+            )
+            .concat({
+              pubkey: state.connection.program.programId,
+              isWritable: false,
+              isSigner: false,
+            }),
+        });
+      } else {
+        const tx = await state.evm.walletContract.executeTransaction(
+          args.index
+        );
+        const receipt = await tx.wait();
+      }
       toast.success("Transaction executed");
     } catch (err) {
       if (err instanceof AnchorError) {
