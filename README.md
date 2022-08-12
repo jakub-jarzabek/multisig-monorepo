@@ -32,6 +32,9 @@ Implementation of Multisignature Wallet for solana blockchain. Multichain variat
 
 Live Preview is available at (Contract deployed on Devnet) [Live Preview](https://multisig-monorepo.vercel.app 'Live Preview')
 
+Live Preview with multichain functionallity is available at (Solana contract deployed on Devnet and etehreum on goerli) [Live Multichain Preview](https://multisig-monorepo-git-dev-jakub-jarzabek.vercel.app 'Live Preview')
+
+
 ### Wallet Account Selection
 
 ![Wallet Selection](/preview/wallet_select.png?raw=true 'Walllet Selection')
