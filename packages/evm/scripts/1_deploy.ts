@@ -2,7 +2,6 @@ import { ethers, network } from "hardhat";
 import path from "path";
 import fs from "fs";
 // eslint-disable-next-line
-require("dot-env").config({ path: __dirname + "../../../.env" });
 
 interface IContent {
   Factory: string;
