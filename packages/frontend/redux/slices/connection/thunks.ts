@@ -51,9 +51,9 @@ export const createWallet = createAsyncThunk(
           1
         );
         const receipt = await tx.wait();
-        const wallets = await state.evm.factory.getUserWallets()
-        console.log(wallets)
-        return wallets[wallets.length-1].walletAddress.toString()
+        const wallets = await state.evm.factory.getUserWallets();
+        console.log(wallets);
+        return wallets[wallets.length - 1].walletAddress.toString();
       }
     } catch (err) {
       if (err instanceof AnchorError) {
@@ -106,12 +106,13 @@ export const logInToWallet = createAsyncThunk(
 );
 
 interface IsetOwners extends IcreateWallet {
-  signer: PublicKey;
+  signer?: PublicKey;
 }
 export const setOwners = createAsyncThunk(
   "payload/setOwners",
   async (args: IsetOwners, thunkAPI) => {
     const state = thunkAPI.getState() as ReduxState;
+    console.log(onclick);
     try {
       if (state.connection.chain === "sol") {
         const pK = state.connection.provider.publicKey as PublicKey;
@@ -163,6 +164,7 @@ export const setOwners = createAsyncThunk(
       } else {
         const threshold = 0;
         const owners = args.additionalAccounts as string[];
+        console.log(owners);
         const value = 0;
         const data = "0x";
         const to = state.evm.walletContract.address;
@@ -267,7 +269,7 @@ export const setTreshold = createAsyncThunk(
 );
 
 interface ITransfer {
-  to: PublicKey|string;
+  to: PublicKey | string;
   amount: number;
 }
 

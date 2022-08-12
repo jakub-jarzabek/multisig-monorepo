@@ -252,6 +252,9 @@ contract Multisig {
     }
 
     function setOwners(address[] memory _owners) internal onlyOwner {
+        for (uint256 i = 0; i < owners.length; i++) {
+            isOwner[owners[i]] = false;
+        }
         delete owners;
         if (_owners.length == 0) {
             revert Multisig__Not_Enough_Owners();
@@ -327,7 +330,8 @@ contract MultisigFactory {
     );
 
     function createMultiSig(address[] memory _owners, uint256 _threshold)
-        public returns(Multisig)
+        public
+        returns (Multisig)
     {
         Multisig newWalletInstance = new Multisig(_owners, _threshold);
         multisigInstances.push(newWalletInstance);

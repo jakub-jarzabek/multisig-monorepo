@@ -53,21 +53,19 @@ export const MainPanel = () => {
         })
       );
     } else {
-      setOwners({
-        additionalAccounts: accounts,
-        signer: provider.wallet.publicKey,
-      });
+      await dispatch(
+        setOwners({
+          additionalAccounts: accounts,
+        })
+      );
     }
   };
   const handleSendTokens = async () => {
     if (typeof amount === "number") {
-
-    if(connection.chain==='sol'){
-
-      await dispatch(transfer({ to: new PublicKey(receiver), amount }));
-    }else{
-
-      await dispatch(transfer({ to: receiver, amount }));
+      if (connection.chain === "sol") {
+        await dispatch(transfer({ to: new PublicKey(receiver), amount }));
+      } else {
+        await dispatch(transfer({ to: receiver, amount }));
       }
     } else {
       toast.error("Please enter a number");

@@ -14,7 +14,7 @@ import { useRouter } from "next/router";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { BiRefresh } from "react-icons/bi";
 import { AiOutlinePoweroff } from "react-icons/ai";
-import { useSubscriveEvents } from "../../hooks";
+import { useSubscribeSolEvents, useSubscribeEvmEvents } from "../../hooks";
 
 const Dashboard = () => {
   const { connection, evm } = useSelector<RootState, ReduxState>(
@@ -36,7 +36,12 @@ const Dashboard = () => {
     dispatch(loadTransactions());
   };
 
-  useSubscriveEvents(reloadData, wallet);
+  useSubscribeSolEvents(reloadData, wallet, connection.chain === "sol");
+  useSubscribeEvmEvents(
+    reloadData,
+    evm.walletContract,
+    connection.chain === "eth"
+  );
 
   useEffect(() => {
     if (
