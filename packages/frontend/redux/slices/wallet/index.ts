@@ -1,12 +1,12 @@
-import { BN } from '@project-serum/anchor';
-import { createSlice } from '@reduxjs/toolkit';
+import { BN } from "@project-serum/anchor";
+import { createSlice } from "@reduxjs/toolkit";
 import {
   loadWalletData,
   loadTransactions,
   ITransferTx,
   executeTransaction,
   executeTransferTransaction,
-} from './thunks';
+} from "./thunks";
 
 export interface IWalletSlice {
   accounts: BN[];
@@ -37,9 +37,19 @@ const initialState: IWalletSlice = {
 };
 
 const walletSlice = createSlice({
-  name: 'wallet',
+  name: "wallet",
   initialState,
-  reducers: {},
+  reducers: {
+    resetState: (state) => {
+      state.accounts = null;
+      state.balance = null;
+      state.threshold = null;
+      state.ownerSeq = null;
+      state.transactions.peding = null;
+      state.transactions.completed = null;
+      state.transactions.deleted = null;
+    },
+  },
   extraReducers: (builder) => {
     builder.addCase(loadWalletData.fulfilled, (state, action) => {
       state.accounts = action.payload.accounts;
@@ -75,6 +85,7 @@ const walletSlice = createSlice({
   },
 });
 
-export const Wallet = {};
+const { resetState } = walletSlice.actions;
+export const Wallet = { resetState };
 export default walletSlice.reducer;
-export * from './thunks';
+export * from "./thunks";

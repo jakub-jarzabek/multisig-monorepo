@@ -2,11 +2,14 @@ import { ethers, network } from "hardhat";
 import path from "path";
 import fs from "fs";
 // eslint-disable-next-line
+import hre from "hardhat";
 
 interface IContent {
   Factory: string;
+  "Factory-prod": string;
 }
 async function main() {
+  const networkName = hre.network.name;
   const content = JSON.parse(
     fs.readFileSync(
       path.resolve("../frontend/evm-config/ethereum.json"),
@@ -17,7 +20,13 @@ async function main() {
   const Factory = await ethers.getContractFactory("MultisigFactory");
   const tx = await Factory.deploy();
   console.log(tx.address);
-  content.Factory = tx.address;
+  if (network.name === "goerli") {
+    console.log("Deploying to goerli");
+    content["Factory-prod"] = tx.address;
+  } else {
+    console.log("Deploying to localhost");
+    content.Factory = tx.address;
+  }
   fs.writeFileSync(
     path.resolve("../frontend/evm-config/ethereum.json"),
     JSON.stringify(content)

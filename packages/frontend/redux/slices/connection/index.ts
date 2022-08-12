@@ -36,7 +36,7 @@ const initialState: IConnectionSlice = {
   web3: null,
   myWallets: null,
   loading: false,
-  chain: "eth",
+  chain: "sol",
   account: null,
 };
 interface IsetProviderPayload {
@@ -46,6 +46,15 @@ const connectionSlice = createSlice({
   name: "connection",
   initialState,
   reducers: {
+    resetState: (state, action: PayloadAction<"sol" | "eth">) => {
+      state.program = null;
+      state.provider = null;
+      state.msig = null;
+      state.web3 = null;
+      state.myWallets = null;
+      state.loading = false;
+      state.chain = action.payload;
+    },
     setProviderAndProgram(state, action: PayloadAction<IsetProviderPayload>) {
       if (state.chain === "sol") {
         const connection = new Web3Connection(
@@ -126,9 +135,16 @@ const connectionSlice = createSlice({
   },
 });
 
-const { setProviderAndProgram, setWallet, clearMsig, setChain, setAccount } =
-  connectionSlice.actions;
+const {
+  setProviderAndProgram,
+  setWallet,
+  clearMsig,
+  setChain,
+  setAccount,
+  resetState,
+} = connectionSlice.actions;
 export const Connection = {
+  resetState,
   setProviderAndProgram,
   setWallet,
   clearMsig,

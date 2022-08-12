@@ -30,6 +30,12 @@ const evmSlice = createSlice({
   name: "evm",
   initialState,
   reducers: {
+    resetState: (state) => {
+      state.factory = null;
+      state.provider = null;
+      state.wallet = null;
+      state.walletContract = null;
+    },
     setProviderAndDB(state) {
       let provider;
       if (typeof window !== "undefined") {
@@ -37,8 +43,12 @@ const evmSlice = createSlice({
           window?.ethereum
         );
         const signer = provider.getSigner();
+        const factoryAddress =
+          process.env.PROD === "true"
+            ? MultisigAddresses["Factory-prod"]
+            : MultisigAddresses.Factory;
         const contract = new Moralis.web3Library.Contract(
-          MultisigAddresses.Factory,
+          factoryAddress,
           MultisigFactory.abi,
           signer
         ) as unknown;
@@ -63,6 +73,12 @@ const evmSlice = createSlice({
   },
 });
 
-const { setProviderAndDB, setWallet, setWalletContract } = evmSlice.actions;
-export const Evm = { setProviderAndDB, setWallet, setWalletContract };
+const { setProviderAndDB, setWallet, setWalletContract, resetState } =
+  evmSlice.actions;
+export const Evm = {
+  setProviderAndDB,
+  setWallet,
+  setWalletContract,
+  resetState,
+};
 export default evmSlice.reducer;
