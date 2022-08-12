@@ -111,7 +111,7 @@ contract Multisig {
         threshold = _threshold;
     }
 
-    function deposit() public payable {
+    receive() external payable {
         emit Deposit(msg.sender, msg.value, address(this).balance);
     }
 

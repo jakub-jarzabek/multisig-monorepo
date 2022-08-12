@@ -9,7 +9,6 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -81,7 +80,6 @@ export interface MultisigInterface extends utils.Interface {
     "addTransaction(address,uint256,bytes,address[],uint256,uint8)": FunctionFragment;
     "approveTransaction(uint256)": FunctionFragment;
     "deleteTransaction(uint256)": FunctionFragment;
-    "deposit()": FunctionFragment;
     "executeTransaction(uint256)": FunctionFragment;
     "getOwners()": FunctionFragment;
     "getTransaction(uint256)": FunctionFragment;
@@ -101,7 +99,6 @@ export interface MultisigInterface extends utils.Interface {
       | "addTransaction"
       | "approveTransaction"
       | "deleteTransaction"
-      | "deposit"
       | "executeTransaction"
       | "getOwners"
       | "getTransaction"
@@ -135,7 +132,6 @@ export interface MultisigInterface extends utils.Interface {
     functionFragment: "deleteTransaction",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
-  encodeFunctionData(functionFragment: "deposit", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "executeTransaction",
     values: [PromiseOrValue<BigNumberish>]
@@ -191,7 +187,6 @@ export interface MultisigInterface extends utils.Interface {
     functionFragment: "deleteTransaction",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "executeTransaction",
     data: BytesLike
@@ -368,10 +363,6 @@ export interface Multisig extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    deposit(
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     executeTransaction(
       _txIndex: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -476,10 +467,6 @@ export interface Multisig extends BaseContract {
   deleteTransaction(
     _txIndex: PromiseOrValue<BigNumberish>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  deposit(
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   executeTransaction(
@@ -587,8 +574,6 @@ export interface Multisig extends BaseContract {
       _txIndex: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    deposit(overrides?: CallOverrides): Promise<void>;
 
     executeTransaction(
       _txIndex: PromiseOrValue<BigNumberish>,
@@ -763,10 +748,6 @@ export interface Multisig extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    deposit(
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     executeTransaction(
       _txIndex: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -836,10 +817,6 @@ export interface Multisig extends BaseContract {
     deleteTransaction(
       _txIndex: PromiseOrValue<BigNumberish>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    deposit(
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     executeTransaction(
