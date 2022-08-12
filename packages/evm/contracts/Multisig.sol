@@ -13,49 +13,55 @@ error Multisig__Invalid_Owner();
 error Multisig__Owners_Must_Be_Unique();
 error Multisig__Tx_Execution_Failed();
 error Multisig__Write_To_DB_Failed();
+error Multisig__Cannot_Execute_Deleted_Transaction();
+error Multisig__Transaction_Already_Deleted();
+error Multisig__Cannot_Delete_Signed_Transaction();
 
 contract Multisig {
+    enum TransactionType {
+        SET_OWNERS,
+        SET_THRESHOLD,
+        TRANSFER,
+        EXTERNAL
+    }
     event Deposit(address indexed sender, uint256 value, uint256 balance);
     event NewTransaction(
         address indexed owner,
         uint256 indexed txIndex,
         address indexed to,
         uint256 value,
-        bytes data
+        bytes data,
+        TransactionType txType
     );
-    event NewInternalTransaction(
-        address indexed owner,
-        uint256 indexed txIndex,
-        address[] owners,
-        uint256 threshold
-    );
+
     event ApproveTransaction(address indexed owner, uint256 indexed txIndex);
+    event DeleteTransaction(address indexed owner, uint256 indexed txIndex);
     event UnApproveTransaction(address indexed owner, uint256 indexed txIndex);
     event ExecuteTransaction(address indexed owner, uint256 indexed txIndex);
 
     address[] public owners;
     mapping(address => bool) public isOwner;
     uint256 public threshold;
+    address DBAddress;
 
     struct Tx {
+        uint256 createdAt;
+        bytes32 txHash;
+        uint256 index;
         address to;
         uint256 value;
         bytes data;
         bool didExecute;
-        uint256 confirmationsCount;
-    }
-    struct InternalTx {
+        bool isDeleted;
+        address[] signers;
         address[] owners;
         uint256 threshold;
-        bool didExecute;
+        TransactionType txType;
         uint256 confirmationsCount;
     }
 
     Tx[] public transactions;
-    InternalTx[] public internalTransactions;
     mapping(uint256 => mapping(address => bool)) public isApprovedByOwner;
-    mapping(uint256 => mapping(address => bool))
-        public isInternalApprovedByOwner;
 
     modifier onlyOwner() {
         if (!isOwner[msg.sender]) {
@@ -82,11 +88,7 @@ contract Multisig {
         _;
     }
 
-    constructor(
-        address[] memory _owners,
-        uint256 _threshold,
-        address DBAddress
-    ) {
+    constructor(address[] memory _owners, uint256 _threshold) {
         if (_owners.length == 0) {
             revert Multisig__Not_Enough_Owners();
         }
@@ -104,62 +106,44 @@ contract Multisig {
             }
             isOwner[owner] = true;
             owners.push(owner);
-            bytes memory data = abi.encodeWithSignature(
-                "setWallet(address,address)",
-                owner,
-                address(this)
-            );
-
-            (bool success, ) = DBAddress.call{value: 0}(data);
-
-            if (!success) {
-                revert Multisig__Write_To_DB_Failed();
-            }
         }
 
         threshold = _threshold;
     }
 
-    function deposit() external payable {
+    function deposit() public payable {
         emit Deposit(msg.sender, msg.value, address(this).balance);
     }
 
     function addTransaction(
         address _to,
         uint256 _value,
-        bytes memory _data
+        bytes memory _data,
+        address[] memory _owners,
+        uint256 _threshold,
+        TransactionType _txType
     ) public onlyOwner {
         uint256 txIndex = transactions.length;
 
         transactions.push(
             Tx({
+                createdAt: block.timestamp,
+                txHash: keccak256(abi.encodePacked(txIndex, block.timestamp)),
+                index: txIndex,
                 to: _to,
                 value: _value,
                 data: _data,
                 didExecute: false,
-                confirmationsCount: 0
-            })
-        );
-
-        emit NewTransaction(msg.sender, txIndex, _to, _value, _data);
-    }
-
-    function addInternalTransaction(
-        address[] memory _owners,
-        uint256 _threshold
-    ) public onlyOwner {
-        uint256 txIndex = internalTransactions.length;
-
-        internalTransactions.push(
-            InternalTx({
+                isDeleted: false,
                 owners: _owners,
                 threshold: _threshold,
-                didExecute: false,
-                confirmationsCount: 0
+                txType: _txType,
+                confirmationsCount: 0,
+                signers: new address[](0)
             })
         );
 
-        emit NewInternalTransaction(msg.sender, txIndex, owners, threshold);
+        emit NewTransaction(msg.sender, txIndex, _to, _value, _data, _txType);
     }
 
     function approveTransaction(uint256 _txIndex)
@@ -172,6 +156,7 @@ contract Multisig {
         Tx storage transaction = transactions[_txIndex];
         transaction.confirmationsCount += 1;
         isApprovedByOwner[_txIndex][msg.sender] = true;
+        transaction.signers.push(msg.sender);
 
         emit ApproveTransaction(msg.sender, _txIndex);
     }
@@ -190,40 +175,34 @@ contract Multisig {
 
         transaction.confirmationsCount -= 1;
         isApprovedByOwner[_txIndex][msg.sender] = false;
-
-        emit UnApproveTransaction(msg.sender, _txIndex);
-    }
-
-    function approveInternalTransaction(uint256 _txIndex)
-        public
-        onlyOwner
-        txExists(_txIndex)
-        notExecuted(_txIndex)
-        notConfirmed(_txIndex)
-    {
-        InternalTx storage transaction = internalTransactions[_txIndex];
-        transaction.confirmationsCount += 1;
-        isInternalApprovedByOwner[_txIndex][msg.sender] = true;
-
-        emit ApproveTransaction(msg.sender, _txIndex);
-    }
-
-    function revokeInternalApproval(uint256 _txIndex)
-        public
-        onlyOwner
-        txExists(_txIndex)
-        notExecuted(_txIndex)
-    {
-        InternalTx storage transaction = internalTransactions[_txIndex];
-
-        if (!isApprovedByOwner[_txIndex][msg.sender]) {
-            revert Multisig__Tx_Not_Approved();
+        for (uint256 i = 0; i <= transaction.signers.length; i++) {
+            if (transaction.signers[i] == msg.sender) {
+                delete transaction.signers[i];
+                break;
+            }
         }
 
-        transaction.confirmationsCount -= 1;
-        isInternalApprovedByOwner[_txIndex][msg.sender] = false;
-
         emit UnApproveTransaction(msg.sender, _txIndex);
+    }
+
+    function deleteTransaction(uint256 _txIndex)
+        public
+        onlyOwner
+        txExists(_txIndex)
+        notExecuted(_txIndex)
+    {
+        Tx storage transaction = transactions[_txIndex];
+
+        if (transaction.isDeleted) {
+            revert Multisig__Transaction_Already_Deleted();
+        }
+        if (transaction.confirmationsCount != 0) {
+            revert Multisig__Cannot_Delete_Signed_Transaction();
+        }
+
+        transaction.isDeleted = true;
+
+        emit DeleteTransaction(msg.sender, _txIndex);
     }
 
     function executeTransaction(uint256 _txIndex)
@@ -237,34 +216,30 @@ contract Multisig {
         if (transaction.confirmationsCount < threshold) {
             revert Multisig__Not_Enough_Signers();
         }
-
-        transaction.didExecute = true;
-
-        (bool success, ) = transaction.to.call{value: transaction.value}(
-            transaction.data
-        );
-        if (!success) {
-            revert Multisig__Tx_Execution_Failed();
-        }
-
-        emit ExecuteTransaction(msg.sender, _txIndex);
-    }
-
-    function executeInternalTransaction(uint256 _txIndex)
-        public
-        onlyOwner
-        txExists(_txIndex)
-        notExecuted(_txIndex)
-    {
-        InternalTx storage transaction = internalTransactions[_txIndex];
-
-        if (transaction.confirmationsCount < threshold) {
-            revert Multisig__Not_Enough_Signers();
+        if (transaction.isDeleted) {
+            revert Multisig__Cannot_Execute_Deleted_Transaction();
         }
 
         transaction.didExecute = true;
-        setThreshold(transaction.threshold);
-        setOwners(transaction.owners);
+        if (transaction.txType == TransactionType.EXTERNAL) {
+            (bool success, ) = transaction.to.call{value: transaction.value}(
+                transaction.data
+            );
+
+            if (!success) {
+                revert Multisig__Tx_Execution_Failed();
+            }
+        }
+
+        if (transaction.txType == TransactionType.SET_OWNERS) {
+            setOwners(transaction.owners);
+        }
+        if (transaction.txType == TransactionType.SET_THRESHOLD) {
+            setThreshold(transaction.threshold);
+        }
+        if (transaction.txType == TransactionType.TRANSFER) {
+            payable(transaction.to).transfer(transaction.value);
+        }
 
         emit ExecuteTransaction(msg.sender, _txIndex);
     }
@@ -277,6 +252,9 @@ contract Multisig {
     }
 
     function setOwners(address[] memory _owners) internal onlyOwner {
+        for (uint256 i = 0; i < owners.length; i++) {
+            isOwner[owners[i]] = false;
+        }
         delete owners;
         if (_owners.length == 0) {
             revert Multisig__Not_Enough_Owners();
@@ -303,10 +281,6 @@ contract Multisig {
         return transactions.length;
     }
 
-    function testCall() public pure returns (bytes memory) {
-        return abi.encodeWithSignature("notExist()");
-    }
-
     function getTransaction(uint256 _txIndex)
         public
         view
@@ -327,5 +301,59 @@ contract Multisig {
             transaction.didExecute,
             transaction.confirmationsCount
         );
+    }
+
+    function isApprovedBySender(uint256 index) public view returns (bool) {
+        return isApprovedByOwner[index][msg.sender];
+    }
+
+    function getTransactions() public view returns (Tx[] memory) {
+        return transactions;
+    }
+}
+
+contract MultisigFactory {
+    struct UserWallets {
+        address walletAddress;
+        uint256 walletID;
+    }
+
+    uint256 id = 0;
+    UserWallets[] public wallets;
+    Multisig[] public multisigInstances;
+
+    mapping(address => UserWallets[]) userWallet;
+    event multisigInstanceCreated(
+        uint256 date,
+        address walletOwner,
+        address multiSigAddress
+    );
+
+    function createMultiSig(address[] memory _owners, uint256 _threshold)
+        public
+        returns (Multisig)
+    {
+        Multisig newWalletInstance = new Multisig(_owners, _threshold);
+        multisigInstances.push(newWalletInstance);
+
+        for (uint256 i = 0; i < _owners.length; i++) {
+            UserWallets[] storage newWallet = userWallet[_owners[i]];
+            newWallet.push(UserWallets(address(newWalletInstance), id));
+        }
+        emit multisigInstanceCreated(
+            block.timestamp,
+            msg.sender,
+            address(newWalletInstance)
+        );
+        id++;
+        return newWalletInstance;
+    }
+
+    function getUserWallets()
+        public
+        view
+        returns (UserWallets[] memory walets)
+    {
+        return userWallet[msg.sender];
     }
 }

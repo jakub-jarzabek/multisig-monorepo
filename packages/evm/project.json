@@ -15,6 +15,18 @@
         "command": "cd packages/evm && npx hardhat run scripts/1_deploy.ts --network localhost"
       }
     },
+    "deploy-goerli": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd packages/evm && npx hardhat run scripts/1_deploy.ts --network goerli"
+      }
+    },
+    "mock": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd packages/evm && npx hardhat run scripts/2_populateData.ts --network localhost"
+      }
+    },
     "test": {
       "executor": "nx:run-commands",
       "options": {
@@ -25,6 +37,12 @@
       "executor": "nx:run-commands",
       "options": {
         "command": "cd packages/evm && npx hardhat compile"
+      }
+    },
+    "clean": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cd packages/evm && npx hardhat clean"
       }
     }
   },

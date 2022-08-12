@@ -1,14 +1,15 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { AnchorProvider, Program } from '@project-serum/anchor';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { AnchorProvider, Program } from "@project-serum/anchor";
+import Moralis from "moralis-v1";
 import {
   Commitment,
   ConfirmOptions,
   Connection as Web3Connection,
   PublicKey,
-} from '@solana/web3.js';
-import { WalletContextState } from '@solana/wallet-adapter-react';
-import idl from '../../../solana-config/multi_sig_wallet.json';
-import { MultiSigWallet } from '../../../solana-config/multi_sig_wallet';
+} from "@solana/web3.js";
+import { WalletContextState } from "@solana/wallet-adapter-react";
+import idl from "../../../solana-config/multi_sig_wallet.json";
+import { MultiSigWallet } from "../../../solana-config/multi_sig_wallet";
 import {
   createWallet,
   fetchWallet,
@@ -16,7 +17,7 @@ import {
   setOwners,
   setTreshold,
   transfer,
-} from './thunks';
+} from "./thunks";
 export interface IConnectionSlice {
   provider: AnchorProvider;
   program: Program<MultiSigWallet>;
@@ -24,6 +25,8 @@ export interface IConnectionSlice {
   web3: Web3Connection;
   myWallets: string[];
   loading: boolean;
+  chain: "sol" | "eth";
+  account?: string;
 }
 
 const initialState: IConnectionSlice = {
@@ -33,34 +36,46 @@ const initialState: IConnectionSlice = {
   web3: null,
   myWallets: null,
   loading: false,
+  chain: "eth",
+  account: null,
 };
 interface IsetProviderPayload {
-  wallet: WalletContextState;
+  wallet: WalletContextState | any;
 }
 const connectionSlice = createSlice({
-  name: 'connection',
+  name: "connection",
   initialState,
   reducers: {
     setProviderAndProgram(state, action: PayloadAction<IsetProviderPayload>) {
-      const connection = new Web3Connection(
-        process.env.NEXT_PUBLIC_NETWORK,
-        process.env.NEXT_PUBLIC_COMMITMENT as Commitment
-      );
-      state.web3 = connection;
-      state.provider = new AnchorProvider(
-        connection,
-        action.payload.wallet,
-        process.env.NEXT_PUBLIC_COMMITMENT as ConfirmOptions
-      );
-      const programID = new PublicKey(idl.metadata.address);
-      state.program = new Program(
-        JSON.parse(JSON.stringify(idl)),
-        programID,
-        state.provider
-      ) as Program<MultiSigWallet>;
+      if (state.chain === "sol") {
+        const connection = new Web3Connection(
+          process.env.NEXT_PUBLIC_NETWORK,
+          process.env.NEXT_PUBLIC_COMMITMENT as Commitment
+        );
+        state.web3 = connection;
+        state.provider = new AnchorProvider(
+          connection,
+          action.payload.wallet,
+          process.env.NEXT_PUBLIC_COMMITMENT as ConfirmOptions
+        );
+        const programID = new PublicKey(idl.metadata.address);
+        state.program = new Program(
+          JSON.parse(JSON.stringify(idl)),
+          programID,
+          state.provider
+        ) as Program<MultiSigWallet>;
+      } else {
+        const ethers = Moralis.web3Library;
+      }
     },
     setWallet(state, action: PayloadAction<string>) {
       state.msig = action.payload;
+    },
+    setChain(state, action: PayloadAction<"sol" | "eth">) {
+      state.chain = action.payload;
+    },
+    setAccount(state, action: PayloadAction<string>) {
+      state.account = action.payload;
     },
     clearMsig(state) {
       state.msig = null;
@@ -111,7 +126,14 @@ const connectionSlice = createSlice({
   },
 });
 
-const { setProviderAndProgram, setWallet, clearMsig } = connectionSlice.actions;
-export const Connection = { setProviderAndProgram, setWallet, clearMsig };
+const { setProviderAndProgram, setWallet, clearMsig, setChain, setAccount } =
+  connectionSlice.actions;
+export const Connection = {
+  setProviderAndProgram,
+  setWallet,
+  clearMsig,
+  setChain,
+  setAccount,
+};
 export default connectionSlice.reducer;
-export * from './thunks';
+export * from "./thunks";

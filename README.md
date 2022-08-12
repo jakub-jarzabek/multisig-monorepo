@@ -23,7 +23,9 @@
       - [Start node](#start-node)
       - [Compile Contracts](#compile-contracts)
       - [Run Tests](#run-tests-1)
-      - [Deplot contracts](#deplot-contracts)
+      - [Deploy contracts on localhost](#deploy-contracts-on-localhost)
+      - [Deploy mock data on localhost](#deploy-mock-data-on-localhost)
+      - [Clear artifiacts and cache](#clear-artifiacts-and-cache)
     - [Frontend](#frontend)
       - [Serve frontend](#serve-frontend)
       - [Build frontend](#build-frontend)
@@ -37,19 +39,19 @@ Implementation of Multisignature Wallet for solana blockchain. With future multi
 
 ## Preview
 
-Live Preview is available at [Live Preview](https://multisig-monorepo.vercel.app 'Live Preview')
+Live Preview is available at [Live Preview](https://multisig-monorepo.vercel.app "Live Preview")
 
 ### Wallet Account Selection
 
-![Wallet Selection](/preview/wallet_select.png?raw=true 'Walllet Selection')
+![Wallet Selection](/preview/wallet_select.png?raw=true "Walllet Selection")
 
 ### Dashboard
 
-![Preview](/preview/dashboard.png?raw=true 'Dashboard')
+![Preview](/preview/dashboard.png?raw=true "Dashboard")
 
 ### Transactions
 
-![Transactions](/preview/transactions.png?raw=true 'Transactions')
+![Transactions](/preview/transactions.png?raw=true "Transactions")
 
 ## Getting Started
 
@@ -149,10 +151,22 @@ nx run evm:compile
 nx run evm:test
 ```
 
-#### Deplot contracts
+#### Deploy contracts on localhost
 
 ```
 nx run evm:deploy
+```
+
+#### Deploy mock data on localhost
+
+```
+nx run evm:mock
+```
+
+#### Clear artifiacts and cache
+
+```
+nx run evm:clean
 ```
 
 ### Frontend
