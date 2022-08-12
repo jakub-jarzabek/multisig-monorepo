@@ -25,12 +25,12 @@
 
 ## Description
 
-Implementation of Multisignature Wallet for solana blockchain. With future multichain impelmentation planned.
-##Preview
+Implementation of Multisignature Wallet for solana blockchain. Multichain variation with evm compatibility is available on `dev branch`, multichain version might be unstable atm.
+
 
 ## Preview
 
-Live Preview is available at [Live Preview](https://multisig-monorepo.vercel.app 'Live Preview')
+Live Preview is available at (Contract deployed on Devnet) [Live Preview](https://multisig-monorepo.vercel.app 'Live Preview')
 
 ### Wallet Account Selection
 
