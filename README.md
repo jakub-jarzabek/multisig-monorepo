@@ -187,10 +187,13 @@ nx run build
 
 Required Environment Values are shown in `env.example` file
 
-| ENV                    | Description                   | Example Values        |
-| ---------------------- | ----------------------------- | --------------------- |
-| NEXT_PUBLIC_NETWORK    | Address to blockchain network | http://127.0.0.1:8899 |
-| NEXT_PUBLIC_COMMITMENT | Connection commitment         | processed             |
+| ENV                    | Description                                          | Example Values        |
+| ---------------------- | ---------------------------------------------------- | --------------------- |
+| NEXT_PUBLIC_NETWORK    | Address to blockchain network                        | http://127.0.0.1:8899 |
+| NEXT_PUBLIC_COMMITMENT | Connection commitment                                | processed             |
+| NEXT_PUBLIC_PROD       | Defines wchich blockchain to use goerli or localhost | true                  |
+| PRIVATE_KEY            | Deployer private key                                 | 111                   |
+| ALCHEMY_API_KEY        | Alchemy key for contract deployment                  | 111                   |
 
 ## Project structure
 
