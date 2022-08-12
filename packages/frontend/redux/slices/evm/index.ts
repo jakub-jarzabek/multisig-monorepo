@@ -44,7 +44,7 @@ const evmSlice = createSlice({
         );
         const signer = provider.getSigner();
         const factoryAddress =
-          process.env.PROD === "true"
+          process.env.NX_PUBLIC_PROD === "true"
             ? MultisigAddresses["Factory-prod"]
             : MultisigAddresses.Factory;
         const contract = new Moralis.web3Library.Contract(
