@@ -1,6 +1,8 @@
 import { ethers, network } from "hardhat";
 import path from "path";
 import fs from "fs";
+// eslint-disable-next-line
+require("dot-env").config({ path: __dirname + "../../../.env" });
 
 interface IContent {
   Factory: string;
@@ -15,6 +17,7 @@ async function main() {
 
   const Factory = await ethers.getContractFactory("MultisigFactory");
   const tx = await Factory.deploy();
+  console.log(tx.address);
   content.Factory = tx.address;
   fs.writeFileSync(
     path.resolve("../frontend/evm-config/ethereum.json"),

@@ -1,8 +1,13 @@
-import { HardhatUserConfig } from 'hardhat/config';
-import '@nomicfoundation/hardhat-toolbox';
+import { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-toolbox";
+// eslint-disable-next-line
+require("dot-env").config({ path: __dirname + "../../.env" });
+
+const url = `https://eth-goerli.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY}`;
+const accounts = [process.env.PRIVATE_KEY ?? ""];
 
 const config: HardhatUserConfig = {
-  solidity: '0.8.9',
+  solidity: "0.8.9",
 
   networks: {
     localhost: {
@@ -10,6 +15,10 @@ const config: HardhatUserConfig = {
     },
     hardhat: {
       allowUnlimitedContractSize: true,
+    },
+    goerli: {
+      url,
+      accounts: accounts,
     },
   },
 };
