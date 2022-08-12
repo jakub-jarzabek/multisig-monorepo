@@ -24,8 +24,10 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Loader, Burger } from "../components";
 import { MoralisProvider } from "react-moralis";
+import { useRouter } from "next/router";
 
 function CustomApp({ Component, pageProps }: AppProps) {
+  const router = useRouter();
   const solNetwork = WalletAdapterNetwork.Devnet;
   const endpoint = useMemo(() => clusterApiUrl(solNetwork), [solNetwork]);
   const wallets = useMemo(
@@ -56,7 +58,7 @@ function CustomApp({ Component, pageProps }: AppProps) {
               <WalletProvider wallets={wallets}>
                 <WalletModalProvider>
                   <>
-                    <Burger />
+                    {router.pathname === "/" && <Burger />}
                     <ToastContainer />
                     <Component {...pageProps} />
                     <Loader />
